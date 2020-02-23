@@ -14,4 +14,12 @@ class JDBCDatabaseTest : DatabaseTest() {
 
         Assertions.assertEquals("2020-01-01 12:00:00", rows[0]["created_at"])
     }
+
+    @Test
+    fun shouldAttemptToReconnectIfConnectionIsClosed() {
+        db.getConnection().close()
+        db.select("SELECT * FROM organization")
+
+        Assertions.assertTrue(true)
+    }
 }

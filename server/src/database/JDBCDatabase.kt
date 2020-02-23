@@ -4,19 +4,55 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.sql.SQLException
 import java.sql.Statement
 import java.sql.Timestamp
 
-class JDBCDatabase(private val connection: Connection) : Database {
-    private fun <T> executePrepared(query: String, params: List<Any?>, handler: (PreparedStatement) -> T): T {
-        val stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
-        params.forEachIndexed { idx, p ->
-            stmt.setObject(idx + 1, p)
+class JDBCDatabase(private val resolver: () -> Connection) : Database {
+    private var connection: Connection? = null
+
+    fun getConnection(): Connection {
+        if (connection == null) {
+            connection = resolver()
         }
-        stmt.execute()
-        val out = handler(stmt)
-        stmt.close()
-        return out
+        return connection!!
+    }
+
+    private fun <T> executePrepared(query: String, params: List<Any?>, handler: (PreparedStatement) -> T): T {
+        var attempt = 1
+        var result: T? = null
+
+        while (attempt < MAX_QUERY_ATTEMPTS) {
+            try {
+                val stmt = getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
+                params.forEachIndexed { idx, p ->
+                    stmt.setObject(idx + 1, p)
+                }
+                stmt.execute()
+                result = handler(stmt)
+                stmt.close()
+                break
+            } catch (exception: SQLException) {
+                if (isExceptionCausedByLostConnection(exception) && attempt < MAX_QUERY_ATTEMPTS) {
+                    connection?.close()
+                    connection = null
+                } else {
+                    throw exception
+                }
+            }
+            attempt += 1
+        }
+
+        return result!!
+    }
+
+    // kindly borrowed from https://github.com/laravel/framework/blob/6.x/src/Illuminate/Database/DetectsLostConnections.php
+    private fun isExceptionCausedByLostConnection(exception: SQLException): Boolean {
+        val exceptionMessage = exception.message ?: ""
+
+        return LOST_CONNECTION_MESSAGES.any {
+            exceptionMessage.contains(it)
+        }
     }
 
     private fun getColumnNamesOf(result: ResultSet): List<String> {
@@ -91,6 +127,35 @@ class JDBCDatabase(private val connection: Connection) : Database {
     }
 
     companion object {
+        const val MAX_QUERY_ATTEMPTS = 5
+        val LOST_CONNECTION_MESSAGES = listOf(
+            "server has gone away",
+            "no connection to the server",
+            "Lost connection",
+            "is dead or not enabled",
+            "Error while sending",
+            "decryption failed or bad record mac",
+            "server closed the connection unexpectedly",
+            "SSL connection has been closed unexpectedly",
+            "Error writing data to the connection",
+            "Resource deadlock avoided",
+            "Transaction() on null",
+            "child connection forced to terminate due to client_idle_limit",
+            "query_wait_timeout",
+            "reset by peer",
+            "Physical connection is not usable",
+            "TCP Provider: Error code 0x68",
+            "ORA-03114",
+            "Packets out of order. Expected",
+            "Adaptive Server connection failed",
+            "Communication link failure",
+            "connection is no longer usable",
+            "Login timeout expired",
+            "Connection refused",
+            "running with the --read-only option so it cannot execute this statement",
+            "No operations allowed after connection closed"
+        )
+
         // https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-configuration-properties.html
         fun withMySQL(
             database: String,
@@ -107,8 +172,8 @@ class JDBCDatabase(private val connection: Connection) : Database {
             ).map { "${it.key}=${it.value}" }.joinToString("&")
 
             val dsn = "jdbc:mysql://$host:$port/$database?$args"
-            val conn = DriverManager.getConnection(dsn, username, password)
-            return JDBCDatabase(conn)
+
+            return JDBCDatabase { DriverManager.getConnection(dsn, username, password) }
         }
     }
 }
