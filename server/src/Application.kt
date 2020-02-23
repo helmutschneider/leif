@@ -16,6 +16,7 @@ import keepo.database.Database
 import keepo.database.JDBCDatabase
 import keepo.http.HttpException
 import keepo.http.User
+import keepo.http.UserResolver
 import keepo.serialization.JsonSerializer
 import keepo.serialization.Serializer
 import keepo.serialization.TypedDelegatingSerializer
@@ -43,7 +44,7 @@ class Application(host: String, port: Int, debug: Boolean = false) {
                 response.status(code)
                 response.body(serializer.serialize(body))
             }
-            http.afterAfter { _, response ->
+            http.afterAfter { request, response ->
                 response.header("Content-Type", "application/json")
             }
             http
@@ -77,6 +78,20 @@ class Application(host: String, port: Int, debug: Boolean = false) {
                 )
             )
         }
+    }
+
+    fun sandbox(request: Request): RequestSandbox {
+        val name = RequestSandbox::class.qualifiedName
+        var box = request.attribute<RequestSandbox?>(name)
+
+        if (box == null) {
+            val resolver = UserResolver(container.get())
+            val user = resolver.resolve(request)
+            box = RequestSandbox(user)
+            request.attribute(name, box)
+        }
+
+        return box
     }
 
     fun validate(request: Request, rules: Map<String, List<Rule>>): Map<String, Any?> {
