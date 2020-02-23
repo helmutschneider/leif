@@ -3,6 +3,7 @@ package keepo
 import keepo.database.Database
 import keepo.http.AuthFilter
 import keepo.http.InitAction
+import keepo.http.ListAccountingPeriodsAction
 import keepo.http.LoginAction
 import keepo.validation.Rule
 import spark.Service
@@ -20,10 +21,7 @@ fun main() {
     http.post("/8da3cf8a0a1111ef367cb563181a175864d48cd2e95d54c9839aa1233b78eba1", InitAction(app))
     http.post("/login", LoginAction(app))
     http.before("/app/*", AuthFilter(app))
-    http.get("/app/accounting-period") { _, _ ->
-        val db = app.container.get<Database>()
-        db.select("SELECT accounting_period_id, start, end FROM accounting_period")
-    }
+    http.get("/app/accounting-period", ListAccountingPeriodsAction(app))
     http.get("/app/accounting-period/:id/account") { request, response ->
         val db = app.container.get<Database>()
         db.select("SELECT account_id, number, description FROM account WHERE accounting_period_id = ?", listOf(request.params(":id")))
