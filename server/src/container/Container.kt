@@ -1,7 +1,5 @@
 package keepo.container
 
-typealias Resolver<T> = (Container) -> T
-
 class Container(init: BindingBuilder.() -> Unit) {
     private val bindings: Map<TypeToken<*>, Binding<*>>
     private val singletons = mutableMapOf<TypeToken<*>, Any?>()
