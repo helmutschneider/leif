@@ -30,7 +30,7 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
                 stmt.execute()
                 val result = handler(stmt)
                 stmt.close()
-                return result as T
+                return result
             } catch (exception: SQLException) {
                 if (isExceptionCausedByLostConnection(exception) && attempt < MAX_QUERY_ATTEMPTS) {
                     connection?.close()
@@ -123,6 +123,20 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
 
     override fun statement(query: String, params: List<Any?>) {
         executePrepared(query, params) {}
+    }
+
+    override fun <R> transaction(fn: (Database) -> R): R {
+        try {
+            getConnection().autoCommit = false
+            val result = fn(this)
+            getConnection().commit()
+            return result
+        } catch (exception: SQLException) {
+            getConnection().rollback()
+            throw exception
+        } finally {
+            getConnection().autoCommit = true
+        }
     }
 
     companion object {

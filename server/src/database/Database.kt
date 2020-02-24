@@ -7,4 +7,5 @@ interface Database {
     fun update(query: String, params: List<Any?> = emptyList()): Int
     fun delete(query: String, params: List<Any?> = emptyList()): Boolean
     fun statement(query: String, params: List<Any?> = emptyList()): Unit
+    fun <R> transaction(fn: (Database) -> R): R
 }
