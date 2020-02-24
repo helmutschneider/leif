@@ -24,6 +24,7 @@ sealed class Rule : RuleLike {
             return errors
         }
     }
+
     object String : Rule() {
         override fun execute(dataSet: DataSet, keyPattern: kotlin.String): List<ValidationError> {
             return dataSet.getMatchingKeys(keyPattern)
@@ -34,6 +35,7 @@ sealed class Rule : RuleLike {
                 }
         }
     }
+
     object Integer : Rule() {
         override fun execute(dataSet: DataSet, keyPattern: kotlin.String): List<ValidationError> {
             return dataSet.getMatchingKeys(keyPattern)
@@ -43,6 +45,20 @@ sealed class Rule : RuleLike {
                 }
                 .map {
                     ValidationError(it.first, "${it.first} must be an integer.")
+                }
+        }
+    }
+
+    class Minimum(val value: Int) : Rule() {
+        override fun execute(dataSet: DataSet, keyPattern: kotlin.String): List<ValidationError> {
+            return dataSet.getMatchingKeys(keyPattern)
+                .map { Pair(it, dataSet.getValueAtKey(it)) }
+                .filter { pair ->
+                    val maybeList = pair.second
+                    maybeList is List<*> && maybeList.size < value
+                }
+                .map {
+                    ValidationError(it.first, "${it.first} must contain at least $value element(s).")
                 }
         }
     }

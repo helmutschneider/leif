@@ -111,3 +111,29 @@ class StringRuleTest {
         assertEquals(1, Rule.String.execute(set, "a").size)
     }
 }
+
+class MinimumRuleTest {
+    @Test
+    fun shouldSucceedWhenValueIsNotList() {
+        val set = DataSet(mapOf(
+            "a" to 1
+        ))
+        assertEquals(0, Rule.Minimum(1).execute(set, "a").size)
+    }
+
+    @Test
+    fun shouldSucceedWhenListIsLargeEnough() {
+        val set = DataSet(mapOf(
+            "a" to listOf(1, 2, 3)
+        ))
+        assertEquals(0, Rule.Minimum(3).execute(set, "a").size)
+    }
+
+    @Test
+    fun shouldFailWhenListIsTooSmall() {
+        val set = DataSet(mapOf(
+            "a" to listOf(1, 2)
+        ))
+        assertEquals(1, Rule.Minimum(3).execute(set, "a").size)
+    }
+}
