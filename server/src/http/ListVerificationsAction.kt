@@ -35,7 +35,8 @@ class ListVerificationsAction(val app: Application) : Route {
         val verifications = db.select("""
             SELECT v.verification_id,
                    v.date,
-                   v.description
+                   v.description,
+                   v.created_at
               FROM verification AS v
             INNER JOIN accounting_period AS ap
                ON ap.accounting_period_id = v.accounting_period_id

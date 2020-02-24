@@ -1,12 +1,12 @@
 package leif
 
 import leif.http.AuthFilter
+import leif.http.CreateVerificationAction
 import leif.http.InitAction
 import leif.http.ListAccountingPeriodsAction
 import leif.http.ListAccountsAction
 import leif.http.ListVerificationsAction
 import leif.http.LoginAction
-import leif.validation.Rule
 import spark.Service
 
 fun main() {
@@ -25,13 +25,5 @@ fun main() {
     http.get("/app/accounting-period", ListAccountingPeriodsAction(app))
     http.get("/app/accounting-period/:id/account", ListAccountsAction(app))
     http.get("/app/accounting-period/:id/verification", ListVerificationsAction(app))
-    http.post("/app/accounting-period/:id/verification") { request, response ->
-        app.validate(request, mapOf(
-            "description" to listOf(Rule.Required, Rule.String),
-            "transactions" to listOf(Rule.Required),
-            "transactions.*.account_id" to listOf(Rule.Required, Rule.Integer),
-            "transactions.*.amount" to listOf(Rule.Required, Rule.Integer)
-        ))
-        "yee"
-    }
+    http.post("/app/accounting-period/:id/verification", CreateVerificationAction(app))
 }

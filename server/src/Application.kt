@@ -22,6 +22,7 @@ import leif.serialization.JsonSerializer
 import leif.serialization.Serializer
 import leif.serialization.TypedDelegatingSerializer
 import leif.validation.Rule
+import leif.validation.RuleLike
 import leif.validation.Validator
 import spark.Request
 import spark.Service
@@ -95,7 +96,7 @@ class Application(host: String, port: Int, debug: Boolean = false) {
         return box
     }
 
-    fun validate(request: Request, rules: Map<String, List<Rule>>): Map<String, Any?> {
+    fun validate(request: Request, rules: Map<String, List<RuleLike>>): Map<String, Any?> {
         val http = container.get<Service>()
         val serializer = container.get<Serializer>()
         val validator = Validator(rules)
