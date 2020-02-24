@@ -98,20 +98,20 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
         }
     }
 
-    override fun insert(query: String, params: List<Any?>): List<Int> {
+    override fun insert(query: String, params: List<Any?>): List<Long> {
         return executePrepared(query, params) {
             val keys = it.generatedKeys
-            val out = mutableListOf<Int>()
+            val out = mutableListOf<Long>()
             while (keys.next()) {
-                out.add(keys.getInt(1))
+                out.add(keys.getLong(1))
             }
             out
         }
     }
 
-    override fun update(query: String, params: List<Any?>): Int {
+    override fun update(query: String, params: List<Any?>): Long {
         return executePrepared(query, params) {
-            it.updateCount
+            it.updateCount.toLong()
         }
     }
 
