@@ -20,7 +20,6 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
 
     private fun <T> executePrepared(query: String, params: List<Any?>, handler: (PreparedStatement) -> T): T {
         var attempt = 1
-        var result: T? = null
 
         while (attempt < MAX_QUERY_ATTEMPTS) {
             try {
@@ -29,9 +28,9 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
                     stmt.setObject(idx + 1, p)
                 }
                 stmt.execute()
-                result = handler(stmt)
+                val result = handler(stmt)
                 stmt.close()
-                break
+                return result as T
             } catch (exception: SQLException) {
                 if (isExceptionCausedByLostConnection(exception) && attempt < MAX_QUERY_ATTEMPTS) {
                     connection?.close()
@@ -43,7 +42,7 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
             attempt += 1
         }
 
-        return result!!
+        throw RuntimeException("Too many query attempts.")
     }
 
     // kindly borrowed from https://github.com/laravel/framework/blob/6.x/src/Illuminate/Database/DetectsLostConnections.php
