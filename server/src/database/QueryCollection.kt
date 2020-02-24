@@ -1,33 +1,26 @@
 package leif.database
 
 class QueryCollection(val db: Database) {
-    fun createAccount(number: Long, description: String, accountingPeriodId: Long): Long {
-        val result = db.insert(QUERY_CREATE_ACCOUNT, listOf(number, description, accountingPeriodId))
-        return result.first()
-    }
+    fun createAccount(number: Long, description: String, accountingPeriodId: Long)
+        = insertOne(QUERY_CREATE_ACCOUNT, number, description, accountingPeriodId)
 
-    fun createAccountingPeriod(start: String, end: String, organizationId: Long): Long {
-        val result = db.insert(QUERY_CREATE_ACCOUNTING_PERIOD, listOf(start, end, organizationId))
-        return result.first()
-    }
+    fun createAccountingPeriod(start: String, end: String, organizationId: Long)
+        = insertOne(QUERY_CREATE_ACCOUNTING_PERIOD, start, end, organizationId)
 
-    fun createOrganization(name: String): Long {
-        val result = db.insert(QUERY_CREATE_ORGANIZATION, listOf(name))
-        return result.first()
-    }
+    fun createOrganization(name: String)
+        = insertOne(QUERY_CREATE_ORGANIZATION, name)
 
-    fun createTransaction(amount: Long, accountId: Long, verificationId: Long): Long {
-        val result = db.insert(QUERY_CREATE_TRANSACTION, listOf(amount, accountId, verificationId))
-        return result.first()
-    }
+    fun createTransaction(amount: Long, accountId: Long, verificationId: Long)
+        = insertOne(QUERY_CREATE_TRANSACTION, amount, accountId, verificationId)
 
-    fun createUser(username: String, passwordHash: ByteArray, organizationId: Long): Long {
-        val result = db.insert(QUERY_CREATE_USER, listOf(username, passwordHash, organizationId))
-        return result.first()
-    }
+    fun createUser(username: String, passwordHash: ByteArray, organizationId: Long)
+        = insertOne(QUERY_CREATE_USER, username, passwordHash, organizationId)
 
-    fun createVerification(date: String, description: String, accountingPeriodId: Long): Long {
-        val result = db.insert(QUERY_CREATE_VERIFICATION, listOf(date, description, accountingPeriodId))
+    fun createVerification(date: String, description: String, accountingPeriodId: Long)
+        = insertOne(QUERY_CREATE_VERIFICATION, date, description, accountingPeriodId)
+
+    private fun insertOne(query: String, vararg params: Any?): Long {
+        val result = db.insert(query, listOf(*params))
         return result.first()
     }
 
