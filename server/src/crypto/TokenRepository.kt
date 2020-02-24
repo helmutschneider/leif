@@ -1,4 +1,4 @@
-package keepo.crypto
+package leif.crypto
 
 interface TokenRepository<T> {
     fun create(type: TokenType, data: T): ByteArray

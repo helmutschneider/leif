@@ -1,4 +1,4 @@
-package keepo.database
+package leif.database
 
 import java.sql.Connection
 import java.sql.DriverManager

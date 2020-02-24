@@ -1,6 +1,6 @@
-package keepo.crypto
+package leif.crypto
 
-import keepo.serialization.TypedSerializer
+import leif.serialization.TypedSerializer
 import kotlin.random.Random
 
 class SerializingTokenRepository<T>(val storage: TokenStorage, val serializer: TypedSerializer<T>) : TokenRepository<T> {

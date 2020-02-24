@@ -1,4 +1,4 @@
-package keepo.serialization
+package leif.serialization
 
 import kotlin.reflect.KClass
 

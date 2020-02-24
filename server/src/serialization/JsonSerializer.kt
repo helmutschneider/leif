@@ -1,4 +1,4 @@
-package keepo.serialization
+package leif.serialization
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper

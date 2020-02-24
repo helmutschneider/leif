@@ -1,4 +1,4 @@
-package keepo.container
+package leif.container
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -16,6 +16,6 @@ class TypeTokenTest {
     @Test
     fun shouldExtractDeepGenericType() {
         val token = object : TypeToken<X<Y<String>>>() {}
-        assertEquals("keepo.container.TypeTokenTest\$X<keepo.container.TypeTokenTest\$Y<java.lang.String>>", token.type.typeName)
+        assertEquals("leif.container.TypeTokenTest\$X<leif.container.TypeTokenTest\$Y<java.lang.String>>", token.type.typeName)
     }
 }

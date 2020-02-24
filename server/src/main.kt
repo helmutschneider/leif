@@ -1,12 +1,12 @@
-package keepo
+package leif
 
-import keepo.http.AuthFilter
-import keepo.http.InitAction
-import keepo.http.ListAccountingPeriodsAction
-import keepo.http.ListAccountsAction
-import keepo.http.ListVerificationsAction
-import keepo.http.LoginAction
-import keepo.validation.Rule
+import leif.http.AuthFilter
+import leif.http.InitAction
+import leif.http.ListAccountingPeriodsAction
+import leif.http.ListAccountsAction
+import leif.http.ListVerificationsAction
+import leif.http.LoginAction
+import leif.validation.Rule
 import spark.Service
 
 fun main() {
@@ -15,7 +15,7 @@ fun main() {
 
     http.get("/") { _, _ ->
         mapOf(
-            "app" to "keepo",
+            "app" to "leif",
             "version" to "1.0"
         )
     }

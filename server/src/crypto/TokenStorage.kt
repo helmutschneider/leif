@@ -1,4 +1,4 @@
-package keepo.crypto
+package leif.crypto
 
 interface TokenStorage {
     fun get(secret: ByteArray, type: TokenType): String?

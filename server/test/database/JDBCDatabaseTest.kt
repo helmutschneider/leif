@@ -1,6 +1,6 @@
-package keepo.database
+package leif.database
 
-import keepo.DatabaseTest
+import leif.DatabaseTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 

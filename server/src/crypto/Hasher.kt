@@ -1,4 +1,4 @@
-package keepo.crypto
+package leif.crypto
 
 interface Hasher<T : HashType> {
     fun hash(value: ByteArray): ByteArray

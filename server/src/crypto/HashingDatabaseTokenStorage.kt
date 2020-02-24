@@ -1,10 +1,10 @@
-package keepo.crypto
+package leif.crypto
 
 import java.nio.ByteBuffer
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import keepo.database.Database
+import leif.database.Database
 
 class HashingDatabaseTokenStorage(val db: Database, val hasher: Hasher<HashType.Digest>, val now: ZonedDateTime? = null) : TokenStorage {
     override fun get(secret: ByteArray, type: TokenType): String? {

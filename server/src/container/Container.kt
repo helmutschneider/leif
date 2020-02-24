@@ -1,4 +1,4 @@
-package keepo.container
+package leif.container
 
 class Container(init: BindingBuilder.() -> Unit) {
     private val bindings: Map<TypeToken<*>, Binding<*>>

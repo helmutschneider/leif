@@ -1,4 +1,4 @@
-package keepo.crypto
+package leif.crypto
 
 enum class TokenType(val expirySeconds: Long) {
     Login(3600), // 1 hour

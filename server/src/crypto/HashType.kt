@@ -1,4 +1,4 @@
-package keepo.crypto
+package leif.crypto
 
 sealed class HashType {
     object Digest : HashType()

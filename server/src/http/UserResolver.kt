@@ -1,8 +1,8 @@
-package keepo.http
+package leif.http
 
-import keepo.crypto.TokenRepository
-import keepo.crypto.TokenType
-import keepo.hexToByteArray
+import leif.crypto.TokenRepository
+import leif.crypto.TokenType
+import leif.hexToByteArray
 import spark.Request
 
 class UserResolver(val repository: TokenRepository<User>) {

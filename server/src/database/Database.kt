@@ -1,4 +1,4 @@
-package keepo.database
+package leif.database
 
 interface Database {
     fun selectOne(query: String, params: List<Any?> = emptyList()): Map<String, Any?>?

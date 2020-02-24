@@ -1,7 +1,7 @@
 {
-  "name": "keepo",
-  "version": "1.0.0",
-  "description": "A bookkeeping application",
+  "name": "leif",
+  "version": "0.1.0",
+  "description": "Minimalistic dual-entry bookkeeping application",
   "main": "index.js",
   "scripts": {
     "build": "NODE_ENV=production webpack",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/helmutschneider/keepo.git"
+    "url": "git+https://github.com/helmutschneider/leif.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/helmutschneider/keepo/issues"
+    "url": "https://github.com/helmutschneider/leif/issues"
   },
-  "homepage": "https://github.com/helmutschneider/keepo#readme",
+  "homepage": "https://github.com/helmutschneider/leif#readme",
   "dependencies": {
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",

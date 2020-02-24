@@ -1,4 +1,4 @@
-package keepo.validation
+package leif.validation
 
 interface RuleLike {
     fun execute(dataSet: DataSet, keyPattern: String): List<ValidationError>

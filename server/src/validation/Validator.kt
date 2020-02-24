@@ -1,4 +1,4 @@
-package keepo.validation
+package leif.validation
 
 class Validator(private val ruleSet: Map<String, List<RuleLike>>) {
     fun validate(data: Any?): List<ValidationError> {

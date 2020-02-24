@@ -1,6 +1,6 @@
-package keepo.crypto
+package leif.crypto
 
-import keepo.serialization.TypedSerializer
+import leif.serialization.TypedSerializer
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

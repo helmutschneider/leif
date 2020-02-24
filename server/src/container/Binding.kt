@@ -1,4 +1,4 @@
-package keepo.container
+package leif.container
 
 typealias Resolver<T> = (Container) -> T
 

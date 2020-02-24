@@ -1,4 +1,4 @@
-package keepo.container
+package leif.container
 
 class BindingBuilder {
     private val bindings = mutableMapOf<TypeToken<*>, Binding<*>>()

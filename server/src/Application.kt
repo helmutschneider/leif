@@ -1,27 +1,27 @@
-package keepo
+package leif
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.text.SimpleDateFormat
-import keepo.container.Container
-import keepo.crypto.HashType
-import keepo.crypto.Hasher
-import keepo.crypto.HashingDatabaseTokenStorage
-import keepo.crypto.PBKDF2Hasher
-import keepo.crypto.SHA256Hasher
-import keepo.crypto.SerializingTokenRepository
-import keepo.crypto.TokenRepository
-import keepo.crypto.TokenStorage
-import keepo.database.Database
-import keepo.database.JDBCDatabase
-import keepo.http.HttpException
-import keepo.http.User
-import keepo.http.UserResolver
-import keepo.serialization.JsonSerializer
-import keepo.serialization.Serializer
-import keepo.serialization.TypedDelegatingSerializer
-import keepo.validation.Rule
-import keepo.validation.Validator
+import leif.container.Container
+import leif.crypto.HashType
+import leif.crypto.Hasher
+import leif.crypto.HashingDatabaseTokenStorage
+import leif.crypto.PBKDF2Hasher
+import leif.crypto.SHA256Hasher
+import leif.crypto.SerializingTokenRepository
+import leif.crypto.TokenRepository
+import leif.crypto.TokenStorage
+import leif.database.Database
+import leif.database.JDBCDatabase
+import leif.http.HttpException
+import leif.http.User
+import leif.http.UserResolver
+import leif.serialization.JsonSerializer
+import leif.serialization.Serializer
+import leif.serialization.TypedDelegatingSerializer
+import leif.validation.Rule
+import leif.validation.Validator
 import spark.Request
 import spark.Service
 
@@ -50,7 +50,7 @@ class Application(host: String, port: Int, debug: Boolean = false) {
             http
         }
         singleton<Database> {
-            JDBCDatabase.withMySQL("keepo", "root", "")
+            JDBCDatabase.withMySQL("leif", "root", "")
         }
         singleton<Serializer> {
             val mapper = ObjectMapper().registerKotlinModule()

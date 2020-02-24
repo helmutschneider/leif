@@ -1,13 +1,13 @@
-package keepo
+package leif
 
 import java.nio.file.Files
 import java.nio.file.Path
-import keepo.database.JDBCDatabase
+import leif.database.JDBCDatabase
 import org.junit.jupiter.api.BeforeEach
 
 abstract class DatabaseTest {
     companion object {
-        const val DB_NAME = "keepo-test"
+        const val DB_NAME = "leif-test"
         const val DB_USERNAME = "root"
         const val DB_PASSWORD = ""
 

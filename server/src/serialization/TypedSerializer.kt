@@ -1,4 +1,4 @@
-package keepo.serialization
+package leif.serialization
 
 interface TypedSerializer<T> {
     fun serialize(value: T): String
