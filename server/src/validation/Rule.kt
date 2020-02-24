@@ -2,8 +2,8 @@ package leif.validation
 
 import java.math.BigInteger
 
-enum class Rule : RuleLike {
-    Required {
+sealed class Rule : RuleLike {
+    object Required : Rule() {
         override fun execute(dataSet: DataSet, keyPattern: kotlin.String): List<ValidationError> {
             val errors = mutableListOf<ValidationError>()
             val matches = DataSet.END_OF_KEY_REGEX.matchEntire(keyPattern)
@@ -23,8 +23,8 @@ enum class Rule : RuleLike {
 
             return errors
         }
-    },
-    String {
+    }
+    object String : Rule() {
         override fun execute(dataSet: DataSet, keyPattern: kotlin.String): List<ValidationError> {
             return dataSet.getMatchingKeys(keyPattern)
                 .map { Pair(it, dataSet.getValueAtKey(it)) }
@@ -33,8 +33,8 @@ enum class Rule : RuleLike {
                     ValidationError(it.first, "${it.first} must be a string.")
                 }
         }
-    },
-    Integer {
+    }
+    object Integer : Rule() {
         override fun execute(dataSet: DataSet, keyPattern: kotlin.String): List<ValidationError> {
             return dataSet.getMatchingKeys(keyPattern)
                 .map { Pair(it, dataSet.getValueAtKey(it)) }
