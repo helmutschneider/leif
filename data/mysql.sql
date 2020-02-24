@@ -33,10 +33,11 @@ CREATE TABLE `account` (
 
 CREATE TABLE `verification` (
   `verification_id` INTEGER UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `date` DATE NOT NULL,
   `description` VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci,
-  `organization_id` INTEGER UNSIGNED NOT NULL,
+  `accounting_period_id` INTEGER UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`organization_id`) REFERENCES `organization`(`organization_id`) ON UPDATE CASCADE ON DELETE CASCADE
+  FOREIGN KEY (`accounting_period_id`) REFERENCES `accounting_period`(`accounting_period_id`) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE `transaction` (
