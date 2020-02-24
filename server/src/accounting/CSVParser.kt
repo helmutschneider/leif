@@ -7,6 +7,10 @@ import java.lang.StringBuilder
 class CSVParser(val columnOfAccountNumber: Int, val columnOfAccountDescription: Int) : AccountChartParser {
     override fun parse(stream: InputStream): Iterable<AccountLike> {
         val rdr = InputStreamReader(stream)
+
+        // some chart of accounts define the same account multiple
+        // times with different description. for data integrity reasons
+        // we cannot allow this. let's use a map to avoid the issue.
         val accounts = mutableMapOf<Int, AccountLike>()
 
         rdr.forEachLine { line ->
@@ -28,13 +32,15 @@ class CSVParser(val columnOfAccountNumber: Int, val columnOfAccountDescription: 
         var isReadingQuotedText = false
 
         for (chr in line) {
-            when {
-                chr == '"' -> {
+            when (chr) {
+                CHAR_DOUBLE_QUOTE -> {
                     isReadingQuotedText = !isReadingQuotedText
                 }
-                chr == ',' && !isReadingQuotedText -> {
-                    out.add(buf.toString())
-                    buf.clear()
+                CHAR_COMMA -> {
+                    if (!isReadingQuotedText) {
+                        out.add(buf.toString())
+                        buf.clear()
+                    }
                 }
                 else -> buf.append(chr)
             }
@@ -45,5 +51,10 @@ class CSVParser(val columnOfAccountNumber: Int, val columnOfAccountDescription: 
         }
 
         return out
+    }
+
+    companion object {
+        const val CHAR_DOUBLE_QUOTE = '"'
+        const val CHAR_COMMA = ','
     }
 }
