@@ -137,3 +137,29 @@ class MinimumRuleTest {
         assertEquals(1, Rule.Minimum(3).execute(set, "a").size)
     }
 }
+
+class SumEqualRuleTest {
+    @Test
+    fun shouldDefaultNonNumericValuesToZero() {
+        val set = DataSet(mapOf(
+            "a" to listOf(1.0, -1.0, "yee")
+        ))
+        assertEquals(0, Rule.SumEqual(0.0).execute(set, "a.*").size)
+    }
+
+    @Test
+    fun shouldFailWhenSumIsNotEqual() {
+        val set = DataSet(mapOf(
+            "a" to listOf(1.0, -0.5)
+        ))
+        assertEquals(1, Rule.SumEqual(0.0).execute(set, "a.*").size)
+    }
+
+    @Test
+    fun shouldSucceedWhenEqual() {
+        val set = DataSet(mapOf(
+            "a" to listOf(1.0, -1.0)
+        ))
+        assertEquals(0, Rule.SumEqual(0.0).execute(set, "a.*").size)
+    }
+}

@@ -62,4 +62,28 @@ sealed class Rule : RuleLike {
                 }
         }
     }
+
+    class SumEqual(val value: Double) : Rule() {
+        override fun execute(dataSet: DataSet, keyPattern: kotlin.String): List<ValidationError> {
+            val sum = dataSet
+                .getMatchingKeys(keyPattern)
+                .map { key ->
+                    val value = dataSet.getValueAtKey(key)
+
+                    when (value) {
+                        is Number -> value.toDouble()
+                        else -> 0.0
+                    }
+                }
+                .fold(0.0) { acc, value -> acc + value }
+
+            if (sum != value) {
+                return listOf(
+                    ValidationError(keyPattern, "$keyPattern must have a sum equal to ${value}.")
+                )
+            }
+
+            return emptyList()
+        }
+    }
 }
