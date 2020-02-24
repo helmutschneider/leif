@@ -5,9 +5,9 @@ import java.nio.file.Path
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import leif.Application
+import leif.accounting.CSVParser
 import leif.crypto.PBKDF2Hasher
 import leif.database.Database
-import leif.serialization.Serializer
 import leif.validation.Rule
 import spark.Request
 import spark.Response
@@ -33,11 +33,10 @@ class InitAction(val app: Application) : Route {
         val schema = Files.readAllBytes(
             Path.of(System.getProperty("user.dir"), "data/mysql.sql")
         ).toString(Charsets.UTF_8)
-        val serializer = app.container.get<Serializer>()
-        val accountsJson = Files.readString(
-            Path.of(System.getProperty("user.dir"), "data/bas2020.json")
+        val accountsData = Files.newInputStream(
+            Path.of(System.getProperty("user.dir"), "data/bas-2020-en.csv")
         )
-        val accounts = serializer.deserialize(accountsJson, Map::class) as Map<String, String>
+        val accounts = CSVParser(0, 1).parse(accountsData)
 
         schema.split(';')
             .map(String::trim)
@@ -67,10 +66,10 @@ class InitAction(val app: Application) : Route {
             orgIds.first()
         ))
 
-        for (entry in accounts) {
+        for (account in accounts) {
             db.insert("INSERT INTO account (number, description, accounting_period_id) VALUES (?, ?, ?)", listOf(
-                entry.key,
-                entry.value,
+                account.number,
+                account.description,
                 periodIds.first()
             ))
         }

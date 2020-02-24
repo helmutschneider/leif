@@ -1,0 +1,1190 @@
+Account nr,Account name
+1010,Development expenditure
+1011,Capitalised expenditure for development 
+1012,Capitalised expenditure for software
+1018,Accumulated write-downs of capitalised expenditure
+1019,Accumulated amortisation of capitalised expenditure
+1020,Concessions etc.
+1028,Accumulated write-downs of concessions etc.
+1029,Accumulated amortisation of concessions etc.
+1030,Patents
+1038,Accumulated write-downs of patents
+1039,Accumulated amortisation of patents
+1040,Licences
+1048,Accumulated write-downs of licences
+1049,Accumulated amortisation of licences
+1050,Trademarks
+1058,Accumulated write-downs of trademarks
+1059,Accumulated amortisation of trademarks
+1060,"Tenancy, site leasehold and similar rights"
+1068,"Accumulated write-downs of tenancy, site leasehold and similar rights"
+1069,"Accumulated amortisation of tenancy, site leasehold and similar rights"
+1070,Goodwill 
+1078,Accumulated write-downs of goodwill
+1079,Accumulated amortisation of goodwill
+1080,Advance payments for intangible fixed assets 
+1081,Projects in progress for intangible fixed assets
+1088,Advance payments for intangible fixed assets
+1110,Buildings
+1111,Buildings on freehold land 
+1112,Buildings on leasehold land 
+1118,Accumulated write-downs of buildings
+1119,Accumulated depreciation on buildings
+1120,Cost of improvements to leased property
+1129,Accumulated depreciation on cost of improvements to leased property
+1130,Land 
+1140,Plots and undeveloped land areas 
+1150,Land improvements
+1158,Accumulated write-downs of land improvements
+1159,Accumulated depreciation on land improvements
+1180,Construction in progress and advance payments for land and buildings
+1181,"New construction, extensions and conversions in progress"
+1188,Advance payments for land and buildings
+1210,Plant and machinery
+1211,Machinery
+1213,Other plant
+1218,Accumulated write-downs of plant and machinery
+1219,Accumulated depreciation on plant and machinery
+1220,Equipment and tools
+1221,Equipment
+1222,Building equipment 
+1223,Land equipment 
+1225,Tools
+1228,Accumulated write-downs of equipment and tools
+1229,Accumulated depreciation on equipment and tools
+1230,Fixtures and fittings
+1231,"Fixtures and fittings, own property"
+1232,"Fixtures and fittings, leased property"
+1238,Accumulated write-downs of fixtures and fittings
+1239,Accumulated depreciation on fixtures and fittings
+1240,Cars and other transport equipment 
+1241,Cars
+1242,Heavy goods vehicles
+1243,Trucks
+1244,Processing machines
+1245,Tractors
+1246,"Motorcycles, mopeds and scooters"
+1247,"Boats, aircraft and helicopters "
+1248,Accumulated write-downs of cars and other transport equipment
+1249,Accumulated depreciation on cars and other transport equipment
+1250,Computers 
+1251,"Computers, company’s "
+1257,"Computers, employees’"
+1258,Accumulated write-downs of computers
+1259,Accumulated depreciation on computers
+1260,Leased assets
+1269,Accumulated depreciation on leased assets
+1280,Construction in progress and advance payments for machinery and equipment 
+1281,"Construction in progress, machinery and equipment "
+1288,Advance payments for machinery and equipment
+1290,Other tangible fixed assets
+1291,Works of art and similar assets 
+1292,Animals classified as fixed assets
+1298,Accumulated write-downs of other tangible fixed assets
+1299,Accumulated depreciation on other tangible fixed assets
+1310,Participations in group companies 
+1311,Shares in listed Swedish group companies
+1312,Shares in unlisted Swedish group companies
+1313,Shares in listed foreign group companies
+1314,Shares in unlisted foreign group companies
+1316,Other participations in Swedish group companies
+1317,Other participations in foreign group companies
+1318,Accumulated write-downs of participations in group companies
+1320,Long-term receivables from group companies
+1321,Long-term receivables from parent company
+1322,Long-term receivables from subsidiaries
+1323,Long-term receivables from other group companies
+1328,Accumulated write-downs of long-term receivables from group companies
+1330,"Participations in associated companies, jointly controlled companies and other companies with participating is held"
+1331,Participations in associated companies
+1332,Accumulated write-downs of participations in associated companies
+1333,Participations in jointly controlled
+1334,Accumulated write-downs of participations in jointly controlled companies
+1336,Participations other companies in which a participation is held
+1337,Accumulated write-downs of other companies in which a participation is held
+1338,"Accumulated write-downs of participations in associated companies, jointly controlled companies and other companies in which a participating is held"
+1340,"Long-term receivables from associated companies, jointly controlled companies and other companies
+with participating is held"
+1341,Long-term receivables from associated companies
+1342,Accumulated write-downs of long-term receivables from associated companies
+1343,Long-term receivables from jointly controlled companies
+1344,Accumulated write-downs of long-term receivables from jointly controlled companies
+1346,Long-term receivables from other companies in wich a participating is held
+1347,Accumulated write-downs of long-term receivables from other companies in wich a participating is held
+1348,"Accumulated write-downs of long-term receivables from participations in associated companies, jointly controlled companies and other companies in wich a participating is held"
+1350,Participations and securities in other companies
+1351,Participations in listed companies
+1352,Other participations
+1353,Participations in tenant-owner associations
+1354,Bonds
+1356,"Participations in economic associations, other companies"
+1357,"Participations in partnerships, other companies"
+1358,Accumulated write-downs of other participations and securities
+1360,"Loans to partners or related parties, long-term portion"
+1369,"Accumulated write-downs of loans to partners or related parties, long-term portion"
+1370,Deferred tax asset
+1380,Other long-term receivables
+1381,Long-term promissory note receivables
+1382,Long-term receivables from employees
+1383,Long-term deposits
+1384,Derivatives
+1385,Endowment assurance
+1387,Long-term contractual receivables 
+1388,Long term receivables
+1389,Accumulated write-downs of other long-term receivables
+1410,Raw materials
+1419,Change in inventories of raw materials
+1420,Supplies and consumables 
+1429,Change in inventories of supplies and consumables
+1440,Products in progress
+1449,Change in products in progress
+1450,Finished goods
+1459,Change in inventories of finished goods
+1460,Goods for resale
+1465,"Inventories of goods, margin scheme"
+1466,"Write-down of goods, margin scheme"
+1467,"Inventories of goods, simplified margin scheme"
+1469,Change in inventories of goods for resale
+1470,Work in progress
+1471,"Work in progress, costs incurred"
+1478,"Work in progress, invoiced"
+1479,Change in work in progress
+1480,Advance payments for goods and services
+1481,Letters of credit
+1489,Other advance payments to suppliers
+1490,Other inventory items
+1491,Investment portfolio
+1492,Real property portfolio
+1493,Animals classified as current assets
+1510,Accounts receivable – trade
+1511,Accounts receivable – trade
+1512,Pledged receivables (factoring)
+1513,Accounts receivable – split invoice
+1516,Disputed accounts receivable
+1518,"Accounts receivable, not entered in sales ledger"
+1519,Write-down of accounts receivable – trade
+1520,Bills receivable
+1525,Doubtful bills receivable
+1529,Write-down of bills receivable 
+1530,Contractual receivables
+1531,Contractual receivables
+1532,Pledged contractual receivables 
+1536,Disputed contractual receivables
+1539,Write-down of contractual receivables
+1550,Consignment receivables
+1560,"Accounts receivable, group companies"
+1561,"Accounts receivable, parent company"
+1562,"Accounts receivable, subsidiaries"
+1563,"Accounts receivable, other group companies"
+1568,"Accounts receivable, group companies, not entered in sales ledger"
+1569,"Write-down of accounts receivable, group companies"
+1570,"Accounts receivable from associated companies, jointly controlled companies and other companies in wich a participating is held"
+1571,Accounts receivable from associated companies
+1572,Accounts receivable from jointly controlled companies
+1573,Accounts receivable from other companies in wich a participating is held
+1580,Credit cards and vouchers receivable
+1610,Current receivables from employees 
+1611,Travel advances
+1612,Cash advances
+1613,Other advances
+1614,Temporary loans to employees
+1619,Other receivables from employees
+1620,Accrued income not yet invoiced
+1630,Clearing account for taxes and charges (tax account)
+1640,Tax assets
+1650,VAT recoverable
+1660,Current receivables from group companies
+1661,Current receivables from parent company
+1662,Current receivables from subsidiaries
+1663,Current receivables from other group companies
+1670,"Current receivables from associated companies, jointly controlled companies and other companies in wich a participating is held"
+1671, Current receivables from associated companies
+1672,Current receivables from jointly controlled companies
+1673,Current receivables from other companies in wich a participating is held
+1680,Other current receivables
+1681,Disbursements on behalf of customers
+1682,Current loan receivables 
+1683,Derivatives
+1684,Current receivables from suppliers
+1685,Current receivables from partners or related parties
+1687,Current portion of long-term receivables
+1688,Receivable from labour market insurance schemes
+1689,Other current receivables 
+1690,Subscribed capital unpaid
+1710,Prepaid rent
+1720,Prepaid lease charges
+1730,Prepaid insurance premiums
+1740,Prepaid interest expense
+1750,Accrued rental income
+1760,Accrued interest income
+1770,Assets in the form of prepaid expenses
+1780,Accrued income from agreements
+1790,Other prepaid expenses and accrued income
+1810,Participations in listed companies
+1820,Bonds
+1830,Convertible debt instruments
+1860,"Participations in group companies,  current portion "
+1880,Other short-term investments 
+1886,Derivatives
+1889,Participations in other companies
+1890,Write-down of short-term investments
+1910,Cash in hand
+1911,Main cash account
+1912,Cash account 2
+1913,Cash account 3 [etc.] 
+1920,PlusGiro
+1930,Business account/cheque account/current account
+1940,Other bank accounts
+1950,Certificates of deposit
+1960,"Group account, parent company"
+1970,Special bank accounts
+1972,Copyright account
+1973,Forest account
+1974,Blocked accounts
+1979,Other special bank accounts 
+1980,Foreign currency accounts
+1990,Client funds
+2010,"Equity, partner 1"
+2011,Own withdrawals of goods
+2013,Other withdrawals
+2017,Capital contribution for the year
+2018,Other funds invested
+2019,"Net result, partner 1"
+2020,"Equity, partner 2"
+2030,"Equity, partner 3"
+2040,"Equity, partner 4"
+2050,Allocation to expansion funds
+2060,"Equity in non-profit organisations, foundations and registered religious communities"
+2061,Equity/foundation capital
+2065,Change in fair value reserve 
+2066,Bye-law reserve
+2067,Profit or loss brought forward
+2068,Profit or loss from previous year 
+2069,Result for the financial year
+2070,Funds for specific projects
+2071,Project 1
+2072,Project 2
+2080,Restricted equity 
+2081,Share capital
+2082,Unregistered share capital 
+2083,Members’ contributions
+2084,Debenture contributions
+2085,Revaluation reserve 
+2086,Statutory reserve 
+2087,Capitalised issue 
+2088,Reserve for external maintenance
+2089,Reserve for development costs
+2090,Non-restricted equity
+2091,Profit or loss carried forward
+2092,Group contributions received/ paid
+2093,Shareholders’ contributions received
+2094,Own shares
+2095,Merger results
+2096,Fair value reserve
+2097,Share premium reserve
+2098,Profit or loss from the previous year
+2099,Result for the financial year
+2110,Tax allocation reserves
+2120,Tax allocation reserves
+2150,Accumulated excess depreciation/amortisation 
+2151,Accumulated excess amortisation of intangible fixed assets
+2152,Accumulated excess depreciation on buildings and land improvements
+2153,Accumulated excess depreciation on machinery and equipment
+2160,Replacement reserve
+2161,"Replacement reserve, machinery and equipment "
+2162,"Replacement reserve, buildings and land improvements"
+2164,"Replacement reserve, stocks of farming animals and reindeer"
+2190,Other untaxed reserves
+2196,Inventory reserve
+2199,Other untaxed reserves
+2210,Pension provision under the Act on Safeguarding Pension Obligations
+2220,Provisions for warranty
+2230,Other provisions for pensions and similar obligations
+2240,Provisions for deferred taxes 
+2250,Other provisions for taxes
+2252,Provisions for disputed taxes 
+2253,"Provision for special payroll tax, tax return item"
+2290,Other provisions
+2310,Bond and debenture loans
+2320,Convertible loans etc.
+2321,Convertible loans
+2322,Loans with an option
+2323,Dividend-linked participating debentures
+2324,Principal-linked participating debentures
+2330,Bank overdraft facilities 
+2331,Bank overdraft 1
+2331,Bank overdraft facility utilised 1
+2332,Bank overdraft 2
+2332,Bank overdraft facility utilised 2 
+2335,Bank overdraft facility granted 1 
+2336,Bank overdraft facility granted 2
+2340,Construction loans
+2350,Other long-term liabilities to credit institutions
+2351,"Property loans, long-term portion"
+2355,Long-term loans from credit institutions in foreign currency
+2359,Other long-term loans from credit institutions
+2360,Long-term liabilities to group companies
+2361,Long-term liabilities to parent company
+2362,Long-term liabilities to subsidiaries
+2363,Long-term liabilities to other group companies
+2370,"Long-term liabilities to associated companies, jointly controlled companies and other companies in wich a participating is held"
+2371,Long-term liabilities to associated companies
+2372,Long-term liabilities to jointly controlled companies 
+2373,Long-term liabilities to other companies in wich a participating is held
+2390,Other long-term liabilities
+2391,"Hire-purchase contracts, long-term portion"
+2392,Conditional long-term liabilities
+2393,"Loans from related persons, long-term portion"
+2394,Long-term credit from suppliers
+2395,Other long-term loans in foreign currency
+2396,Derivatives
+2397,"Deposits received, long-term"
+2399,Other long-term liabilities
+2410,Other current liabilities to credit institutions
+2411,Current loans from credit institutions
+2412,"Current loans from credit institutions, current portion "
+2417,Current portion of long-term liabilities to credit institutions
+2419,Other current liabilities to credit institutions
+2420,Advances from customers
+2421,Unused gift vouchers
+2429,Other advances from customers
+2430,Work in progress
+2431,"Work in progress, invoiced"
+2438,"Work in progress, costs incurred"
+2439,Change in work in progress
+2440,Accounts payable – trade
+2441,Accounts payable – trade
+2443,Consignment payables
+2445,Disputed accounts payable 
+2448,"Accounts payable, not entered in subsidiary ledger"
+2450,Invoiced income not yet accrued
+2460,"Accounts payable, group companies"
+2461,"Accounts payable, parent company"
+2462,"Accounts payable, subsidiaries"
+2463,"Accounts payable, other group companies"
+2470,"Accounts payable, associated companies, jointly controlled companies and other companies in wich a participating is held"
+2471,"Accounts payable, associated companies"
+2472,"Accounts payable, jointly controlled companies"
+2473,"Accounts payable, other companies in wich a participating is held"
+2480,"Bank overdraft facilities, short-term"
+2490,"Other current liabilities to credit institutions, customers and suppliers"
+2491,Clearing account for gaming operators
+2492,Bills payable
+2499,Other current liabilities
+2510,Tax liabilities
+2512,Estimated income tax
+2513,Estimated real estate tax/real estate charge
+2514,Estimated special payroll tax on pension costs
+2515,Estimated yield tax
+2516,Value added tax
+2517,Estimated foreign tax
+2518,F (business) tax paid
+2610,"Output VAT, 25 %"
+2611,"Output VAT on sales in Sweden, 25 %"
+2612,"Output VAT on own withdrawals, 25 %"
+2613,"Output VAT on rental income, 25 %"
+2614,"Output VAT, reverse charge, 25 %"
+2615,"Output VAT, import of goods, 25 %"
+2616,"Output VAT, margin scheme 25 %"
+2618,"Suspended output VAT, 25 %"
+2620,"Output VAT, reduced rate 1"
+2621,"Output VAT on sales in Sweden, 12 %"
+2622,"Output VAT on own withdrawals, 12 %"
+2623,"Output VAT on rental, 12 %"
+2624,"Output VAT, reverse charge, 12 %"
+2625,"Output VAT, import of goods, 12 %"
+2626,"Output VAT, margin scheme 12%"
+2628,"Suspended output VAT, 12 %"
+2630,"Output VAT, reduced rate 2"
+2631,"Output VAT on sales in Sweden, 6 %"
+2632,"Output VAT on own withdrawals, 6 %"
+2633,"Output VAT on rental, 6 %"
+2634,"Output VAT, reverse charge, 6 %"
+2635,"Output VAT, import of goods, 6 %"
+2636,"Output VAT, margin scheme 6 %"
+2638,"Suspended output VAT, 6 %"
+2640,Input VAT
+2641,Input VAT debited
+2642,Input VAT debited in connection with voluntary VAT liability
+2645,Estimated input VAT on purchases from abroad
+2646,"Input VAT, rentals"
+2647,"Input VAT, reverse tax liability goods and services in Sweden"
+2648,Suspended input VAT
+2649,"Input VAT, mixed business"
+2650,VAT payable
+2660,Special excise duty 
+2661,Advertising tax
+2669,Other special excise duty
+2710,Employee withholding taxes
+2730,Statutory social security contributions and special payroll tax
+2731,Clearing account for statutory social security contributions and special payroll tax
+2732,Clearing account for special payroll tax
+2740,Contractual social security contributions
+2750,Attachment of earnings
+2760,Holiday pay fund
+2761,Clearing account for holiday pay
+2762,Holiday pay fund
+2790,Other wage/salary deductions
+2791,Employee wage/salary deduction account
+2792,Employee savings scheme
+2793,Group insurance premiums
+2794,Trade union dues
+2795,Measurement and inspection fees
+2799,Other wage/salary deductions
+2810,"Clearing account for factoring, current portion"
+2811,"Clearing account, factoring"
+2812,"Clearing account, pledged contractual receivables"
+2820,Current liabilities to employees
+2821,Wage/salary liabilities
+2822,Travel claims
+2823,Bonuses
+2829,Other current liabilities to employees
+2830,Clearing account for third parties
+2840,Current loans
+2841,Current portion of long-term loans
+2849,Other current loans
+2850,Clearing account for taxes and charges (tax account)
+2860,Current liabilities to group companies
+2861,Current liabilities to parent company
+2862,Current liabilities to subsidiaries
+2863,Current liabilities to other group companies
+2870,"Current liabilities to associated companies, jointly controlled companies and other companies in wich a participating is held"
+2871,Current liabilities to associated companies
+2872,Current liabilities to jointly controlled companies
+2873,Current liabilities to other companies in wich a participating is held
+2880,"Liabilities, grants received"
+2890,Other current liabilities
+2891,Liabilities in process of collection
+2892,Interior repairs/maintenance reserve
+2893,"Liabilities to related persons, current portion"
+2895,Derivatives (current liability)
+2897,"Deposits received, current"
+2898,Unclaimed dividends
+2899,Other current liabilities
+2910,Accrued wages and salaries
+2911,Wage/salary liabilities
+2912,Piece-work surpluses
+2919,Other accrued wages and salaries
+2920,Accrued holiday pay
+2930,Accrued pension costs
+2931,Accrued pension payments
+2940,Accrued statutory social security and other contributions
+2941,Estimated accrued statutory social security contribution
+2942,Estimated accrued special payroll tax
+2943,"Estimated accrued special payroll tax for pension costs, tax return item"
+2944,Estimated accrued yield tax on pension costs
+2950,Accrued contractual social security contributions
+2951,Accrued contractual labour market insurance
+2959,"Accrued contractual pension insurance, tax return item"
+2960,Accrued interest expense
+2970,Deferred income
+2971,Prepaid rental income
+2972,Prepaid membership fees
+2979,Other deferred income
+2980,Accrued contractual costs
+2990,Other accrued expenses and deferred income
+2991,Estimated fee for year-end closing
+2992,Estimated audit fee
+2993,Unspecified liability to suppliers
+2998,Other accrued expenses and deferred income
+2999,Suspense account
+3000,"Sales, Sweden"
+3001,"Sales within Sweden, 25 % VAT"
+3002,"Sales within Sweden, 12 % VAT"
+3003,"Sales within Sweden, 6 % VAT"
+3004,"Sales within Sweden, VAT exempt"
+3100,Sales of goods outside Sweden
+3105,Sales of goods to non-EU countries
+3106,"Sales of goods to other EU countries, subject to VAT"
+3108,"Sales of goods to other EU countries, VAT exempt"
+3200,"Sales, margin scheme and reverse charge VAT"
+3211,"Sales, positive margin, margin scheme, 25 % VAT"
+3212,"Sales, negative margin, margin scheme, 25 % VAT"
+3231,"Sales in the construction sector, reverse charge VAT"
+3300,Sales of services outside Sweden
+3305,Sales of services to non-EU countries
+3308,Sales of services to other EU countries
+3400,"Sales, own withdrawals"
+3401,"Own withdrawals subject to VAT, 25 %"
+3402,"Own withdrawals subject to VAT, 12 %"
+3403,"Own withdrawals subject to VAT, 6 %"
+3404,"Own withdrawals, VAT exempt"
+3500,Invoiced costs (control account)
+3510,Invoiced packaging
+3511,Invoiced packaging
+3518,Returned packaging
+3520,Invoiced freight
+3521,"Invoiced freight, EU countries"
+3522,"Invoiced freight, export"
+3530,Invoiced customs and forwarding costs companies etc.
+3540,Invoicing charges
+3541,"Invoicing charges, EU countries"
+3542,"Invoicing charges, export"
+3550,Invoiced travel expenses
+3560,Costs invoiced to group companies
+3561,Costs invoiced to the parent company
+3562,Costs invoiced to subsidiaries
+3563,Costs invoiced to other group companies
+3570,"Costs invoiced to associated companies, jointly controlled companies and other companies in wich a participating is held"
+3590,Other invoiced costs
+3600,Incidental revenue (control account)
+3610,Sales of materials
+3611,Sales of raw materials
+3612,Sales of scrap
+3613,Sales of consumables
+3619,Sales of other materials
+3620,Income from temporary hiring out of personnel
+3630,Income from temporary hiring out of transport equipment
+3670,Income from securities
+3671,Sales of securities
+3672,Dividends from securities
+3679,Other income from securities
+3680,Management fees
+3690,Other incidental revenue
+3700,Revenue reductions (control account)
+3710,Unallocated revenue reductions
+3730,Discounts
+3731,Cash discounts
+3732,Quantity discounts
+3740,Rounding-off to whole kronor
+3750,Invoiced excise duty
+3751,Excise duty recognised in revenue (credit account)
+3752,Excise duty recognised as a lia­bility (debit account)
+3790,Other revenue reductions
+3800,Own work capitalised (control account)
+3840,Own work capitalised (material)
+3850,Own work capitalised (expenses)
+3870,Own work capitalised (personnel)
+3900,Other operating income (control account)
+3910,Rental and lease income
+3911,Rental income
+3912,Lease income
+3913,Rental income subject to volun­tary VAT liability
+3914,Other rental income liable to VAT
+3920,"Commission, licence fees and royalties"
+3921,Commission revenue
+3922,Licence fees and royalties
+3925,Franchise fees
+3940,Unrealised negative/positiv value change on hedging instruments
+3950,Recovery of receivables written-off
+3960,Exchange gains on operating receiva­bles and liabilities
+3970,Capital gains on sale of intangible and tangible fixed assets
+3971,Capital gains on sale of intangi­ble fixed assets
+3972,Capital gains on sale of land and buildings
+3973,Capital gains on sale of machin­ery and equipment
+3980,Government assistance etc. received
+3981,EU grants
+3985,Government grants
+3987,Municipal grants
+3988,Grants and other benefits received related to personnel
+3989,Other grants received
+3990,Other remuneration and revenue
+3991,Strike pay
+3992,Damages received
+3993,Donations and gifts received
+3994,Insurance compensation
+3995,Settlements from schemes of arrangement for liabilities relating to operations
+3996,Advertising contributions received
+3997,Statutory sick pay
+3999,Other operating income
+4000,Purchases of goods from Sweden
+4200,"Goods sold, margin scheme"
+4211,"Goods sold, positive margin, margin scheme, 25 % VAT"
+4212,"Goods sold, negative margin, margin scheme, 25 % VAT"
+4400,Purchases in Sweden subject to VAT
+4415,"Goods purchased in Sweden, reverse charge, 25 % VAT"
+4416,"Goods purchased in Sweden, reverse charge, 12 % VAT"
+4417,"Goods purchased in Sweden, reverse charge, 6 % VAT"
+4425,"Services purchased in Sweden, reverse charge, 25 % VAT"
+4426,"Services purchased in Sweden, reverse charge, 12 % VAT"
+4427,"Services purchased in Sweden, reverse charge, 6 % VAT"
+4500,Other purchases subject to VAT
+4515,"Purchases of goods from other EU countries, 25 % VAT"
+4516,"Purchases of goods from other EU countries, 12 % VAT"
+4517,"Purchases of goods from other EU countries, 6 % VAT"
+4518,"Purchases of goods from other EU countries, VAT exempt"
+4531,"Purchase of services from a country outside the EU, 25 % VAT"
+4532,"Purchase of services from a country outside the EU, 12 % VAT"
+4533,"Purchase of services from a country outside the EU, 6 % VAT"
+4535,"Purchases of services from other EU countries, 25 % VAT"
+4536,"Purchases of services from other EU countries, 12 % VAT"
+4537,"Purchases of services from other EU countries, 6 % VAT"
+4538,"Purchases of services from other EU countries, VAT exempt"
+4545,"Import of goods, 25 % VAT"
+4546,"Import of goods, 12 % VAT"
+4547,"Import of goods, 6 % VAT"
+4600,Sub-contracted work (control account)
+4700,Price reductions (control account)
+4730,Discounts received
+4731,Cash discounts received
+4732,Quantity discounts received (including bonuses)
+4733,Activity support received
+4790,Other price reductions received
+4900,Change in inventories (control account)
+4910,Change in raw material inventories
+4920,Change in inventories of supplies and consumables
+4940,Change in products in progress
+4944,"Change in products in progress, materials and disbursements"
+4945,"Change in products in progress, expenses"
+4947,"Change in products in progress, personnel costs"
+4950,Change in inventories of finished goods
+4960,Change in inventories of goods for resale
+4970,"Change in work in progress, costs incurred"
+4974,"Change in work in progress, materials and disbursements"
+4975,"Change in work in progress, expenses"
+4977,"Change in work in progress, per­sonnel costs"
+4980,Change in inventory of securities
+4981,Cost of acquisition of securities sold
+4987,Write-down of securities
+4988,Reversed write-downs of securi­ties
+5000,Rented premises (control account)
+5010,Rent
+5011,Rented office premises
+5012,Rented garages
+5013,Rented storage space
+5020,Electricity for lighting
+5030,Heating
+5040,Water and sewerage
+5050,Fittings belonging to premises
+5060,Cleaning and refuse collection
+5061,Cleaning
+5062,Refuse collection
+5063,Refuse container rental
+5064,Snow-clearance
+5065,Gardening
+5070,Repairs and maintenance of rented premises
+5090,Other costs of rented premises
+5098,"Other costs of rented premises, tax-deductible"
+5099,"Other costs of rented premises, non tax-deductible"
+5100,Property costs (control account)
+5110,Site leasehold fees/rent
+5120,Electricity for lighting
+5130,Heating
+5131,Heating
+5132,Chimney-sweeping
+5140,Water and sewerage
+5160,Cleaning and refuse collection
+5161,Cleaning
+5162,Refuse collection
+5163,Refuse container rental
+5164,Snow-clearance
+5165,Gardening
+5170,Repairs and maintenance of own property
+5190,Other property costs
+5191,Real estate tax/real estate charge
+5192,Property insurance premiums
+5193,Property maintenance and management
+5198,"Other property costs, tax-deductible"
+5199,"Other property costs, non tax-deductible"
+5200,Hired fixed assets (control account)
+5210,Hire of plant and machinery
+5211,Short-term hire of plant and machinery
+5212,Leasing of plant and machinery
+5220,Hire of equipment and tools
+5221,Short-term hire of equipment and tools
+5222,Leasing of equipment and tools
+5250,Hire of computers
+5251,Short-term hire of computers
+5252,Leasing of computers
+5290,Hire of other fixed assets
+5300,Energy costs (control account)
+5310,Electricity for operations
+5320,Gas
+5330,Fuel oil
+5340,Coal and coke
+5350,"Peat, charcoal, wood and other wood-based fuel"
+5360,"Petrol, paraffin and motor fuel oil"
+5370,"District heating, cooling and steam"
+5380,Water
+5390,Other energy costs
+5400,Consumable equipment and supplies (control account)
+5410,Consumable equipment
+5411,Consumable equipment with a life of more than one year
+5412,Consumable equipment with a life of one year or less
+5420,Software
+5430,Transportation equipment
+5440,Consumable packaging
+5460,Consumable materials
+5480,Work clothing and protective materials
+5490,Other consumable equipment and materials
+5491,Other consumable equipment with a life of more than one year
+5492,Other consumable equipment with a life of one year or less
+5493,Other consumable equipment
+5500,Repairs and maintenance (control account)
+5510,Repairs and maintenance of plant and machinery
+5520,"Repairs and maintenance of equipment, tools and computers etc."
+5530,Repairs and maintenance of fixtures and fittings
+5550,Repairs and maintenance of consumable equipment
+5580,Maintenance and laundering of work clothing
+5590,Other repairs and maintenance
+5600,Transport equipment costs (control account)
+5610,Costs for passenger cars
+5611,"Passenger cars, fuel"
+5612,"Passenger cars, insurance and tax"
+5613,"Passenger cars, repairs and maintenance"
+5615,"Passenger cars, leasing"
+5616,"Congestion tax, deductible"
+5619,"Passenger cars, other costs"
+5620,Costs for heavy goods vehicles
+5630,Costs for trucks
+5640,Costs for processing machines
+5650,Costs for tractors
+5660,"Costs for motorcycles, mopeds and scooters"
+5670,"Costs for boats, aircraft and helicopters"
+5690,Other transport equipment costs
+5700,Freight and transportation (control account)
+5710,"Freight, carriage and insurance premi­ums for goods distribution"
+5720,Customs and forwarding costs etc.
+5730,Work-specific transport costs
+5790,Other freight and transportation charges
+5800,Travel expenses (control account)
+5810,Tickets
+5820,Car hire
+5830,Board and lodging
+5831,"Board and lodging, Sweden"
+5832,"Board and lodging, abroad"
+5890,Other travel expenses
+5900,Advertising and PR (control account)
+5910,Advertisements
+5920,Outdoor and transport advertising
+5930,Advertising matter and direct marketing
+5940,Exhibitions and trade fairs
+5950,In-store advertising and dealer advertising
+5960,"Goods samples, advertising gifts and incentives, competitions"
+5970,"Film, radio, TV and Internet advertising"
+5980,"PR, institutional advertising and spon­sorship"
+5990,Other advertising and PR expenses
+6000,Other selling expenses (control account)
+6010,"Catalogues, price lists etc."
+6020,Own trade publications
+6030,Special order costs
+6040,Credit card charges
+6050,Sales commissions
+6055,Franchise charges etc.
+6060,Credit sale charges
+6061,Credit information
+6062,Debt collecting expenses
+6063,Credit insurance premiums
+6064,Factoring charges
+6069,Other credit sale charges
+6070,Business entertaining
+6071,"Business entertaining, tax‑deductible"
+6072,"Business entertaining, non tax‑deductible"
+6080,Bank guarantees
+6090,Other selling expenses
+6100,Office supplies and printed matter (control account)
+6110,Office supplies
+6150,Printed matter
+6200,Telecommunications and postal services (control account)
+6210,Telecommunications
+6211,Fixed telephony 
+6212,Mobile telephony
+6213,Paging
+6214,Fax
+6215,Telex
+6230,Data communication
+6250,Postal services
+6300,Corporate insurance and other risk-related costs (control account)
+6310,Corporate insurance
+6320,Excess
+6330,Losses in work in progress
+6340,Damages paid
+6341,"Damages paid, tax-deductible"
+6342,"Damages paid, non tax-­deductible"
+6350,Bad debt losses
+6351,Confirmed bad debt losses
+6352,Anticipated bad debt losses
+6360,Warranty costs
+6361,Change in warranty provision
+6362,Actual warranty costs
+6370,Security services
+6380,Losses on other current receivables
+6390,Other risk-related costs
+6400,Costs of administration (control account)
+6410,Directors’ remuneration that is not salary
+6420,Remuneration to auditor
+6421,Audit
+6422,Audit business in addition to audit
+6423,Tax advisory services – auditor
+6424,Other services – auditor
+6430,Management fees
+6440,Annual and interim reports
+6450,Annual general meeting/Annual general meeting of an association
+6490,Other costs of administration
+6500,Other external services (control account)
+6510,Surveying costs
+6520,Drawing and copying costs
+6530,Accountancy services
+6540,IT services
+6550,Consulting fees
+6560,Service charges to trade associations
+6570,Banking costs
+6580,Court costs and attorneys’ fees
+6590,Other external services
+6800,Temporary employees (control account)
+6810,"Temporary employees, production"
+6820,"Temporary employees, warehouse"
+6830,"Temporary employees, transport"
+6840,"Temporary employees, office and accounting"
+6850,"Temporary employees, IT"
+6860,"Temporary employees, marketing and sales"
+6870,"Temporary employees, restaurants and shops"
+6880,"Temporary employees, company management"
+6890,"Temporary employees, other"
+6900,Other external expenses (control account)
+6910,Licence fees and royalties
+6920,Expenses for own patents
+6930,Costs relating to trademarks etc.
+6940,"Inspection and testing charges, stamp duty"
+6950,Fees to regulatory authorities
+6970,"Newspapers, magazines and profes­sional literature"
+6980,Association fees
+6981,"Association fees, tax-deductible"
+6982,"Association fees, non tax-deductible"
+6990,Other external expenses
+6991,"Other external expenses, tax‑deductible"
+6992,"Other external expenses, non tax-deductible"
+6993,Donations and gifts
+6996,Paid foreign income tax
+6997,Unpaid foreign income tax
+6998,"VAT, overseas"
+6999,Input VAT on mixed business
+7000,Wages to employees under collective agreements (control account)
+7010,Wages to employees under collective agreements
+7011,Wages to employees under collective agreements
+7012,Profit shares to employees under collective agreements
+7013,"Wages ""Växa-stöd"" employees under collective agreements, 10,21%"
+7017,Severance pay to employees under collective agreements
+7018,"Gross wages reduction, employees under collective agreements"
+7019,Accrued pay and profit shares to employees under collective agreements
+7030,Wages to employees under collective agreements (employees outside Sweden)
+7031,Wages to employees under collective agreements (employees outside Sweden)
+7032,Profit shares to employees under collective agreements (employees outside Sweden)
+7037,Severance pay to employees under collective agreements (employees outside Sweden)
+7038,"Gross wages reduction, employees under collective agreements (employees outside Sweden)"
+7039,Accrued pay and profit shares to employees under collective agreements (employees outside Sweden)
+7080,Wages to employees under collective agreements for time not worked
+7081,Statutory sick pay to employees under collective agreements
+7082,Holiday pay to employees under collective agreements
+7083,Parental pay to employees under collective agreements
+7089,Other wages to employees under collective agreements for time not worked
+7090,Change in accrued holiday pay liability
+7200,Salaries to white-collar employees and managers (control account)
+7210,Salaries to white-collar employees
+7211,Salaries to white-collar employees
+7212,Profit shares to white-collar employees
+7213,"Wages ""Växa-stöd"" white-collar employees, 10,21%"
+7217,Severance pay to white-collar employees
+7218,"Gross salary reductions, white-collar employees"
+7219,Accrued pay and profit shares to white-collar employees
+7220,Salaries to managers
+7221,Salaries to managers
+7222,Bonuses to managers
+7227,Severance pay to managers
+7228,"Gross salary deductions, managers"
+7229,Accrued pay and profit shares to managers
+7230,Salaries to white-collar employees and managers (employees outside Sweden)
+7231,Salaries to white-collar employees and managers (employees outside Sweden)
+7232,Profit shares to white-collar employees and managers (employees outside Sweden)
+7237,Severance pay to white-collar employees and managers (employees outside Sweden)
+7238,"Gross salary deduction, white-collar employees and managers (employees outside Sweden)"
+7239,Accrued pay and profit shares to white-collar employees and managers (employees outside Sweden)
+7240,Directors’ remuneration
+7280,Pay to white-collar employees and managers for time not worked
+7281,Statutory sick pay to white-collar employees
+7282,Statutory sick pay to managers
+7283,Parental pay to white-collar employees
+7284,Parental pay to managers
+7285,Holiday pay to white-collar employees
+7286,Holiday pay to managers
+7288,Other pay to white-collar employees for time not worked
+7289,Other pay to managers for time not worked
+7290,Change in accrued holiday pay liability
+7291,Change in accrued holiday pay liability to white-collar employees
+7292,Change in accrued holiday pay liability to managers
+7300,Cash remuneration and benefits in kind (control account)
+7310,Additional cash remuneration
+7311,Remuneration for attendance at meetings etc.
+7312,"Remuneration for suggestion activities, inventions"
+7313,Remuneration for/contribution towards housing costs
+7314,Remuneration for/contribution towards meal costs
+7315,Remuneration for/contribution towards travel to and from workplace
+7316,Remuneration for/contribution towards work clothing
+7317,Remuneration for/contribution towards work materials and tools
+7318,Funds to cover miscalculations
+7319,Other additional cash remunera­tion
+7320,"Subsistence allowances, business travel"
+7321,"Tax-exempt subsistence allowances, Sweden"
+7322,"Taxable subsistence allow­ances, Sweden"
+7323,"Tax-exempt subsistence allowances, overseas"
+7324,"Taxable subsistence allowances, overseas"
+7330,Mileage allowances
+7331,"Mileage allowances, tax-exempt"
+7332,"Mileage allowances, taxable"
+7333,"Reimbursement for congestion tax, tax-exempt"
+7350,Allowance for mandatory working clothing
+7370,Business entertainment allowance
+7380,Costs of benefits in kind to employees
+7381,Costs of free housing
+7382,Costs of free or subsidised meals
+7383,Costs of free travel to and from the workplace
+7384,Costs of free or subsidised work clothing
+7385,Costs of free car
+7386,Subsidised interest
+7387,Costs of home computers
+7388,Employee reimbursements for benefits
+7389,Other costs of benefits in kind
+7390,Other cash remuneration and benefits in kind
+7391,Cost of congestion tax benefit
+7392,Cost of benefit for household­related services
+7400,Pensions (control account)
+7410,Pension insurance premiums
+7411,Collective agreement pension insurance premiums
+7412,Individual pension insurance premiums
+7418,Bonuses from insurance compa­nies
+7420,Change in pension provision
+7430,Deduction: Interest portion of pension costs
+7440,Change in pension fund
+7441,Transfer to pension fund
+7448,Indemnification from pension fund
+7460,Pension payments
+7461,Pension payments to former employees under collective agreements
+7462,Pension payments to former white-collar employees
+7463,Pension payments to former managers
+7470,Administration charges and credit insurance premiums
+7490,Other pension costs
+7500,Statutory and contractual social secu­rity and other contributions (control account)
+7510,"Statutory social security contributions 31,42%"
+7511,"Statutory social security contributions on wages, salaries and other remuneration"
+7512,Statutory social security contributions on value of taxable benefits
+7515,Statutory social security contributions on taxable cash remuneration
+7516,Social security contributions on fees
+7518,Statutory social security contributions on gross wages/salary deductions etc.
+7519,Statutory social security contributions on holiday pay and wage/salary liabilities
+7530,Special payroll tax
+7531,Special payroll tax on certain insurance compensation etc.
+7532,"Special payroll tax on pension costs, tax return item"
+7533,Special payroll tax on pension costs
+7550,Yield tax on pension funds
+7551,Yield tax 15 % insurance company
+7552,Yield tax 15 % foreign insurance company
+7553,Yield tax 30 % insurance company
+7554,Yield tax 30 % foreign endowment insurance
+7570,Labour market insurance premiums
+7571,Labour market insurance schemes
+7572,"Labour market insurance, pension insurance premiums, tax return item"
+7580,Group insurance premiums
+7581,Group life insurance
+7582,Group sickness insurance
+7583,Group accident insurance
+7589,Other group insurance premiums
+7590,Other statutory and contractual social security contributions
+7600,Other personnel costs (control account)
+7610,Training
+7620,Health care
+7621,"Health care, tax-deductible"
+7622,"Health care, non tax-deductible"
+7623,"Health care insurance, non-tax‑deductible"
+7630,Entertainment of personnel
+7631,"Entertainment of personnel, tax-deductible"
+7632,"Entertainment of personnel, non tax-deductible"
+7650,Sickness insurance
+7670,Change in staff fund
+7671,Transfer to staff fund
+7678,Indemnification from staff fund
+7690,Other personnel costs
+7691,Staff recruitment
+7692,Assistance towards funeral expenses
+7693,Leisure activities
+7699,Other personnel costs
+7710,Write-downs of intangible fixed assets
+7720,Write-downs of land and buildings
+7730,Write-downs of machinery and equip­ment
+7740,Write-downs of certain current assets
+7760,Reversed write-downs of intangible fixed assets
+7770,Reversed write-downs of land and buildings
+7780,Reversed write-downs of machinery and equipment
+7790,Reversed write-downs of certain current assets
+7810,Amortisation of intangible fixed assets
+7811,Amortisation of capitalised expenditure
+7812,Amortisation of concessions etc.
+7813,Amortisation of patents
+7814,Amortisation of licences
+7815,Amortisation of trademarks
+7816,Amortisation of tenancy rights
+7817,Amortisation of goodwill
+7819,Amortisation of other intangible fixed assets
+7820,Depreciation on buildings and land improvements
+7821,Depreciation on buildings
+7824,Depreciation on land improvements
+7829,Depreciation on other buildings
+7830,Depreciation on machinery and equipment
+7831,Depreciation on plant and machinery
+7832,Depreciation on equipment and tools
+7833,Depreciation on fixtures and fittings
+7834,Depreciation on cars and other transport equipment
+7835,Depreciation on computers
+7836,Depreciation on leased assets
+7839,Depreciation on other machinery and equipment
+7840,Depreciation on cost of improvements to leased property
+7940,Unrealised positive/negative value change in hedging instruments
+7960,Exchange losses on operating receivables and liabilities
+7970,Losses on sale of intangible and tangi­ble fixed assets
+7971,Losses on sale of intangible fixed assets
+7972,Losses on sale of land and buildings
+7973,Losses on sale of machinery and equipment
+7990,Other operating expenses
+8010,Dividends on participations in group companies
+8012,Dividends on participations in subsidiaries
+8016,"Capitalisation issue, group companies"
+8020,Proceeds from sale of participations in group companies
+8022,Proceeds from sale of participa­tions in subsidiaries
+8030,Profit share in partnerships (subsidiar­ies)
+8070,"Write-downs of participations and long-term receivables, group companies"
+8072,Write-downs of participations in subsidiaries
+8076,"Write-downs of long-term receivables, parent company"
+8077,"Write-downs of long-term receivables, subsidiaries"
+8080,"Reversed write-downs of participations and long-term receivables, group com­panies"
+8082,Reversal of write-downs of participations in subsidiaries
+8086,"Reversal of write-downs of long-term receivables, parent company"
+8087,"Reversal of write-downs of long-term receivables, subsidiaries"
+8110,"Dividends from associated companies, jointly controlled companies and other companies in wich a participating is held"
+8111,Dividends from associated companies
+8112,Dividends from from jointly controlled companies
+8113,Dividends from other companies in wich a participating is held
+8116,"Capitalisation issue, associated companies"
+8117,"Capitalisation issue, from  jointly controlled companies"
+8118,"Capitalisation issue, from other companies in wich a participating is held"
+8120,"Proceeds from sale of participations in associated companies, jointly controlled companies and other companies in wich a participating is held"
+8121,Proceeds from sale of participations in associated companies
+8122,Proceeds from sale of participations in jointly controlled companies
+8123,Proceeds from sale of participations in other companies in wich a participating is held
+8130,"Profit share in partnerships in associated companies, jointly controlled companies and other companies in wich a participating is held"
+8131,Profit share in partnerships in associated companies
+8132,Profit share in jointly controlled companies
+8133,Profit share in partnerships in other companies in wich a participating is held
+8170,"Write-downs of participations and long-term receivables, associated companies, jointly controlled companies and other companies in wich a participating is held"
+8171,Write-downs of participations in associated companies
+8172,"Write-downs of long-term receivables, associated companies"
+8173,Write-downs of participations in jointly controlled companies
+8174,"Write-downs of long-term receivables, jointly controlled companies"
+8176,Write-downs of participations in other companies in wich a participating is held
+8177,"Write-downs of long-term receivables, other companies in wich a participating is held"
+8180,"Reversed write-downs of participations and long-term receivables, associated companies, jointly controlled companies and other companies in wich a participating is held"
+8181,Reversal of write-down of participations in associated companies
+8182,"Reversal of write-down of long-term receivables, associated companies"
+8183,"Reversed write-downs of participations,  jointly controlled companies"
+8184,"Reversed write-downs of long-term receivables, jointly controlled companies"
+8186,"Reversed write-downs of participations, other companies in wich a participating is held"
+8187,"Reversed write-downs  long-term receivables, other companies in wich a participating is held"
+8210,Dividends on investments in other com­panies
+8212,"Dividends, other companies"
+8216,"Capitalisation issue, other companies"
+8220,"Proceeds from sale of securities and long-term receivables, other companies"
+8221,Proceeds from sale of participations in other companies
+8222,"Proceeds from sale of long-term receivables, other companies"
+8223,Gain/loss on sale of derivatives (long-term securities holdings)
+8230,Exchange differences on long-term receivables
+8231,Exchange gains on long-term receivables
+8236,Exchange losses on long-term receivables
+8240,Profit share from partnerships (other companies)
+8250,Interest income from long-term receivables and securities in other companies
+8251,Interest income from long-term receivables
+8252,Interest income from other securities
+8254,"Tax exempt interest income, long-term assets"
+8255,Tax on capital investment
+8260,"Interest income from long-term receivables, group companies"
+8261,"Interest income from long-term receivables, parent company"
+8262,"Interest income from long-term receivables, subsidiaries"
+8263,"Interest income from long-term receivables, other group companies"
+8270,"Write-downs of participations and long-term receivables, other companies"
+8271,Write-downs of participations in other companies
+8272,"Write-downs of long-term receivables, other companies"
+8273,"Write-downs of other securities, other companies"
+8280,"Reversal of write-downs of participations and long-term receivables, other companies"
+8281,Reversal of write-downs of participations in other companies
+8282,"Reversal of write-downs of long‑term receivables, other companies"
+8283,Reversal of write-downs of other securities in other companies
+8290,"Fair value measurement, fixed assets"
+8291,Unrealised value changes in fixed assets
+8295,Unrealised value changes in derivative instruments
+8310,Interest income from current assets
+8311,"Interest income, banks"
+8312,"Interest income, short-term deposits"
+8313,"Interest income, current receivables"
+8314,"Interest income, tax-exempt"
+8317,"Interest income, hidden interest rate compensation"
+8319,Other interest income from current assets
+8320,"Fair value measurement, current assets"
+8321,Unrealised value changes in current assets
+8325,Unrealised value changes in derivative instruments (current assets)
+8330,Exchange differences on current recei­vables and investments
+8331,Exchange gains on current receivables and investments
+8336,Exchange losses on current receivables and investments
+8340,Dividends from short-term investments
+8350,Proceeds from sale of short-term investments
+8360,Other interest income from group com­panies
+8361,Other interest income from par­ent company
+8362,Other interest income from sub­sidiaries
+8363,Other interest income from other group companies
+8370,Write-downs of short-term investments
+8380,Reversal of write-downs of short-term investments
+8390,Other financial income
+8400,Interest expense (control account)
+8410,Interest expense on long-term liabilities
+8411,"Interest expense for bond, debenture and convertible loans"
+8412,Interest portion of pension costs
+8413,"Interest expense, overdraft facility"
+8414,"Interest expense, construction loan"
+8415,Interest expense on other liabilities to credit institutions
+8417,"Interest expense, hidden interest rate compensation etc."
+8418,Deductible interest subsidies
+8419,Other interest expense on long-term liabilities
+8420,Interest expense on current liabilities
+8421,Interest expense to credit insti­tutions
+8422,Penalty interest expense for accounts payable – trade
+8423,Interest expense on taxes and charges
+8424,Interest expense with a building
+8429,Other interest expense on cur­rent liabilities
+8430,Exchange differences on liabilities
+8431,Exchange gains on liabilities
+8436,Exchange losses on liabilities
+8440,Interest subsidies received
+8450,Unrealised value changes in liabilities
+8451,Unrealised value changes in lia­bilities
+8455,Unrealised value changes in hedging instruments
+8460,Interest expense to group companies
+8461,Interest expense to parent com­pany
+8462,Interest expense to subsidiaries
+8463,Interest expense to other group companies
+8480,Capitalised interest
+8490,Other liability-related items
+8491,Settlements from schemes of arrangement for liabilities to credit institutions etc.
+8810,Change in tax allocation reserve
+8811,Transfer to tax allocation reserve
+8819,Reversal from tax allocation reserve
+8820,Group contributions received
+8830,Group contributions paid
+8840,Reimbursements
+8850,Change in excess depreciation/amortisation
+8851,"Change in excess amortisation, intangible fixed assets"
+8852,"Change in excess depreciation, buildings and land improvements"
+8853,"Change in excess depreciation, machinery and equipment"
+8860,Change in replacement reserve
+8861,Transfer to replacement reserve for equipment
+8862,Transfer to replacement reserve for buildings and land improvements
+8864,Transfer to replacement reserve for stocks of farming animals and reindeer
+8865,Transfer from replacement reserve for depreciation
+8866,Transfer from replacement reserve for purposes other than depreciation
+8869,Transfer from replacement reserve
+8890,Other appropriations
+8892,Write-downs of fixed assets on consolidation
+8896,Change in inventory reserve
+8899,Other appropriations
+8910,Tax charged to profit/loss for the year
+8920,Tax due to changed taxation
+8930,Tax refund
+8940,Deferred tax
+8980,Other taxes
+8990,Result
+8999,Result for the year

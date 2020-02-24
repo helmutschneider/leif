@@ -1,4 +1,4 @@
-package leif
+package leif.accounting
 
 import java.io.InputStream
 

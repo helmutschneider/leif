@@ -1,4 +1,4 @@
-package leif
+package leif.http
 
 import leif.http.User
 

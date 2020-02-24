@@ -15,6 +15,7 @@ import leif.crypto.TokenStorage
 import leif.database.Database
 import leif.database.JDBCDatabase
 import leif.http.HttpException
+import leif.http.RequestSandbox
 import leif.http.User
 import leif.http.UserResolver
 import leif.serialization.JsonSerializer

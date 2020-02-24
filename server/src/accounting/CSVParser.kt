@@ -1,33 +1,25 @@
-package leif
+package leif.accounting
 
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.StringBuilder
 
-class BasCSVParser : AccountChartParser {
+class CSVParser(val columnOfAccountNumber: Int, val columnOfAccountDescription: Int) : AccountChartParser {
     override fun parse(stream: InputStream): Iterable<AccountLike> {
         val rdr = InputStreamReader(stream)
         val accounts = mutableMapOf<Int, AccountLike>()
-        val possibleIndices = listOf(Pair(2, 3), Pair(5, 6))
 
         rdr.forEachLine { line ->
             val parts = parseLine(line)
-            val toInsert = possibleIndices
-                .mapNotNull { parseIndexOfLine(parts, it) }
-                .map { Pair(it.number, it) }
-            accounts.putAll(toInsert)
+            val num = parts.getOrNull(columnOfAccountNumber)?.toIntOrNull()
+            val description = parts.getOrNull(columnOfAccountDescription)
+
+            if (num != null && description != null) {
+                accounts.put(num, AccountLike(num, description))
+            }
         }
 
-        return accounts.values.toList()
-    }
-
-    private fun parseIndexOfLine(parts: List<String>, index: Pair<Int, Int>): AccountLike? {
-        val nmbr = parts.getOrNull(index.first)?.let(String::toIntOrNull)
-        val desc = parts.getOrNull(index.second)?.let(String::trim)
-        if (nmbr != null && desc != null && nmbr >= 1000) {
-            return AccountLike(nmbr, desc)
-        }
-        return null
+        return accounts.map { it.value }
     }
 
     private fun parseLine(line: String): List<String> {
@@ -46,6 +38,10 @@ class BasCSVParser : AccountChartParser {
                 }
                 else -> buf.append(chr)
             }
+        }
+
+        if (buf.isNotEmpty()) {
+            out.add(buf.toString())
         }
 
         return out
