@@ -1,3 +1,3 @@
 package leif.accounting
 
-class AccountLike(val number: Int, val description: String)
+class AccountLike(val number: Long, val description: String)

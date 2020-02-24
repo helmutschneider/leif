@@ -8,6 +8,7 @@ import leif.Application
 import leif.accounting.CSVParser
 import leif.crypto.PBKDF2Hasher
 import leif.database.Database
+import leif.database.QueryCollection
 import leif.validation.Rule
 import spark.Request
 import spark.Response
@@ -43,14 +44,16 @@ class InitAction(val app: Application) : Route {
             .filter { it.isNotEmpty() }
             .forEach { db.statement(it) }
 
-        val orgIds = db.insert("INSERT INTO organization (organization_id, name) VALUES (?, ?)", listOf(1, body["organization"]))
+        val queries = QueryCollection(db)
+
+        val orgId = queries.createOrganization(body["organization"] as String)
         val passwordHash = PBKDF2Hasher().hash((body["password"] as String).toByteArray())
 
-        db.insert("INSERT INTO `user` (username, password, organization_id) VALUES (?, ?, ?)", listOf(
-            body["username"],
+        queries.createUser(
+            body["username"] as String,
             passwordHash,
-            orgIds.first()
-        ))
+            orgId
+        )
 
         val dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val start = LocalDate.now()
@@ -60,18 +63,18 @@ class InitAction(val app: Application) : Route {
             .withMonth(12)
             .withDayOfMonth(31)
 
-        val periodIds = db.insert("INSERT INTO accounting_period (start, end, organization_id) VALUES (?, ?, ?)", listOf(
+        val periodId = queries.createAccountingPeriod(
             start.format(dateFmt),
             end.format(dateFmt),
-            orgIds.first()
-        ))
+            orgId
+        )
 
         for (account in accounts) {
-            db.insert("INSERT INTO account (number, description, accounting_period_id) VALUES (?, ?, ?)", listOf(
+            queries.createAccount(
                 account.number,
                 account.description,
-                periodIds.first()
-            ))
+                periodId
+            )
         }
         return this.ok
     }

@@ -11,11 +11,11 @@ class CSVParser(val columnOfAccountNumber: Int, val columnOfAccountDescription: 
         // some chart of accounts define the same account multiple
         // times with different description. for data integrity reasons
         // we cannot allow this. let's use a map to avoid the issue.
-        val accounts = mutableMapOf<Int, AccountLike>()
+        val accounts = mutableMapOf<Long, AccountLike>()
 
         rdr.forEachLine { line ->
             val parts = parseLine(line)
-            val num = parts.getOrNull(columnOfAccountNumber)?.toIntOrNull()
+            val num = parts.getOrNull(columnOfAccountNumber)?.toLongOrNull()
             val description = parts.getOrNull(columnOfAccountDescription)
 
             if (num != null && description != null) {

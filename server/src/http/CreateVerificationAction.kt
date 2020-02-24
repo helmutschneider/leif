@@ -2,6 +2,7 @@ package leif.http
 
 import leif.Application
 import leif.database.Database
+import leif.database.QueryCollection
 import leif.validation.Rule
 import spark.Request
 import spark.Response
@@ -20,18 +21,22 @@ class CreateVerificationAction(val app: Application) : Route {
             "transactions.*.account_id" to listOf(Rule.Required, Rule.Integer),
             "transactions.*.amount" to listOf(Rule.Required, Rule.Integer, Rule.SumEqual(0.0))
         ))
+        val db = app.container.get<Database>()
+        val queries = QueryCollection(db)
         val accountingPeriodId = request.params(":id")
-        app.container.get<Database>().transaction { db ->
-            val ids = db.insert(
-                "INSERT INTO verification (date, description, accounting_period_id) VALUES (?, ?, ?)",
-                listOf(body["date"], body["description"], accountingPeriodId)
+        app.container.get<Database>().transaction {
+            val id = queries.createVerification(
+                body["date"] as String,
+                body["description"] as String,
+                accountingPeriodId.toLong()
             )
             val transactions = body["transactions"] as List<Map<String, Any?>>
 
             transactions.forEach { transaction ->
-                db.insert(
-                    "INSERT INTO `transaction` (amount, account_id, verification_id) VALUES (?, ?, ?)",
-                    listOf(transaction["amount"], transaction["account_id"], ids.first())
+                queries.createTransaction(
+                    transaction["amount"] as Long,
+                    transaction["account_id"] as Long,
+                    id
                 )
             }
         }
