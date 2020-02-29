@@ -1,29 +1,90 @@
 import * as React from 'react'
-import { RequestFunction } from "@app/http";
-import {Login} from "@app/login";
+import {HttpClient} from "@app/http";
+import {AccountingPeriod, ApplicationContext, Identity} from "@app/types";
+import {Link, RedirectRoute, Route, Router, WindowHistoryStateProvider} from "720-ts/src/react/Router";
+import {Verifications} from "@app/verifications";
+import {entries} from "720-ts/src/entries";
+import {AccountingPeriods} from "@app/accounting-periods";
 
 type Props = {
-    request: RequestFunction
+    http: HttpClient
+    identity: Identity
+    logout: () => unknown
 }
 
-export const App: React.FunctionComponent<Props> = props => {
+const stateProvider = new WindowHistoryStateProvider()
 
+type State = {
+    accountingPeriods: ReadonlyArray<AccountingPeriod>
+}
+
+const paths = {
+    'Verifications': '/verifications',
+    'Accounting periods': '/accounting-periods',
+} as const
+
+export const App: React.FunctionComponent<Props> = props => {
+    const [state, setState] = React.useState<State>({
+        accountingPeriods: [],
+    })
 
     React.useEffect(() => {
-        props.request({
+        props.http.send<ReadonlyArray<AccountingPeriod>>({
             method: 'GET',
-            url: 'http://localhost:8000/'
+            url: '/app/accounting-period',
+        }).then(res => {
+            setState({
+                accountingPeriods: res.body,
+            })
         })
     }, [])
 
     return (
-        <div className="container">
-            <div className="row justify-content-center">
-                <div className="col-lg-4">
-                    <h1>Log in</h1>
-                    <Login onLogin={user => {}} request={props.request} />
-                </div>
-            </div>
-        </div>
+        state.accountingPeriods.length
+            ? (
+                <React.Fragment>
+                    <nav className="navbar navbar-dark bg-dark navbar-expand">
+                        <div className="container">
+                            <ul className="navbar-nav mr-auto">
+                                {entries(paths).map((entry, idx) => {
+                                    return (
+                                        <li className="nav-item" key={idx}>
+                                            <Link
+                                                className="nav-link"
+                                                path={entry.value}
+                                                stateProvider={stateProvider}>
+                                                {entry.key}
+                                            </Link>
+                                        </li>
+                                    )
+                                })}
+                            </ul>
+                            <ul className="navbar-nav">
+                                <li className="nav-item">
+                                    <a href="#" className="nav-link" onClick={props.logout}>
+                                        Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                    <div className="container mt-3">
+                        <Router<ApplicationContext>
+                            context={{
+                                accountingPeriods: state.accountingPeriods,
+                                http: props.http,
+                                identity: props.identity
+                            }}
+                            routes={[
+                                new Route('/verifications', Verifications),
+                                new Route('/accounting-periods', AccountingPeriods),
+                                new RedirectRoute('/', '/verifications')
+                            ]}
+                            stateProvider={stateProvider}
+                        />
+                    </div>
+                </React.Fragment>
+            )
+            : <div>Loading...</div>
     )
 }

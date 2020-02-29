@@ -19,7 +19,29 @@ export type RequestFunction = {
 
 const CONTENT_TYPE_JSON = 'application/json'
 
-export function request<T>(request: Request): PromiseLike<Response<T>> {
+export class HttpClient {
+    protected readonly handler: RequestFunction
+
+    public baseUrl: string = ''
+    public headers: Map<string> = {}
+
+    constructor(handler: RequestFunction) {
+        this.handler = handler
+    }
+
+    public send<T>(request: Request): PromiseLike<Response<T>> {
+        request.headers = {
+            ...request.headers,
+            ...this.headers,
+        }
+
+        request.url = this.baseUrl + request.url
+
+        return this.handler(request)
+    }
+}
+
+export function fetchBasedRequestFunction<T>(request: Request): PromiseLike<Response<T>> {
     const init: RequestInit = {
         headers: {
             ...(request.headers ?? {}),

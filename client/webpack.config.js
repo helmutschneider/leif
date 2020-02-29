@@ -36,11 +36,13 @@ const config = {
                 test: /\.tsx?$/,
                 include: [
                     path.resolve(__dirname, 'src'),
+                    path.resolve(__dirname, 'node_modules/720-ts'),
                 ],
                 use: [
                     {
                         loader: 'ts-loader',
                         options: {
+                            allowTsInNodeModules: true,
                             configFile: tsConfigPath,
                         },
                     },
