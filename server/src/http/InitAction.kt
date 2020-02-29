@@ -19,7 +19,7 @@ class InitAction(val app: Application) : Route {
 
     override fun handle(request: Request, response: Response): Any? {
         val db = app.container.get<Database>()
-        val exists = db.selectOne("SELECT 1 FROM information_schema.TABLES AS t WHERE t.TABLE_SCHEMA = ?", listOf("keepo"))
+        val exists = db.selectOne("SELECT 1 FROM information_schema.TABLES AS t WHERE t.TABLE_SCHEMA = ?", listOf(app.config.databaseName))
 
         if (exists != null) {
             return this.ok

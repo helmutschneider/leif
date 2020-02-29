@@ -26,7 +26,7 @@ import leif.validation.Validator
 import spark.Request
 import spark.Service
 
-class Application(config: ApplicationConfig) {
+class Application(val config: ApplicationConfig) {
     val container = Container {
         singleton { this }
         singleton<Service> { container ->
