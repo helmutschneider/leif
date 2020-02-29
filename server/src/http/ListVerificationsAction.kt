@@ -42,6 +42,7 @@ class ListVerificationsAction(val app: Application) : Route {
                ON ap.accounting_period_id = v.accounting_period_id
             WHERE ap.accounting_period_id = ?
               AND ap.organization_id = ?
+            ORDER BY v.verification_id DESC
         """, listOf(request.params(":id"), user?.organizationId))
 
         return verifications.map {
