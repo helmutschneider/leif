@@ -7,6 +7,7 @@ import leif.validation.Rule
 import spark.Request
 import spark.Response
 import spark.Route
+import leif.parse
 
 class CreateVerificationAction(val app: Application) : Route {
     override fun handle(request: Request, response: Response): Any? {
@@ -34,8 +35,8 @@ class CreateVerificationAction(val app: Application) : Route {
 
             transactions.forEach { transaction ->
                 queries.createTransaction(
-                    transaction["amount"] as Long,
-                    transaction["account_id"] as Long,
+                    Long.parse(transaction["amount"])!!,
+                    Long.parse(transaction["account_id"])!!,
                     id
                 )
             }

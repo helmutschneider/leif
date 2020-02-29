@@ -1,6 +1,6 @@
 package leif.validation
 
-import java.math.BigInteger
+import leif.parse
 
 sealed class Rule : RuleLike {
     object Required : Rule() {
@@ -38,14 +38,19 @@ sealed class Rule : RuleLike {
 
     object Integer : Rule() {
         override fun execute(dataSet: DataSet, keyPattern: kotlin.String): List<ValidationError> {
-            return dataSet.getMatchingKeys(keyPattern)
-                .map { Pair(it, dataSet.getValueAtKey(it)) }
-                .filter {
-                    it.second !is Int && it.second !is Long && it.second !is BigInteger
+            val out = mutableListOf<ValidationError>()
+            val matches = dataSet.getMatchingKeys(keyPattern)
+
+            for (match in matches) {
+                val value = dataSet.getValueAtKey(match)
+                val asLong = Long.parse(value)
+
+                if (asLong !is Long) {
+                    out.add(ValidationError(match, "${match} must be an integer."))
                 }
-                .map {
-                    ValidationError(it.first, "${it.first} must be an integer.")
-                }
+            }
+
+            return out
         }
     }
 
@@ -69,9 +74,10 @@ sealed class Rule : RuleLike {
                 .getMatchingKeys(keyPattern)
                 .map { key ->
                     val value = dataSet.getValueAtKey(key)
+                    val asDouble = Double.parse(value)
 
-                    when (value) {
-                        is Number -> value.toDouble()
+                    when (asDouble) {
+                        is Double -> asDouble
                         else -> 0.0
                     }
                 }

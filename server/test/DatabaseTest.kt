@@ -38,7 +38,7 @@ abstract class DatabaseTest {
             db.statement("DROP TABLE IF EXISTS `$it`")
         }
 
-        val path = System.getProperty("user.dir") + "/data/mysql.sql"
+        val path = System.getProperty("user.dir") + "/../data/mysql.sql"
 
         Files.readString(Path.of(path))
             .split(";")
