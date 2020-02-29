@@ -9,13 +9,13 @@
         "noUnusedLocals": true,
         "paths": {
             "@app/*": [
-                "client/*"
+                "src/*"
             ]
         },
         "strict": true,
         "target": "es2015"
     },
     "include": [
-        "client/**/*"
+        "**/*"
     ]
 }

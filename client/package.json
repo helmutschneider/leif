@@ -2,7 +2,7 @@
   "name": "leif",
   "version": "0.1.0",
   "description": "Minimalistic dual-entry bookkeeping application",
-  "main": "index.js",
+  "main": "src/index.tsx",
   "scripts": {
     "build": "NODE_ENV=production webpack",
     "start": "webpack-dev-server --content-base public/",
@@ -12,13 +12,14 @@
     "type": "git",
     "url": "git+https://github.com/helmutschneider/leif.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Johan Björk",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/helmutschneider/leif/issues"
   },
   "homepage": "https://github.com/helmutschneider/leif#readme",
   "dependencies": {
+    "720-ts": "git+https://github.com/YSDSRND/720-ts.git",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
     "html-webpack-plugin": "^3.2.0",
