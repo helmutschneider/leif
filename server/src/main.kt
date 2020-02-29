@@ -10,7 +10,16 @@ import leif.http.LoginAction
 import spark.Service
 
 fun main() {
-    val app = Application("127.0.0.1", 8000, true)
+    val config = ApplicationConfig {
+        httpHost = "127.0.0.1"
+        httpPort = 8000
+        debug = true
+        databaseName = "leif"
+        databaseUser = "root"
+        databasePassword = ""
+    }
+
+    val app = Application(config)
     val http = app.container.get<Service>()
 
     http.get("/") { _, _ ->

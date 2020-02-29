@@ -21,19 +21,18 @@ import leif.http.UserResolver
 import leif.serialization.JsonSerializer
 import leif.serialization.Serializer
 import leif.serialization.TypedDelegatingSerializer
-import leif.validation.Rule
 import leif.validation.RuleLike
 import leif.validation.Validator
 import spark.Request
 import spark.Service
 
-class Application(host: String, port: Int, debug: Boolean = false) {
+class Application(config: ApplicationConfig) {
     val container = Container {
         singleton { this }
         singleton<Service> { container ->
             val http = Service.ignite()
-                .ipAddress(host)
-                .port(port)
+                .ipAddress(config.httpHost)
+                .port(config.httpPort)
 
             http.defaultResponseTransformer { value ->
                 val serializer = container.get<Serializer>()
@@ -42,7 +41,7 @@ class Application(host: String, port: Int, debug: Boolean = false) {
             http.exception(Exception::class.java) { e, _, response ->
                 val serializer = container.get<Serializer>()
                 val code = if (e is HttpException) e.code else 500
-                val body: Any = if (debug) e else mapOf("message" to e.message)
+                val body: Any = if (config.debug) e else mapOf("message" to e.message)
                 response.status(code)
                 response.body(serializer.serialize(body))
             }
@@ -52,7 +51,13 @@ class Application(host: String, port: Int, debug: Boolean = false) {
             http
         }
         singleton<Database> {
-            JDBCDatabase.withMySQL("leif", "root", "")
+            JDBCDatabase.withMySQL(
+                config.databaseName,
+                config.databaseUser,
+                config.databasePassword,
+                config.databaseHost,
+                config.databasePort
+            )
         }
         singleton<Serializer> {
             val mapper = ObjectMapper().registerKotlinModule()
