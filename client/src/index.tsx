@@ -41,6 +41,7 @@ const Index: React.FunctionComponent = () => {
             : <Login http={http} onLogin={identity => {
                 setState({ identity })
                 appStorage.identity = identity
+                http.headers['Access-Token'] = identity.token
                 storage.setItem(STORAGE_KEY, JSON.stringify(appStorage))
             }} />
     )

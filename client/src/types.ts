@@ -15,6 +15,7 @@ export type AccountingPeriod = {
 }
 
 export type ApplicationContext = {
+    accounts: ReadonlyArray<Account>
     accountingPeriods: ReadonlyArray<AccountingPeriod>
     http: HttpClient
     identity: Identity

@@ -1,27 +1,33 @@
 import * as React from 'react'
-import {RouteComponentLike} from "@app/types";
+import {AccountingPeriod, RouteComponentLike} from "@app/types";
+import {List, ListColumn} from "@app/list";
+
+const columns: ReadonlyArray<ListColumn<AccountingPeriod>> = [
+    {
+        property: 'accounting_period_id',
+        size: 2,
+        title: 'ID',
+    },
+    {
+        property: 'start',
+        size: 5,
+        title: 'Start',
+    },
+    {
+        property: 'end',
+        size: 5,
+        title: 'End',
+    },
+]
 
 export const AccountingPeriods: RouteComponentLike = props => {
     return (
-        <table className="table table-sm">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Start</th>
-                <th>End</th>
-            </tr>
-            </thead>
-            <tbody>
-            {props.context.accountingPeriods.map((period, idx) => {
-                return (
-                    <tr key={idx}>
-                        <td>{period.accounting_period_id}</td>
-                        <td>{period.start}</td>
-                        <td>{period.end}</td>
-                    </tr>
-                )
-            })}
-            </tbody>
-        </table>
+        <div>
+            <h3>Accounting periods</h3>
+            <List
+                columns={columns}
+                items={props.context.accountingPeriods}
+            />
+        </div>
     )
 }
