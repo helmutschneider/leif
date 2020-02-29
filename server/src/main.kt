@@ -34,8 +34,10 @@ fun main() {
             "version" to "1.0"
         )
     }
-    http.options("/*") { _, response ->
-        response.status(200)
+    http.before("/*") { request, response ->
+        if (request.requestMethod() == "OPTIONS") {
+            http.halt(200)
+        }
     }
     http.afterAfter { _, response ->
         CORS_HEADERS.forEach { pair ->
