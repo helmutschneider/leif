@@ -19,8 +19,9 @@ class LoginAction(val app: Application) : spark.Route {
             "username" to listOf(Rule.Required, Rule.String),
             "password" to listOf(Rule.Required, Rule.String)
         ))
+        val username = body["username"] as String
         val db = app.container.get<Database>()
-        val user = db.selectOne("SELECT * FROM user WHERE username = ?", listOf(body["username"]))
+        val user = db.selectOne("SELECT * FROM user WHERE username = ?", listOf(username))
 
         if (user == null) {
             throw HttpException(401, "User not found")
@@ -30,13 +31,18 @@ class LoginAction(val app: Application) : spark.Route {
         val password = (body["password"] as String).toByteArray()
 
         if (hasher.verify(password, user.get("password") as ByteArray)) {
-            return LoginResult(
-                tokenRepository.create(TokenType.Login, User(user["user_id"] as Long, user["organization_id"] as Long)).toHexString()
-            )
+            val userId = user["user_id"] as Long
+            val token = tokenRepository.create(TokenType.Login, User(userId, user["organization_id"] as Long)).toHexString()
+
+            return LoginResult(userId, username, token)
         }
 
         throw HttpException(401, "Invalid password")
     }
 
-    class LoginResult(val token: String)
+    class LoginResult(
+        val id: Long,
+        val username: String,
+        val token: String
+    )
 }

@@ -45,7 +45,7 @@ class Application(val config: ApplicationConfig) {
                 response.status(code)
                 response.body(serializer.serialize(body))
             }
-            http.afterAfter { request, response ->
+            http.afterAfter { _, response ->
                 response.header("Content-Type", "application/json")
             }
             http
