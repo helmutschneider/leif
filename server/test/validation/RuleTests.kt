@@ -112,6 +112,26 @@ class StringRuleTest {
     }
 }
 
+class IntegerRuleTest {
+    @Test
+    fun shouldAcceptIntegerLikeStrings() {
+        val set = DataSet(mapOf(
+            "a" to "1"
+        ))
+
+        assertEquals(0, Rule.Integer.execute(set, "a").size)
+    }
+
+    @Test
+    fun shouldAcceptLongs() {
+        val set = DataSet(mapOf(
+            "a" to 1.toLong()
+        ))
+
+        assertEquals(0, Rule.Integer.execute(set, "a").size)
+    }
+}
+
 class MinimumRuleTest {
     @Test
     fun shouldSucceedWhenValueIsNotList() {
