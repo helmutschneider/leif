@@ -2,6 +2,7 @@ import * as React from 'react'
 import {Verification} from "@app/types";
 import {Account} from "@app/types";
 import {YSDSDate} from "720-ts/src/date";
+import {Autocomplete} from "@app/components/autocomplete";
 
 type Props = {
     accounts: ReadonlyArray<Account>
@@ -21,6 +22,10 @@ function emptyVerification(): Verification {
             },
         ],
     }
+}
+
+function accountToString(account: Account): string {
+    return `${account.number}: ${account.description}`
 }
 
 export const VerificationForm: React.FunctionComponent<Props> = props => {
@@ -59,34 +64,27 @@ export const VerificationForm: React.FunctionComponent<Props> = props => {
             {state.transactions.map((t, idx) => {
                 return (
                     <div className="form-row" key={idx}>
-                        <div className="col">
+                        <div className="col-8">
                             <div className="form-group">
-                                <select className="form-control form-control-sm"
-                                        onChange={event => {
-                                            if (!event.target.value) {
-                                                return
-                                            }
-                                            const st = {
-                                                ...state,
-                                                transactions: state.transactions.slice(),
-                                            }
-                                            st.transactions[idx].account_id = parseInt(event.target.value)
-                                            setState(st)
-                                        }}
-                                        value={t.account_id}>
-                                    <option value="">Choose account</option>
-                                    {props.accounts.map((account, idx) => {
-                                        return (
-                                            <option key={idx}
-                                                    value={account.account_id}>
-                                                {account.number}: {account.description}
-                                            </option>
-                                        )
-                                    })}
-                                </select>
+                                <Autocomplete
+                                    onSelectItem={account => {
+                                        const st = {...state}
+                                        const transactions = st.transactions.slice()
+                                        transactions[idx] = {
+                                            ...st.transactions[idx],
+                                            account_id: account.account_id,
+                                        }
+                                        st.transactions = transactions
+                                        setState(st)
+                                        return accountToString(account)
+                                    }}
+                                    items={props.accounts}
+                                    renderItem={accountToString}
+                                    placeholder="Account"
+                                />
                             </div>
                         </div>
-                        <div className="col">
+                        <div className="col-3">
                             <div className="form-group">
                                 <input className="form-control form-control-sm"
                                        placeholder="Amount"
