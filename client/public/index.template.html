@@ -13,6 +13,35 @@
           crossorigin="anonymous">
 
     <title>Leif</title>
+
+    <style>
+        html, body, #app {
+            height: 100%;
+            width: 100%;
+        }
+        .flex-parent {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+        .flex-0 {
+            flex: 0 0 auto;
+            position: relative;
+        }
+        .flex-1 {
+            flex: 1 1 auto;
+            position: relative;
+        }
+        .scroll-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            overflow-y: scroll;
+        }
+    </style>
 </head>
 
 <body>

@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom'
 import { App } from './app'
 import {HttpClient, fetchBasedRequestFunction} from "@app/http";
 import {ApplicationStorage, Identity} from "@app/types";
-import {Login} from "@app/login";
+import {Login} from "@app/views/login";
 
 declare const APP_ENV: {
     API_URL: string

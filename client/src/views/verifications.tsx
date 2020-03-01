@@ -1,8 +1,8 @@
 import * as React from 'react'
 import {Account, RouteComponentLike, Verification} from "@app/types";
 import {Map} from "720-ts/src/types";
-import {VerificationForm} from "@app/verification-form";
-import {List, ListColumn} from "@app/list";
+import {VerificationForm} from "@app/components/verification-form";
+import {List, ListColumn} from "@app/components/list";
 
 const columns: ReadonlyArray<ListColumn<Verification>> = [
     {

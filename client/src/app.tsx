@@ -2,10 +2,10 @@ import * as React from 'react'
 import { HttpClient } from "@app/http";
 import { Account, AccountingPeriod, ApplicationContext, Identity } from "@app/types";
 import { Link, RedirectRoute, Route, Router, WindowHistoryStateProvider } from "720-ts/src/react/Router";
-import { Verifications } from "@app/verifications";
+import { Verifications } from "@app/views/verifications";
 import { entries } from "720-ts/src/entries";
-import { AccountingPeriods } from "@app/accounting-periods";
-import {Accounts} from "@app/accounts";
+import { AccountingPeriods } from "@app/views/accounting-periods";
+import {Accounts} from "@app/views/accounts";
 
 type Props = {
     http: HttpClient
@@ -72,75 +72,81 @@ export const App: React.FunctionComponent<Props> = props => {
     }, [state.currentAccountingPeriodId])
 
     return (
-        <React.Fragment>
-            <nav className="navbar navbar-dark bg-dark navbar-expand">
-                <a className="navbar-brand text-green">
-                    <strong>leif</strong>
-                </a>
-                <ul className="navbar-nav mr-auto">
-                    {entries(paths).map((entry, idx) => {
-                        return (
-                            <li className="nav-item" key={idx}>
-                                <Link
-                                    className="nav-link"
-                                    path={entry.value}
-                                    stateProvider={stateProvider}>
-                                    {entry.key}
-                                </Link>
-                            </li>
-                        )
-                    })}
-                </ul>
-                <form className="form-inline">
-                    <select className="form-control form-control-sm"
-                        onChange={event => {
-                            setState({
-                                ...state,
-                                currentAccountingPeriodId: event.target.value
-                                    ? parseInt(event.target.value)
-                                    : undefined,
-                            })
-                        }}
-                        value={state.currentAccountingPeriodId}>
-                        <option value={''}>Accounting period</option>
-                        {state.accountingPeriods.map((p, i) => {
+        <div className="flex-parent">
+            <div className="flex-0">
+                <nav className="navbar navbar-dark bg-dark navbar-expand">
+                    <a className="navbar-brand text-green">
+                        <strong>leif</strong>
+                    </a>
+                    <ul className="navbar-nav mr-auto">
+                        {entries(paths).map((entry, idx) => {
                             return (
-                                <option key={i} value={p.accounting_period_id}>{p.start} - {p.end}</option>
+                                <li className="nav-item" key={idx}>
+                                    <Link
+                                        className="nav-link"
+                                        path={entry.value}
+                                        stateProvider={stateProvider}>
+                                        {entry.key}
+                                    </Link>
+                                </li>
                             )
                         })}
-                    </select>
-                </form>
-                <ul className="navbar-nav">
-                    <li className="nav-item">
-                        <a href="#" className="nav-link" onClick={props.logout}>
-                            Logout
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <div className="container-fluid mt-3">
-                {
-                    state.accountingPeriods.length
-                        ? (
-                            <Router<ApplicationContext>
-                                context={{
-                                    accounts: state.accounts,
-                                    accountingPeriods: state.accountingPeriods,
-                                    http: props.http,
-                                    identity: props.identity
+                    </ul>
+                    <form className="form-inline">
+                        <select className="form-control form-control-sm"
+                                onChange={event => {
+                                    setState({
+                                        ...state,
+                                        currentAccountingPeriodId: event.target.value
+                                            ? parseInt(event.target.value)
+                                            : undefined,
+                                    })
                                 }}
-                                routes={[
-                                    new Route('/verifications', Verifications),
-                                    new Route('/accounts', Accounts),
-                                    new Route('/accounting-periods', AccountingPeriods),
-                                    new RedirectRoute('/', '/verifications')
-                                ]}
-                                stateProvider={stateProvider}
-                            />
-                        )
-                        : 'Loading...'
-                }
+                                value={state.currentAccountingPeriodId}>
+                            <option value={''}>Accounting period</option>
+                            {state.accountingPeriods.map((p, i) => {
+                                return (
+                                    <option key={i} value={p.accounting_period_id}>{p.start} - {p.end}</option>
+                                )
+                            })}
+                        </select>
+                    </form>
+                    <ul className="navbar-nav">
+                        <li className="nav-item">
+                            <a href="#" className="nav-link" onClick={props.logout}>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-        </React.Fragment>
+            <div className="flex-1">
+                <div className="scroll-container">
+                    <div className="container-fluid mt-3">
+                        {
+                            state.accountingPeriods.length
+                                ? (
+                                    <Router<ApplicationContext>
+                                        context={{
+                                            accounts: state.accounts,
+                                            accountingPeriods: state.accountingPeriods,
+                                            http: props.http,
+                                            identity: props.identity
+                                        }}
+                                        routes={[
+                                            new Route('/verifications', Verifications),
+                                            new Route('/accounts', Accounts),
+                                            new Route('/accounting-periods', AccountingPeriods),
+                                            new RedirectRoute('/', '/verifications')
+                                        ]}
+                                        stateProvider={stateProvider}
+                                    />
+                                )
+                                : 'Loading...'
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }

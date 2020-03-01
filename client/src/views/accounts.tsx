@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {RouteComponentLike, Account} from "@app/types";
-import {List, ListColumn} from "@app/list";
+import {List, ListColumn} from "@app/components/list";
 
 const columns: ReadonlyArray<ListColumn<Account>> = [
     {
