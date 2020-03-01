@@ -26,3 +26,5 @@ out/
 .vscode/
 *.iml
 ktlint
+app.properties
+app.test.properties

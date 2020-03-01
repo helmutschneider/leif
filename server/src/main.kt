@@ -8,6 +8,7 @@ import leif.http.ListAccountsAction
 import leif.http.ListVerificationsAction
 import leif.http.LoginAction
 import spark.Service
+import java.nio.file.Paths
 
 private val CORS_HEADERS = mapOf(
     "Access-Control-Allow-Headers" to "Accept, Content-Type, Access-Token",
@@ -16,16 +17,13 @@ private val CORS_HEADERS = mapOf(
 )
 
 fun main() {
-    val config = ApplicationConfig {
-        httpHost = "127.0.0.1"
-        httpPort = 8000
-        debug = true
-        databaseName = "leif"
-        databaseUser = "root"
-        databasePassword = ""
-    }
-
-    val app = Application(config)
+    val path = Paths.get(
+        System.getProperty("leif.properties")
+            ?: System.getProperty("user.dir").plus("/app.properties")
+    )
+    val app = Application(
+        ApplicationConfig.fromPropertiesFile(path)
+    )
     val http = app.container.get<Service>()
 
     http.get("/") { _, _ ->
