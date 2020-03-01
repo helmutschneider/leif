@@ -32,10 +32,10 @@ class InitAction(val app: Application) : Route {
         ))
 
         val schema = Files.readAllBytes(
-            Path.of(System.getProperty("user.dir"), "data/mysql.sql")
+            Path.of(System.getProperty("user.dir"), "/../data/mysql.sql")
         ).toString(Charsets.UTF_8)
         val accountsData = Files.newInputStream(
-            Path.of(System.getProperty("user.dir"), "data/bas-2020-en.csv")
+            Path.of(System.getProperty("user.dir"), "/../data/bas-2020-en.csv")
         )
         val accounts = CSVParser(0, 1).parse(accountsData)
 
