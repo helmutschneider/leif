@@ -2,16 +2,20 @@ import * as React from 'react'
 import {objectContains} from "720-ts/src/objectContains";
 import {classNames} from "720-ts/src/classNames";
 
+type ResultProvider<T> = {
+    (query: string): PromiseLike<ReadonlyArray<T>>
+}
+
 type Props<T> = {
     onSelectItem: (item: T) => string
     initialValue?: string
-    items: ReadonlyArray<T>
-    maxResults?: number
+    items: ResultProvider<T> | ReadonlyArray<T>
     placeholder?: string
     renderItem: (item: T) => React.ReactNode
 }
 
-type State = {
+type State<T> = {
+    results: ReadonlyArray<T>
     resultsVisible: boolean
     selectedIndex: number
     value: string
@@ -31,21 +35,45 @@ function modulus(value: number, divisor: number): number {
     return ((value % divisor) + divisor) % divisor;
 }
 
+export function createArrayProvider<T extends object>(items: ReadonlyArray<T>, maxResults: number = 5): ResultProvider<T> {
+    return query => {
+        const results: Array<T> = []
+
+        for (let i = 0; i < items.length && results.length < maxResults; ++i) {
+            const item = items[i]
+            if (query === '' || objectContains(item, query)) {
+                results.push(item)
+            }
+        }
+
+        return Promise.resolve(results)
+    }
+}
+
 export function Autocomplete<T extends object>(props: Props<T>) {
-    const [state, setState] = React.useState<State>({
+    const [state, setState] = React.useState<State<T>>({
+        results: [],
         resultsVisible: false,
         selectedIndex: 0,
         value: props.initialValue ?? '',
     })
-    const result: Array<T> = []
-    const maxResults = props.maxResults ?? 5
 
-    for (let i = 0; i < props.items.length && result.length < maxResults; ++i) {
-        const item = props.items[i]
-        if (state.value === '' || objectContains(item, state.value)) {
-            result.push(item)
+    React.useEffect(() => {
+        let provider: ResultProvider<T>
+
+        if (typeof props.items === 'function') {
+            provider = props.items
+        } else {
+            provider = createArrayProvider(props.items)
         }
-    }
+
+        provider(state.value).then(res => {
+            setState({
+                ...state,
+                results: res,
+            })
+        })
+    }, [state.resultsVisible, state.value])
 
     return (
         <div style={{position: 'relative'}}>
@@ -79,7 +107,7 @@ export function Autocomplete<T extends object>(props: Props<T>) {
 
                     switch (event.keyCode) {
                         case KeyCode.Enter:
-                            const item = result[state.selectedIndex]
+                            const item = st.results[st.selectedIndex]
                             st.resultsVisible = false
                             st.value = props.onSelectItem(item)
                             break
@@ -95,7 +123,7 @@ export function Autocomplete<T extends object>(props: Props<T>) {
 
                     st.selectedIndex = modulus(
                         st.selectedIndex,
-                        result.length
+                        st.results.length
                     )
 
                     setState(st)
@@ -108,7 +136,7 @@ export function Autocomplete<T extends object>(props: Props<T>) {
                 state.resultsVisible
                     ? (
                         <div className="list-group" style={{position: 'absolute', zIndex: 10, width: '100%'}}>
-                            {result.map((item, idx) => {
+                            {state.results.map((item, idx) => {
                                 const clazz = classNames({
                                     'active': idx === state.selectedIndex,
                                     'list-group-item': true,
