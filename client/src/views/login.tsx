@@ -7,19 +7,24 @@ type Props = {
     onLogin: (identity: Identity) => unknown
 }
 
+type State = {
+    username: string
+    password: string
+}
+
+function login(http: HttpClient, body: State): PromiseLike<Identity> {
+    return http.send<Identity>({
+        method: 'POST',
+        url: '/login',
+        body: body,
+    }).then(res => res.body)
+}
+
 export const Login: React.FunctionComponent<Props> = props => {
-    const [state, setState] = React.useState({
+    const [state, setState] = React.useState<State>({
         username: '',
         password: '',
     })
-
-    function login(): PromiseLike<Identity> {
-        return props.http.send<Identity>({
-            method: 'POST',
-            url: '/login',
-            body: state,
-        }).then(res => res.body)
-    }
 
     return (
         <div className="container">
@@ -32,7 +37,7 @@ export const Login: React.FunctionComponent<Props> = props => {
                                 event.preventDefault()
                                 event.stopPropagation()
 
-                                login().then(props.onLogin)
+                                login(props.http, state).then(props.onLogin)
                             }}>
                                 <div className="form-group">
                                     <label>Username</label>

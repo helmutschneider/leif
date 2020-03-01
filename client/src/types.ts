@@ -21,11 +21,6 @@ export type ApplicationContext = {
     identity: Identity
 }
 
-export type ApplicationStorage = {
-    identity?: Identity
-    version?: number
-}
-
 export type ComponentLike<T> =
     | React.FunctionComponent<T>
     | React.ComponentClass<T>
@@ -37,6 +32,11 @@ export type Identity = {
 }
 
 export type RouteComponentLike = ComponentLike<RouteComponentProps<ApplicationContext>>
+
+export type SavedApplicationState = {
+    identity?: Identity
+    schema: number
+}
 
 export type Transaction = {
     account_id?: number

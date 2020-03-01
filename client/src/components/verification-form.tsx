@@ -1,12 +1,10 @@
 import * as React from 'react'
 import {Verification} from "@app/types";
-import {Map} from "720-ts/src/types";
 import {Account} from "@app/types";
 import {YSDSDate} from "720-ts/src/date";
-import {entries} from "720-ts/src/entries";
 
 type Props = {
-    accounts: Map<Account>
+    accounts: ReadonlyArray<Account>
     save: (verification: Verification) => PromiseLike<unknown>
 }
 
@@ -20,7 +18,6 @@ function emptyVerification(): Verification {
             },
             {
                 amount: '',
-
             },
         ],
     }
@@ -28,7 +25,6 @@ function emptyVerification(): Verification {
 
 export const VerificationForm: React.FunctionComponent<Props> = props => {
     const [state, setState] = React.useState<Verification>(emptyVerification)
-    const accounts = entries(props.accounts)
 
     return (
         <React.Fragment>
@@ -79,11 +75,11 @@ export const VerificationForm: React.FunctionComponent<Props> = props => {
                                         }}
                                         value={t.account_id}>
                                     <option value="">Choose account</option>
-                                    {accounts.map((entry, idx) => {
+                                    {props.accounts.map((account, idx) => {
                                         return (
                                             <option key={idx}
-                                                    value={entry.value.account_id}>
-                                                {entry.value.number}: {entry.value.description}
+                                                    value={account.account_id}>
+                                                {account.number}: {account.description}
                                             </option>
                                         )
                                     })}

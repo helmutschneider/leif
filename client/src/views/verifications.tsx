@@ -1,8 +1,8 @@
 import * as React from 'react'
-import {Account, RouteComponentLike, Verification} from "@app/types";
-import {Map} from "720-ts/src/types";
+import {RouteComponentLike, Verification} from "@app/types";
 import {VerificationForm} from "@app/components/verification-form";
 import {List, ListColumn} from "@app/components/list";
+import {HttpClient} from "@app/http";
 
 const columns: ReadonlyArray<ListColumn<Verification>> = [
     {
@@ -22,26 +22,25 @@ const columns: ReadonlyArray<ListColumn<Verification>> = [
     },
 ]
 
+function loadVerifications(http: HttpClient, accountingPeriodId: number) {
+    return http.send<ReadonlyArray<Verification>>({
+        method: 'GET',
+        url: `/app/accounting-period/${accountingPeriodId}/verification`,
+    })
+}
+
 export const Verifications: RouteComponentLike = props => {
     const [state, setState] = React.useState({
-        accounts: {} as Map<Account>,
         currentAccountingPeriod: props.context.accountingPeriods[0]?.accounting_period_id,
         verifications: [] as ReadonlyArray<Verification>,
     })
-
-    function loadVerifications(accountingPeriodId: number) {
-        return props.context.http.send<ReadonlyArray<Verification>>({
-            method: 'GET',
-            url: `/app/accounting-period/${accountingPeriodId}/verification`,
-        })
-    }
 
     React.useEffect(() => {
         if (!state.currentAccountingPeriod) {
             return
         }
 
-        loadVerifications(state.currentAccountingPeriod).then(res => {
+        loadVerifications(props.context.http, state.currentAccountingPeriod).then(res => {
             setState({
                 ...state,
                 verifications: res.body,
@@ -62,7 +61,7 @@ export const Verifications: RouteComponentLike = props => {
                 <div className="col-4">
                     <h3>Create verification</h3>
                     <VerificationForm
-                        accounts={state.accounts}
+                        accounts={props.context.accounts}
                         save={verification => {
                             return props.context.http.send<Verification>({
                                 method: 'POST',

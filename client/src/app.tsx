@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { HttpClient } from "@app/http";
 import { Account, AccountingPeriod, ApplicationContext, Identity } from "@app/types";
-import { Link, RedirectRoute, Route, Router, WindowHistoryStateProvider } from "720-ts/src/react/Router";
+import {Link, RedirectRoute, Route, Router, StateProvider} from "720-ts/src/react/Router";
 import { Verifications } from "@app/views/verifications";
 import { entries } from "720-ts/src/entries";
 import { AccountingPeriods } from "@app/views/accounting-periods";
@@ -11,9 +11,8 @@ type Props = {
     http: HttpClient
     identity: Identity
     logout: () => unknown
+    stateProvider: StateProvider
 }
-
-const stateProvider = new WindowHistoryStateProvider()
 
 type State = {
     accounts: ReadonlyArray<Account>
@@ -85,7 +84,7 @@ export const App: React.FunctionComponent<Props> = props => {
                                     <Link
                                         className="nav-link"
                                         path={entry.value}
-                                        stateProvider={stateProvider}>
+                                        stateProvider={props.stateProvider}>
                                         {entry.key}
                                     </Link>
                                 </li>
@@ -139,7 +138,7 @@ export const App: React.FunctionComponent<Props> = props => {
                                             new Route('/accounting-periods', AccountingPeriods),
                                             new RedirectRoute('/', '/verifications')
                                         ]}
-                                        stateProvider={stateProvider}
+                                        stateProvider={props.stateProvider}
                                     />
                                 )
                                 : 'Loading...'
