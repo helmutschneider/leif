@@ -1,0 +1,44 @@
+name: build
+on:
+  - push
+env:
+  DB_NAME: leif
+  DB_USERNAME: root
+  DB_PASSWORD: root
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Install MySQL 8
+        run: |
+          set -o errexit
+          set -o pipefail
+          set -o nounset
+
+          # Github bundles MySQL 5.7 so we need to remove it first.
+          sudo apt-get remove mysql-* --purge
+          sudo rm -rf /etc/mysql /var/lib/mysql
+
+          # Manually add the official MySQL repository. Stolen from here:
+          # https://dev.mysql.com/doc/mysql-apt-repo-quick-guide/en/#repo-qg-apt-repo-manual-setup
+          sudo apt-key adv --fetch-keys https://repo.mysql.com/RPM-GPG-KEY-mysql
+          sudo echo "deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-8.0" | sudo tee /etc/apt/sources.list.d/mysql-80.list
+
+          sudo apt-get update
+          sudo apt-get install -y mysql-server
+
+          # MySQL 8.0 uses "caching_sha2_password" which is not supported by some clients.
+          # Switch to the legacy auth method.
+          sudo mysql --user="${DB_USERNAME}" --execute="ALTER USER '${DB_USERNAME}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${DB_PASSWORD}'"
+      - name: Create database
+        run: |
+          sudo mysql --user="${DB_USERNAME}" --password="${DB_PASSWORD}" --execute="CREATE DATABASE ${DB_NAME}"
+      - name: Run server tests
+        working-directory: server
+        run: ./mvnw clean test

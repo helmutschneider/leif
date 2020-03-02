@@ -1,5 +1,6 @@
 package leif
 
+import leif.config.VariableResolver
 import java.nio.file.Files
 import java.nio.file.Path
 import leif.database.JDBCDatabase
@@ -7,12 +8,22 @@ import org.junit.jupiter.api.BeforeEach
 
 abstract class DatabaseTest {
     companion object {
-        const val DB_NAME = "leif-test"
-        const val DB_USERNAME = "root"
-        const val DB_PASSWORD = ""
+        val DB_NAME = VariableResolver("leif-test") {
+            environment("DB_NAME")
+        }
+        val DB_USERNAME = VariableResolver("root") {
+            environment("DB_USERNAME")
+        }
+        val DB_PASSWORD = VariableResolver("") {
+            environment("DB_PASSWORD")
+        }
 
         val db by lazy {
-            JDBCDatabase.withMySQL(DB_NAME, DB_USERNAME, DB_PASSWORD)
+            JDBCDatabase.withMySQL(
+                DB_NAME.resolve(),
+                DB_USERNAME.resolve(),
+                DB_PASSWORD.resolve()
+            )
         }
     }
 
@@ -21,7 +32,7 @@ abstract class DatabaseTest {
             SELECT TABLE_NAME
               FROM information_schema.TABLES
              WHERE TABLE_SCHEMA = ?
-        """.trimIndent(), listOf(DB_NAME))
+        """.trimIndent(), listOf(DB_NAME.resolve()))
 
         return tables.map { it["TABLE_NAME"] as String }
     }
