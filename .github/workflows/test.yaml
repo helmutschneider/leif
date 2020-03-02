@@ -1,0 +1,19 @@
+name: Tests
+on:
+  - push
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Install Maven dependencies
+        working-directory: server
+        run: ./mvnw install
+      - name: Run server tests
+        working-directory: server
+        run: ./mvnw clean test
