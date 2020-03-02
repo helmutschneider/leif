@@ -42,3 +42,9 @@ jobs:
       - name: Run server tests
         working-directory: server
         run: ./mvnw clean test
+      - name: Install NPM dependencies
+        working-directory: client
+        run: npm ci
+      - name: Run client tests
+        working-directory: client
+        run: npm test
