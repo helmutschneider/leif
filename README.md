@@ -1,3 +1,5 @@
+![Build status](https://github.com/helmutschneider/leif/workflows/build/badge.svg)
+
 # Leif: minimalistic dual-entry bookkeeping
 
 This is a very simple bookkeeping application. Like all bookkeeping apps its main feature is to track
