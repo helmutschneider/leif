@@ -6,6 +6,7 @@ import leif.crypto.Hasher
 import leif.crypto.TokenRepository
 import leif.crypto.TokenType
 import leif.database.Database
+import leif.parse
 import leif.toHexString
 import leif.validation.Rule
 import spark.Request
@@ -31,8 +32,8 @@ class LoginAction(val app: Application) : spark.Route {
         val password = (body["password"] as String).toByteArray()
 
         if (hasher.verify(password, user.get("password") as ByteArray)) {
-            val userId = user["user_id"] as Long
-            val token = tokenRepository.create(TokenType.Login, User(userId, user["organization_id"] as Long)).toHexString()
+            val userId = Long.parse(user["user_id"])!!
+            val token = tokenRepository.create(TokenType.Login, User(userId, Long.parse(user["organization_id"])!!)).toHexString()
 
             return LoginResult(userId, username, token)
         }

@@ -17,7 +17,8 @@ class InitAction(val app: Application) : Route {
 
     override fun handle(request: Request, response: Response): Any? {
         val db = app.container.get<Database>()
-        val exists = db.selectOne("SELECT 1 FROM information_schema.TABLES AS t WHERE t.TABLE_SCHEMA = ?", listOf(app.config.databaseName))
+        // val exists = db.selectOne("SELECT 1 FROM information_schema.TABLES AS t WHERE t.TABLE_SCHEMA = ?", listOf(app.config.databaseName))
+        val exists = null
 
         if (exists != null) {
             return this.ok
@@ -29,7 +30,7 @@ class InitAction(val app: Application) : Route {
             "password" to listOf(Rule.Required, Rule.String)
         ))
 
-        val schema = this.javaClass.getResourceAsStream("/mysql.sql")
+        val schema = this.javaClass.getResourceAsStream("/sqlite.sql")
             .readAllBytes()
             .toString(Charsets.UTF_8)
         val accountsData = this.javaClass.getResourceAsStream("/bas-2020-en.csv")

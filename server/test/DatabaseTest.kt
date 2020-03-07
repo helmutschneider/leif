@@ -1,6 +1,7 @@
 package leif
 
 import leif.config.VariableResolver
+import leif.database.Database
 import java.nio.file.Files
 import java.nio.file.Path
 import leif.database.JDBCDatabase
@@ -17,39 +18,23 @@ abstract class DatabaseTest {
         val DB_PASSWORD = VariableResolver("") {
             environment("DB_PASSWORD")
         }
-
-        val db by lazy {
-            JDBCDatabase.withMySQL(
-                DB_NAME.resolve(),
-                DB_USERNAME.resolve(),
-                DB_PASSWORD.resolve()
-            )
-        }
     }
 
-    private fun getLoadedTableNames(): List<String> {
-        val tables = db.select("""
-            SELECT TABLE_NAME
-              FROM information_schema.TABLES
-             WHERE TABLE_SCHEMA = ?
-        """.trimIndent(), listOf(DB_NAME.resolve()))
+    private var internalDb: JDBCDatabase? = null
 
-        return tables.map { it["TABLE_NAME"] as String }
+    val db: JDBCDatabase by lazy {
+        internalDb?.getConnection()?.close()
+        internalDb = JDBCDatabase.withSQLite(":memory:")
+        loadTableSchema(internalDb!!)
+        internalDb!!
     }
 
     fun getTableRows(table: String): List<Map<String, Any?>> {
         return db.select("SELECT * FROM $table")
     }
 
-    @BeforeEach
-    fun loadTableSchema() {
-        db.statement("SET foreign_key_checks = 0")
-
-        getLoadedTableNames().map {
-            db.statement("DROP TABLE IF EXISTS `$it`")
-        }
-
-        val schema = this.javaClass.getResourceAsStream("/mysql.sql")
+    private fun loadTableSchema(db: Database) {
+        val schema = this.javaClass.getResourceAsStream("/sqlite.sql")
             .readAllBytes()
             .toString(Charsets.UTF_8)
 
@@ -58,7 +43,5 @@ abstract class DatabaseTest {
             .map(String::trim)
             .filter { it.isNotEmpty() }
             .forEach { db.statement(it) }
-
-        db.statement("SET foreign_key_checks = 1")
     }
 }

@@ -2,6 +2,7 @@ package leif.http
 
 import leif.Application
 import leif.database.Database
+import leif.parse
 import spark.Request
 import spark.Response
 import spark.Route
@@ -24,7 +25,7 @@ class ListVerificationsAction(val app: Application) : Route {
         """, listOf(request.params(":id"), user?.organizationId))
 
         val groupedTransactions = transactions
-            .groupBy { it["verification_id"] as Long }
+            .groupBy { Long.parse(it["verification_id"])!! }
             .map { pair ->
                 Pair(pair.key, pair.value.map {
                     it.minus("verification_id")

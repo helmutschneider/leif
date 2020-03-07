@@ -30,7 +30,7 @@ private val CORS_HEADERS = mapOf(
     "Access-Control-Allow-Origin" to "*"
 )
 
-class Application(val config: ApplicationConfig) {
+class Application(val config: ApplicationConfig, val db: Database) {
     val app = this
     val container = Container {
         singleton { this }
@@ -54,6 +54,7 @@ class Application(val config: ApplicationConfig) {
                 val body: Any = if (config.debug) e else mapOf("message" to e.message)
                 response.status(code)
                 response.body(serializer.serialize(body))
+                response.header("Content-Type", "application/json")
             }
             http.staticFiles.location("/public")
             http.before("/*") { request, response ->
@@ -67,7 +68,7 @@ class Application(val config: ApplicationConfig) {
                 }
             }
             http.path("/api") {
-                http.get("/") { _, _ ->
+                http.get("") { _, _ ->
                     mapOf(
                         "app" to "leif",
                         "version" to "1.0"
@@ -85,15 +86,6 @@ class Application(val config: ApplicationConfig) {
                 response.header("Content-Type", "application/json")
             }
             http
-        }
-        singleton<Database> {
-            JDBCDatabase.withMySQL(
-                config.databaseName,
-                config.databaseUser,
-                config.databasePassword,
-                config.databaseHost,
-                config.databasePort
-            )
         }
         singleton<Serializer> {
             val mapper = ObjectMapper().registerKotlinModule()
@@ -121,6 +113,7 @@ class Application(val config: ApplicationConfig) {
                 )
             )
         }
+        singleton { db }
     }
 
     fun sandbox(request: Request): RequestSandbox {

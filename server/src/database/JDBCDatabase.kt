@@ -1,5 +1,6 @@
 package leif.database
 
+import java.nio.file.Paths
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -78,9 +79,10 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
 
     override fun selectOne(query: String, params: List<Any?>): Map<String, Any?>? {
         return executePrepared(query, params) {
-            val names = getColumnNamesOf(it.resultSet)
-            if (it.resultSet.next()) {
-                toRow(it.resultSet, names)
+            val result = it.resultSet
+            val names = getColumnNamesOf(result)
+            if (result.next()) {
+                toRow(result, names)
             } else {
                 null
             }
@@ -89,10 +91,11 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
 
     override fun select(query: String, params: List<Any?>): List<Map<String, Any?>> {
         return executePrepared(query, params) {
+            val result = it.resultSet
             val out = mutableListOf<Map<String, Any?>>()
-            val names = getColumnNamesOf(it.resultSet)
-            while (it.resultSet.next()) {
-                out.add(toRow(it.resultSet, names))
+            val names = getColumnNamesOf(result)
+            while (result.next()) {
+                out.add(toRow(result, names))
             }
             out
         }
@@ -170,6 +173,9 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
         )
 
         // https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-configuration-properties.html
+        /**
+         * @deprecated
+         */
         fun withMySQL(
             database: String,
             username: String,
@@ -187,6 +193,14 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
             val dsn = "jdbc:mysql://$host:$port/$database?$args"
 
             return JDBCDatabase { DriverManager.getConnection(dsn, username, password) }
+        }
+
+        fun withSQLite(path: String): JDBCDatabase {
+            val conn = DriverManager.getConnection("jdbc:sqlite:${path}")
+            conn.prepareStatement("PRAGMA foreign_keys = ON").use {
+                it.execute()
+            }
+            return JDBCDatabase { conn }
         }
     }
 }
