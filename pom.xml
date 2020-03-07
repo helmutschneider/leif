@@ -4,7 +4,7 @@
     <artifactId>leif</artifactId>
     <version>0.1.0</version>
     <properties>
-        <kotlin.version>1.3.61</kotlin.version>
+        <kotlin.version>1.3.70</kotlin.version>
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
         <mysql.version>8.0.19</mysql.version>
         <spark.version>2.9.1</spark.version>
@@ -52,11 +52,11 @@
         </dependency>
     </dependencies>
     <build>
-        <sourceDirectory>${project.basedir}/src</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/test</testSourceDirectory>
+        <sourceDirectory>${project.basedir}/server/src</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/server/test</testSourceDirectory>
         <resources>
             <resource>
-                <directory>${project.basedir}/../client/public</directory>
+                <directory>${project.basedir}/client/public</directory>
             </resource>
         </resources>
         <plugins>
@@ -101,7 +101,7 @@
                 <artifactId>appengine-maven-plugin</artifactId>
                 <version>2.2.0</version>
                 <configuration>
-                    <appEngineDirectory>../</appEngineDirectory>
+                    <appEngineDirectory>./</appEngineDirectory>
                     <stopPreviousVersion>true</stopPreviousVersion>
                     <artifact>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</artifact>
                     <projectId>steffo</projectId>

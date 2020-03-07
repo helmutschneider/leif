@@ -16,10 +16,10 @@ env.BUILD_DATE = (new Date()).toISOString();
 
 const config = {
     entry: {
-        javascript: path.resolve(__dirname, 'src', 'index.tsx'),
+        javascript: path.resolve(__dirname, 'client', 'src', 'index.tsx'),
     },
     output: {
-        path: path.resolve(__dirname, 'public'),
+        path: path.resolve(__dirname, 'client', 'public'),
         filename: assets.app,
         pathinfo: false,
     },
@@ -27,7 +27,7 @@ const config = {
         // Add '.ts' and '.tsx' as a resolvable extension.
         extensions: ['.js', '.ts', '.tsx'],
         alias: {
-            '@app': path.resolve(__dirname, 'src'),
+            '@app': path.resolve(__dirname, 'client', 'src'),
         },
     },
     module: {
@@ -35,7 +35,7 @@ const config = {
             {
                 test: /\.tsx?$/,
                 include: [
-                    path.resolve(__dirname, 'src'),
+                    path.resolve(__dirname, 'client', 'src'),
                     path.resolve(__dirname, 'node_modules/720-ts'),
                 ],
                 use: [
@@ -52,7 +52,7 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, 'public', 'index.template.html'),
+            template: path.resolve(__dirname, 'client', 'public', 'index.template.html'),
             env,
         }),
         new DefinePlugin({
@@ -62,11 +62,6 @@ const config = {
     ],
     mode: isProduction ? 'production' : 'development',
     devtool: false,
-    optimization: isProduction ? undefined : {
-        removeAvailableModules: false,
-        removeEmptyChunks: false,
-        splitChunks: false,
-    },
 };
 
 module.exports = config;

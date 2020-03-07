@@ -9,14 +9,14 @@
         "noUnusedLocals": true,
         "paths": {
             "@app/*": [
-                "src/*"
+                "client/src/*"
             ]
         },
         "strict": true,
         "target": "es2015"
     },
     "include": [
-        "src/",
+        "client/src/",
         "node_modules/720-ts/"
     ]
 }

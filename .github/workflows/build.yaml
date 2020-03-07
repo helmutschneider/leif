@@ -40,14 +40,10 @@ jobs:
         run: |
           sudo mysql --user="${DB_USERNAME}" --password="${DB_PASSWORD}" --execute="CREATE DATABASE ${DB_NAME}"
       - name: Install server dependencies
-        working-directory: server
         run: ./mvnw clean install -DskipTests
       - name: Install client dependencies
-        working-directory: client
         run: npm ci
       - name: Run server tests
-        working-directory: server
         run: ./mvnw clean test
       - name: Run client tests
-        working-directory: client
         run: npm test
