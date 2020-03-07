@@ -12,8 +12,8 @@ Thumbs.db
 
 junit/
 node_modules/
-public/*.js
-public/index.html
+client/public/*.js
+client/public/index.html
 target/
 out/
 

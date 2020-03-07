@@ -24,6 +24,7 @@ import leif.serialization.TypedDelegatingSerializer
 import leif.validation.RuleLike
 import leif.validation.Validator
 import spark.Request
+import spark.Response
 import spark.Service
 
 class Application(val config: ApplicationConfig) {
@@ -35,8 +36,13 @@ class Application(val config: ApplicationConfig) {
                 .port(config.httpPort)
 
             http.defaultResponseTransformer { value ->
-                val serializer = container.get<Serializer>()
-                serializer.serialize(value)
+                when (value) {
+                    is Response -> value.body()
+                    else -> {
+                        val serializer = container.get<Serializer>()
+                        serializer.serialize(value)
+                    }
+                }
             }
             http.exception(Exception::class.java) { e, _, response ->
                 val serializer = container.get<Serializer>()
@@ -45,7 +51,7 @@ class Application(val config: ApplicationConfig) {
                 response.status(code)
                 response.body(serializer.serialize(body))
             }
-            http.afterAfter { _, response ->
+            http.afterAfter("/api") { _, response ->
                 response.header("Content-Type", "application/json")
             }
             http
