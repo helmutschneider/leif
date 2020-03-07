@@ -1,7 +1,5 @@
 package leif.http
 
-import java.nio.file.Files
-import java.nio.file.Path
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import leif.Application
@@ -31,12 +29,10 @@ class InitAction(val app: Application) : Route {
             "password" to listOf(Rule.Required, Rule.String)
         ))
 
-        val schema = Files.readAllBytes(
-            Path.of(System.getProperty("user.dir"), "/data/mysql.sql")
-        ).toString(Charsets.UTF_8)
-        val accountsData = Files.newInputStream(
-            Path.of(System.getProperty("user.dir"), "/data/bas-2020-en.csv")
-        )
+        val schema = this.javaClass.getResourceAsStream("/mysql.sql")
+            .readAllBytes()
+            .toString(Charsets.UTF_8)
+        val accountsData = this.javaClass.getResourceAsStream("/bas-2020-en.csv")
         val accounts = CSVParser(0, 1).parse(accountsData)
 
         schema.split(';')

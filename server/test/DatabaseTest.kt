@@ -49,9 +49,11 @@ abstract class DatabaseTest {
             db.statement("DROP TABLE IF EXISTS `$it`")
         }
 
-        val path = System.getProperty("user.dir") + "/../data/mysql.sql"
+        val schema = this.javaClass.getResourceAsStream("/mysql.sql")
+            .readAllBytes()
+            .toString(Charsets.UTF_8)
 
-        Files.readString(Path.of(path))
+        schema
             .split(";")
             .map(String::trim)
             .filter { it.isNotEmpty() }
