@@ -56,7 +56,13 @@
         <testSourceDirectory>${project.basedir}/server/test</testSourceDirectory>
         <resources>
             <resource>
-                <directory>${project.basedir}/client/public</directory>
+                <directory>${project.basedir}/data</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/client</directory>
+                <includes>
+                    <include>public/**</include>
+                </includes>
             </resource>
         </resources>
         <plugins>

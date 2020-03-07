@@ -2,6 +2,16 @@ function quote(value) {
     return `"${value}"`;
 }
 
+function pick(source, ...keys) {
+    const out = {};
+    for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+            out[key] = source[key];
+        }
+    }
+    return out
+}
+
 const path = require('path');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -10,9 +20,11 @@ const assets = {
 };
 const isProduction = process.env.NODE_ENV === 'production';
 const tsConfigPath = path.resolve(__dirname, 'tsconfig.json');
-const env = require('./.env.json');
-
-env.BUILD_DATE = (new Date()).toISOString();
+const env = {
+    ...require('./.env.json'),
+    BUILD_DATE: (new Date()).toISOString(),
+    ...pick(process.env, 'API_URL'),
+};
 
 const config = {
     entry: {

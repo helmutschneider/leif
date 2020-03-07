@@ -14,10 +14,7 @@ import leif.crypto.TokenRepository
 import leif.crypto.TokenStorage
 import leif.database.Database
 import leif.database.JDBCDatabase
-import leif.http.HttpException
-import leif.http.RequestSandbox
-import leif.http.User
-import leif.http.UserResolver
+import leif.http.*
 import leif.serialization.JsonSerializer
 import leif.serialization.Serializer
 import leif.serialization.TypedDelegatingSerializer
@@ -27,7 +24,14 @@ import spark.Request
 import spark.Response
 import spark.Service
 
+private val CORS_HEADERS = mapOf(
+    "Access-Control-Allow-Headers" to "Accept, Content-Type, Access-Token",
+    "Access-Control-Allow-Methods" to "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Origin" to "*"
+)
+
 class Application(val config: ApplicationConfig) {
+    val app = this
     val container = Container {
         singleton { this }
         singleton<Service> { container ->
@@ -50,6 +54,32 @@ class Application(val config: ApplicationConfig) {
                 val body: Any = if (config.debug) e else mapOf("message" to e.message)
                 response.status(code)
                 response.body(serializer.serialize(body))
+            }
+            http.staticFiles.location("/public")
+            http.before("/*") { request, response ->
+                if (request.requestMethod() == "OPTIONS") {
+                    http.halt(200)
+                }
+            }
+            http.afterAfter { _, response ->
+                CORS_HEADERS.forEach { pair ->
+                    response.header(pair.key, pair.value)
+                }
+            }
+            http.path("/api") {
+                http.get("/") { _, _ ->
+                    mapOf(
+                        "app" to "leif",
+                        "version" to "1.0"
+                    )
+                }
+                http.post("/8da3cf8a0a1111ef367cb563181a175864d48cd2e95d54c9839aa1233b78eba1", InitAction(app))
+                http.post("/login", LoginAction(app))
+                http.before("/app/*", AuthFilter(app))
+                http.get("/app/accounting-period", ListAccountingPeriodsAction(app))
+                http.get("/app/accounting-period/:id/account", ListAccountsAction(app))
+                http.get("/app/accounting-period/:id/verification", ListVerificationsAction(app))
+                http.post("/app/accounting-period/:id/verification", CreateVerificationAction(app))
             }
             http.afterAfter("/api") { _, response ->
                 response.header("Content-Type", "application/json")

@@ -5,7 +5,7 @@
   "main": "src/index.tsx",
   "scripts": {
     "build": "NODE_ENV=production webpack",
-    "start": "webpack --watch",
+    "start": "webpack-dev-server --content-base client/public/ --history-api-fallback",
     "test": "jest --no-cache"
   },
   "repository": {
@@ -28,7 +28,8 @@
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.5",
     "webpack": "^4.41.6",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   },
   "devDependencies": {
     "@types/jest": "^25.1.3",
