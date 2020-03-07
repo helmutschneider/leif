@@ -169,7 +169,8 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
             "Login timeout expired",
             "Connection refused",
             "running with the --read-only option so it cannot execute this statement",
-            "No operations allowed after connection closed"
+            "No operations allowed after connection closed",
+            "database connection closed"
         )
 
         // https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-configuration-properties.html
@@ -196,11 +197,13 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
         }
 
         fun withSQLite(path: String): JDBCDatabase {
-            val conn = DriverManager.getConnection("jdbc:sqlite:${path}")
-            conn.prepareStatement("PRAGMA foreign_keys = ON").use {
-                it.execute()
+            return JDBCDatabase {
+                val conn = DriverManager.getConnection("jdbc:sqlite:${path}")
+                conn.prepareStatement("PRAGMA foreign_keys = ON").use {
+                    it.execute()
+                }
+                conn
             }
-            return JDBCDatabase { conn }
         }
     }
 }
