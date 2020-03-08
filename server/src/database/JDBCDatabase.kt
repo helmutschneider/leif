@@ -37,7 +37,7 @@ class JDBCDatabase(val events: Emitter<DatabaseEvent>, val resolver: () -> Conne
             } catch (exception: SQLException) {
                 if (isExceptionCausedByLostConnection(exception) && attempt < MAX_QUERY_ATTEMPTS) {
                     connection?.close()
-                    events.trigger(DatabaseEvent.Close(connection))
+                    events.trigger(DatabaseEvent.Close(connection!!))
                     connection = null
                 } else {
                     throw exception
