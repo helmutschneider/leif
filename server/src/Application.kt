@@ -83,6 +83,19 @@ class Application(val config: ApplicationConfig, val db: Database) {
                     response.header("Content-Type", "application/json")
                 }
             }
+            // default endpoint for all non-matching routes. we need this
+            // so our in-app router will work correctly.
+            http.get("/*") { _, response ->
+                val index = this.javaClass
+                    .getResourceAsStream("/public/index.html")
+                    .readAllBytes()
+                    .toString(Charsets.UTF_8)
+
+                response.status(200)
+                response.header("Content-Type", "text/html")
+                response.body(index)
+                response
+            }
             http
         }
         singleton<Serializer> {
