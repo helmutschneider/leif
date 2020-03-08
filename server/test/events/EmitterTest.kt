@@ -1,9 +1,9 @@
-package leif
+package leif.events
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class EventEmitterTest {
+class EmitterTest {
     sealed class IOEvent {
         class Read(val result: String) : IOEvent()
         class Write(val data: String) : IOEvent()
@@ -11,7 +11,7 @@ class EventEmitterTest {
 
     @Test
     fun shouldTriggerEvents() {
-        val emitter = EventEmitter<IOEvent>()
+        val emitter = Emitter<IOEvent>()
         var result: Any? = null
 
         emitter.listen<IOEvent.Read> {
@@ -27,7 +27,7 @@ class EventEmitterTest {
 
     @Test
     fun shouldTriggerMultipleListeners() {
-        val emitter = EventEmitter<IOEvent>()
+        val emitter = Emitter<IOEvent>()
         val result = mutableListOf<Any?>()
 
         emitter.listen<IOEvent.Read> {
@@ -40,5 +40,21 @@ class EventEmitterTest {
         emitter.trigger(IOEvent.Read("tjo"))
 
         Assertions.assertEquals(listOf("tjo", "tjo"), result)
+    }
+
+    @Test
+    fun shouldListenToManyEvents() {
+        val emitter = Emitter<IOEvent>()
+        val results = mutableListOf<String>()
+        emitter.listenAll { event ->
+            when (event) {
+                is IOEvent.Read -> results.add(event.result)
+                is IOEvent.Write -> results.add(event.data)
+            }
+        }
+        emitter.trigger(IOEvent.Read("a"))
+        emitter.trigger(IOEvent.Write("b"))
+
+        Assertions.assertEquals(listOf("a", "b"), results)
     }
 }

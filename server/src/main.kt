@@ -2,6 +2,8 @@ package leif
 
 import leif.database.DatabaseEvent
 import leif.database.JDBCDatabase
+import leif.events.Emitter
+import leif.events.Handler
 import leif.storage.GoogleCloudStorage
 import leif.storage.LocalStorage
 import leif.storage.Storage
@@ -14,7 +16,7 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import com.google.cloud.storage.StorageOptions as GoogleStorageOptions
 
-private fun createRestoreDatabaseListener(storage: Storage, sourceKey: String): EventHandler<DatabaseEvent.Open> {
+private fun createRestoreDatabaseListener(storage: Storage, sourceKey: String): Handler<DatabaseEvent.Open> {
     return { event ->
         val conn = event.connection
         if (conn is SQLiteConnection) {
@@ -31,7 +33,7 @@ private fun createRestoreDatabaseListener(storage: Storage, sourceKey: String): 
     }
 }
 
-private fun createPersistDatabaseListener(storage: Storage, targetKey: String): EventHandler<DatabaseEvent.Write> {
+private fun createPersistDatabaseListener(storage: Storage, targetKey: String): Handler<DatabaseEvent.Write> {
     val executor = Executors.newSingleThreadScheduledExecutor()
     var future: ScheduledFuture<*>? = null
 
@@ -66,7 +68,7 @@ fun main() {
         httpPort = (System.getenv("PORT") ?: "8000").toInt(),
         debug = (cloudProject ?: "").isEmpty()
     )
-    val emitter = EventEmitter<DatabaseEvent>()
+    val emitter = Emitter<DatabaseEvent>()
     val databaseName = "db.sqlite"
     emitter.listen(createRestoreDatabaseListener(storage, databaseName))
     emitter.listen(createPersistDatabaseListener(storage, databaseName))

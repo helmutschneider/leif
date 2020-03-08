@@ -1,6 +1,6 @@
 package leif.database
 
-import leif.EventEmitter
+import leif.events.Emitter
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -9,7 +9,7 @@ import java.sql.SQLException
 import java.sql.Statement
 import java.sql.Timestamp
 
-class JDBCDatabase(val events: EventEmitter<DatabaseEvent>, val resolver: () -> Connection) : Database {
+class JDBCDatabase(val events: Emitter<DatabaseEvent>, val resolver: () -> Connection) : Database {
     private var connection: Connection? = null
 
     fun getConnection(): Connection {
@@ -183,7 +183,7 @@ class JDBCDatabase(val events: EventEmitter<DatabaseEvent>, val resolver: () -> 
             "database connection closed"
         )
 
-        fun withSQLite(emitter: EventEmitter<DatabaseEvent>, path: String): JDBCDatabase {
+        fun withSQLite(emitter: Emitter<DatabaseEvent>, path: String): JDBCDatabase {
             return JDBCDatabase(emitter) {
                 val conn = DriverManager.getConnection("jdbc:sqlite:${path}")
                 conn.prepareStatement("PRAGMA foreign_keys = ON").use {

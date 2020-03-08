@@ -2,6 +2,7 @@ package leif
 
 import leif.database.Database
 import leif.database.JDBCDatabase
+import leif.events.Emitter
 
 private fun loadTableSchema(db: Database) {
     val schema = object {}.javaClass.getResourceAsStream("/sqlite.sql")
@@ -20,7 +21,7 @@ abstract class DatabaseTest {
 
     val db: JDBCDatabase by lazy {
         internalDb?.getConnection()?.close()
-        internalDb = JDBCDatabase.withSQLite(EventEmitter(), ":memory:")
+        internalDb = JDBCDatabase.withSQLite(Emitter(), ":memory:")
         loadTableSchema(internalDb!!)
         internalDb!!
     }
