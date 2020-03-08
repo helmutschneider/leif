@@ -33,7 +33,7 @@ fun main() {
     val debouncer = DebounceFactory(
         Executors.newSingleThreadScheduledExecutor()
     )
-    emitter.listenAll(SQLiteStorageHandler(storage, databaseName, debouncer))
+    emitter.listenAll(SQLiteStorageHandler(storage, databaseName, debouncer, 15_000))
 
     val app = Application(config, JDBCDatabase.withSQLite(emitter, ":memory:"))
     app.container.get<Service>()
