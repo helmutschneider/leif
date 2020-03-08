@@ -6,7 +6,7 @@ import com.google.cloud.storage.Storage as GoogleStorage
 
 class GoogleCloudStorage(val client: GoogleStorage, val bucket: String) : Storage {
     override fun get(key: String): ByteArray? {
-        return client.get(BlobId.of(bucket, key)).getContent()
+        return client.get(BlobId.of(bucket, key))?.getContent()
     }
 
     override fun put(key: String, data: ByteArray) {

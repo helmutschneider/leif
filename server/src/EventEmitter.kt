@@ -2,14 +2,14 @@ package leif
 
 import leif.container.TypeToken
 
-typealias Handler<T> = (T) -> Unit
+typealias EventHandler<T> = (T) -> Unit
 
 class EventEmitter<T : Any> {
-    private val listeners = mutableMapOf<TypeToken<*>, MutableList<Handler<Any>>>()
+    private val listeners = mutableMapOf<TypeToken<*>, MutableList<EventHandler<Any>>>()
 
-    inline fun <reified U : T> listen(noinline handler: Handler<U>) {
+    inline fun <reified U : T> listen(noinline handler: EventHandler<U>) {
         val token = object : TypeToken<U>() {}
-        listenWithToken(token, handler as Handler<Any>)
+        listenWithToken(token, handler as EventHandler<Any>)
     }
 
     inline fun <reified U : T> trigger(value: U) {
@@ -17,7 +17,7 @@ class EventEmitter<T : Any> {
         triggerWithToken(token, value)
     }
 
-    fun listenWithToken(token: TypeToken<*>, handler: Handler<Any>) {
+    fun listenWithToken(token: TypeToken<*>, handler: EventHandler<Any>) {
         listeners.getOrPut(token, { mutableListOf() }).add(handler)
     }
 

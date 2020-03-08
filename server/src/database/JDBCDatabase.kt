@@ -1,6 +1,6 @@
 package leif.database
 
-import java.nio.file.Paths
+import leif.EventEmitter
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -9,12 +9,14 @@ import java.sql.SQLException
 import java.sql.Statement
 import java.sql.Timestamp
 
-class JDBCDatabase(private val resolver: () -> Connection) : Database {
+class JDBCDatabase(val events: EventEmitter<DatabaseEvent>, val resolver: () -> Connection) : Database {
     private var connection: Connection? = null
 
     fun getConnection(): Connection {
         if (connection == null) {
-            connection = resolver()
+            val conn = resolver()
+            events.trigger(DatabaseEvent.Open(conn))
+            connection = conn
         }
         return connection!!
     }
@@ -35,6 +37,7 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
             } catch (exception: SQLException) {
                 if (isExceptionCausedByLostConnection(exception) && attempt < MAX_QUERY_ATTEMPTS) {
                     connection?.close()
+                    events.trigger(DatabaseEvent.Close(connection))
                     connection = null
                 } else {
                     throw exception
@@ -79,6 +82,7 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
 
     override fun selectOne(query: String, params: List<Any?>): Map<String, Any?>? {
         return executePrepared(query, params) {
+            events.trigger(DatabaseEvent.Read(connection!!))
             val result = it.resultSet
             val names = getColumnNamesOf(result)
             if (result.next()) {
@@ -91,6 +95,7 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
 
     override fun select(query: String, params: List<Any?>): List<Map<String, Any?>> {
         return executePrepared(query, params) {
+            events.trigger(DatabaseEvent.Read(connection!!))
             val result = it.resultSet
             val out = mutableListOf<Map<String, Any?>>()
             val names = getColumnNamesOf(result)
@@ -103,6 +108,7 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
 
     override fun insert(query: String, params: List<Any?>): List<Long> {
         return executePrepared(query, params) {
+            events.trigger(DatabaseEvent.Write(connection!!))
             val keys = it.generatedKeys
             val out = mutableListOf<Long>()
             while (keys.next()) {
@@ -114,18 +120,22 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
 
     override fun update(query: String, params: List<Any?>): Long {
         return executePrepared(query, params) {
+            events.trigger(DatabaseEvent.Write(connection!!))
             it.updateCount.toLong()
         }
     }
 
     override fun delete(query: String, params: List<Any?>): Boolean {
         return executePrepared(query, params) {
+            events.trigger(DatabaseEvent.Write(connection!!))
             true
         }
     }
 
     override fun statement(query: String, params: List<Any?>) {
-        executePrepared(query, params) {}
+        executePrepared(query, params) {
+            events.trigger(DatabaseEvent.Statement(connection!!))
+        }
     }
 
     override fun <R> transaction(fn: (Database) -> R): R {
@@ -173,31 +183,8 @@ class JDBCDatabase(private val resolver: () -> Connection) : Database {
             "database connection closed"
         )
 
-        // https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-configuration-properties.html
-        /**
-         * @deprecated
-         */
-        fun withMySQL(
-            database: String,
-            username: String,
-            password: String,
-            host: String = "127.0.0.1",
-            port: Int = 3306
-        ): JDBCDatabase {
-            val args = mapOf(
-                "characterEncoding" to "UTF-8",
-                "connectionCollation" to "UTF-8",
-                "serverTimezone" to "UTC",
-                "useServerPrepStmts" to "true"
-            ).map { "${it.key}=${it.value}" }.joinToString("&")
-
-            val dsn = "jdbc:mysql://$host:$port/$database?$args"
-
-            return JDBCDatabase { DriverManager.getConnection(dsn, username, password) }
-        }
-
-        fun withSQLite(path: String): JDBCDatabase {
-            return JDBCDatabase {
+        fun withSQLite(emitter: EventEmitter<DatabaseEvent>, path: String): JDBCDatabase {
+            return JDBCDatabase(emitter) {
                 val conn = DriverManager.getConnection("jdbc:sqlite:${path}")
                 conn.prepareStatement("PRAGMA foreign_keys = ON").use {
                     it.execute()

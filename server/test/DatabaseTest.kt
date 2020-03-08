@@ -20,7 +20,7 @@ abstract class DatabaseTest {
 
     val db: JDBCDatabase by lazy {
         internalDb?.getConnection()?.close()
-        internalDb = JDBCDatabase.withSQLite(":memory:")
+        internalDb = JDBCDatabase.withSQLite(EventEmitter(), ":memory:")
         loadTableSchema(internalDb!!)
         internalDb!!
     }

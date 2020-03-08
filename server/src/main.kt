@@ -1,44 +1,76 @@
 package leif
 
-import leif.config.VariableResolver
+import leif.database.DatabaseEvent
 import leif.database.JDBCDatabase
 import leif.storage.GoogleCloudStorage
 import leif.storage.LocalStorage
+import leif.storage.Storage
 import org.sqlite.SQLiteConnection
 import spark.Service
+import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.sql.DriverManager
-import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
+import com.google.cloud.storage.StorageOptions as GoogleStorageOptions
 
-fun main() {
-    val path = Paths.get(
-        System.getProperty("leif.properties") ?: System.getProperty("user.dir").plus("/app.properties")
-    )
-    val file = path.toFile()
-    val props = Properties()
-
-    if (file.exists()) {
-        file.inputStream().use {
-            props.load(it)
+private fun createRestoreDatabaseListener(storage: Storage, sourceKey: String): EventHandler<DatabaseEvent.Open> {
+    return { event ->
+        val conn = event.connection
+        if (conn is SQLiteConnection) {
+            storage.get(sourceKey)?.let { data ->
+                val db = conn.database
+                val tmp = Files.createTempFile("leif-db-", "")
+                val file = tmp.toFile()
+                file.writeBytes(data)
+                db.restore("main", file.path) { _, _ -> }
+                file.delete()
+                println("Restored database successfully.")
+            }
         }
     }
-//    val client = com.google.cloud.storage.StorageOptions.getDefaultInstance().service
-//    val storage = GoogleCloudStorage(
-//        client, "steffo.appspot.com"
-//    )
+}
 
-    val storage = LocalStorage(
-        Path.of(System.getProperty("user.dir"), "runtime")
-    )
+private fun createPersistDatabaseListener(storage: Storage, targetKey: String): EventHandler<DatabaseEvent.Write> {
+    val executor = Executors.newSingleThreadScheduledExecutor()
+    var future: ScheduledFuture<*>? = null
+
+    return { event ->
+        val conn = event.connection
+        if (conn is SQLiteConnection) {
+            future?.cancel(true)
+            future = executor.schedule({
+                val db = conn.database
+                val tmp = Files.createTempFile("leif-db-", "")
+                val file = tmp.toFile()
+                db.backup("main", file.path) { _, _ -> }
+                storage.put(targetKey, file.readBytes())
+                file.delete()
+            }, 5000, TimeUnit.MILLISECONDS)
+        }
+    }
+}
+
+fun main() {
+    val cloudProject = System.getenv("GOOGLE_CLOUD_PROJECT")
+    val storage: Storage = when {
+        cloudProject is String && cloudProject.isNotEmpty() -> {
+            val client = GoogleStorageOptions.getDefaultInstance().service
+            GoogleCloudStorage(client, "${cloudProject}.appspot.com")
+        }
+        else -> {
+            LocalStorage(Path.of(System.getProperty("user.dir"), "runtime"))
+        }
+    }
     val config = ApplicationConfig(
-        httpPort = VariableResolver("8000") {
-            environment("PORT")
-            property(props, "http.port")
-        }.resolve().toInt(),
-        debug = true
+        httpPort = (System.getenv("PORT") ?: "8000").toInt(),
+        debug = (cloudProject ?: "").isEmpty()
     )
-    val dbPath = Paths.get(System.getProperty("user.dir"), "runtime", "db.sqlite").toString()
-    val app = Application(config, JDBCDatabase.withSQLite(dbPath))
+    val emitter = EventEmitter<DatabaseEvent>()
+    val databaseName = "db.sqlite"
+    emitter.listen(createRestoreDatabaseListener(storage, databaseName))
+    emitter.listen(createPersistDatabaseListener(storage, databaseName))
+
+    val app = Application(config, JDBCDatabase.withSQLite(emitter, ":memory:"))
     app.container.get<Service>()
 }

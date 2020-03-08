@@ -57,17 +57,12 @@ class Application(val config: ApplicationConfig, val db: Database) {
                 response.header("Content-Type", "application/json")
             }
             http.staticFiles.location("/public")
-            http.before("/*") { request, response ->
-                if (request.requestMethod() == "OPTIONS") {
-                    http.halt(200)
-                }
-            }
-            http.afterAfter { _, response ->
-                CORS_HEADERS.forEach { pair ->
-                    response.header(pair.key, pair.value)
-                }
-            }
             http.path("/api") {
+                http.before("/*") { request, response ->
+                    if (request.requestMethod() == "OPTIONS") {
+                        http.halt(200)
+                    }
+                }
                 http.get("") { _, _ ->
                     mapOf(
                         "app" to "leif",
@@ -81,9 +76,12 @@ class Application(val config: ApplicationConfig, val db: Database) {
                 http.get("/app/accounting-period/:id/account", ListAccountsAction(app))
                 http.get("/app/accounting-period/:id/verification", ListVerificationsAction(app))
                 http.post("/app/accounting-period/:id/verification", CreateVerificationAction(app))
-            }
-            http.afterAfter("/api") { _, response ->
-                response.header("Content-Type", "application/json")
+                http.afterAfter("/*") { _, response ->
+                    CORS_HEADERS.forEach { pair ->
+                        response.header(pair.key, pair.value)
+                    }
+                    response.header("Content-Type", "application/json")
+                }
             }
             http
         }
