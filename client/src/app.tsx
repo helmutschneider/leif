@@ -2,13 +2,8 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import accounts from '../../accounts-2022.json'
 
-type MapLike<T> = {
-    [key: number]: T
-};
-type ReadonlyMap<T> = {
-    readonly [key: number]: T
-};
 type AccountNumber = string | number;
+type ExactAccountNumber = keyof typeof accounts;
 type AccountBalanceMap = {
     [key: AccountNumber]: number
 };
@@ -26,7 +21,7 @@ function calculateAccountBalances(vouchers: ReadonlyArray<Voucher>): AccountBala
         for (const t of voucher.transactions) {
             const num = t.account
             if (typeof result[num] === 'undefined') {
-                result[num] = 0
+                result[num] = 0;
             }
             result[num] += t.kind === 'debit'
                 ? t.amount
@@ -36,38 +31,40 @@ function calculateAccountBalances(vouchers: ReadonlyArray<Voucher>): AccountBala
     return result;
 }
 
-const formatSEK = (() => {
+function formatSEK(amount: number): string {
     const intFmt = new Intl.NumberFormat('sv-SE', {
         style: 'decimal',
         useGrouping: true,
     });
-    const fractionFmt = new Intl.NumberFormat('sv-SE', {
-        style: 'decimal',
-        useGrouping: false,
-    });
-
-    return (amount: number): string => {
-        const padded = amount.toString().padStart(3, '0');
-        const [int, fraction] = padded.split(/(\d{2})$/);
-
-        const intStr = intFmt.format(parseInt(int!));
-        const fractionStr = fractionFmt.format(parseInt(fraction!)).padStart(2, '0');
-
-        return `${intStr},${fractionStr} kr`;
-    };
-})();
+    const padded = amount.toString().padStart(3, '0');
+    const [int, fraction] = padded.split(/(\d{2})$/);
+    const intStr = intFmt.format(parseInt(int ?? '0'));
+    return `${intStr},${fraction} kr`;
+}
 
 function getAccountName(account: AccountNumber): string {
-    return (accounts as any)[account] ?? '';
+    return accounts[account as ExactAccountNumber];
 }
 
 type Props = {}
 type State = {
+    new_voucher: Voucher
     vouchers: ReadonlyArray<Voucher>
 }
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
+        new_voucher: {
+            date: '2022-02-09',
+            name: '',
+            transactions: [
+                {
+                    account: 1910,
+                    amount: 0,
+                    kind: 'debit',
+                },
+            ],
+        },
         vouchers: [
             {
                 date: '2022-01-01',
@@ -89,6 +86,13 @@ const App: React.FC<Props> = props => {
     })
 
     const balances = calculateAccountBalances(state.vouchers);
+    const accountOptions = Object.entries(accounts).map((e, idx) => {
+        return (
+            <option key={idx} value={e[0]}>
+                {e[0]}: {e[1]}
+            </option>
+        )
+    })
 
     return (
         <div>
@@ -98,16 +102,85 @@ const App: React.FC<Props> = props => {
                 </div>
             </nav>
 
-            <div className="container">
+            <div className="container pt-3">
                 <div className="row">
                     <div className="col-8">
-                        <h4>Verifikat</h4>
+                        <div className="mb-3">
+                            <h5>Lägg till verifikat</h5>
+                            <div className="mb-3">
+                                <label className="form-label">Namn</label>
+                                <input
+                                    className="form-control"
+                                    placeholder="Namn"
+                                    type="text"
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Datum</label>
+                                <input
+                                    className="form-control"
+                                    placeholder="Datum"
+                                    type="text"
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Transaktioner</label>
+                                <table className="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th className="col-4">Konto</th>
+                                            <th>Debit</th>
+                                            <th>Kredit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {state.new_voucher.transactions.map((t, idx) => {
+                                            return (
+                                                <tr key={idx}>
+                                                    <td>
+                                                        <select
+                                                            className="form-control"
+                                                            value={t.account}>
+                                                            {accountOptions}
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            className="form-control"
+                                                            placeholder="Debit"
+                                                            type="text"
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            className="form-control"
+                                                            placeholder="Kredit"
+                                                            type="text"
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                        <tr>
+                                            <td colSpan={3}>
+                                                <div className="d-grid">
+                                                    <button className="btn btn-success btn-sm">Bruh!</button>
+                                                </div>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <h5>Verifikat</h5>
                         <table className="table table-sm">
                             <tbody>
                                 {state.vouchers.map((voucher, idx) => {
                                     return (
                                         <tr key={idx}>
-                                            <td>{voucher.date}</td>
+                                            <td className="col-2">{voucher.date}</td>
                                             <td>{voucher.name}</td>
                                             <td></td>
                                         </tr>
@@ -117,7 +190,7 @@ const App: React.FC<Props> = props => {
                         </table>
                     </div>
                     <div className="col">
-                        <h4>Kontobalans</h4>
+                        <h5>Kontobalans</h5>
                         <table className="table table-sm">
                             <tbody>
                                 {Object.entries(balances).map((e, idx) => {
