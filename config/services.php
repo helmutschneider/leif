@@ -11,11 +11,11 @@ return static function (ContainerConfigurator $container) {
         ->autoconfigure(true);
 
     $container->services()
-        ->load('Leif\\', __DIR__ . '/../src/')
+        ->load('Leif\\', __DIR__ . '/../server/')
         ->exclude([
-            __DIR__ . '/../src/DependencyInjection',
-            __DIR__ . '/../src/Entity',
-            __DIR__ . '/../src/Kernel.php',
+            __DIR__ . '/../server/DependencyInjection',
+            __DIR__ . '/../server/Entity',
+            __DIR__ . '/../server/Kernel.php',
         ]);
 
     $container->services()
@@ -27,7 +27,7 @@ return static function (ContainerConfigurator $container) {
         ->alias(PDO::class, 'database');
 
     $container->services()
-        ->load('Leif\\Api\\', __DIR__ . '/../src/Api')
+        ->load('Leif\\Api\\', __DIR__ . '/../server/Api')
         ->tag('controller.service_arguments')
         ->autowire()
         ->autoconfigure();
