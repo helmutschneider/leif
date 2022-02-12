@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import accounts from '../../accounts-2022.json'
+import accounts from '../data/accounts-2022.json'
 import { formatDate, emptyVoucher, areDebitsAndCreditsBalanced, ensureHasEmptyTransaction, tryParseInt, getAccountName, formatSEK, calculateAccountBalances, ellipsis, getNextVoucherId } from './util';
 import * as t from './types'
 import { VoucherForm } from './voucher-form';

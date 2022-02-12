@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Attachment, Voucher } from './types'
 import { areDebitsAndCreditsBalanced, arrayBufferToBase64, ensureHasEmptyTransaction, formatDate, toArray, tryParseInt } from './util'
-import accounts from '../../accounts-2022.json'
+import accounts from '../data/accounts-2022.json'
 
 type Props = {
     onChange: (next: Voucher) => unknown

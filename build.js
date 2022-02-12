@@ -3,9 +3,9 @@ const esbuild = require('esbuild');
 
 esbuild.build({
     bundle: true,
-    entryPoints: ['src/app.tsx'],
+    entryPoints: ['typescript/app.tsx'],
     minify: false,
-    outfile: 'app.js',
+    outfile: 'public/app.js',
     platform: 'browser',
     sourcemap: true,
     target: 'es2017',

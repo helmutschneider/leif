@@ -1,4 +1,4 @@
-import accounts from '../../accounts-2022.json'
+import accounts from '../data/accounts-2022.json'
 
 export type AccountNumber = string | number;
 export type ExactAccountNumber = keyof typeof accounts;

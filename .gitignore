@@ -24,3 +24,20 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+.idea/
+.vscode/
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+public/*.js
+public/*.js.*
+node_modules/

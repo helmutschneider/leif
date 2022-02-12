@@ -1,4 +1,4 @@
-import accounts from '../../accounts-2022.json'
+import accounts from '../data/accounts-2022.json'
 import * as t from './types'
 
 type DateFormatter = {
