@@ -1,11 +1,11 @@
-CREATE TABLE "user" (
+CREATE TABLE IF NOT EXISTS "user" (
     "user_id" INTEGER PRIMARY KEY NOT NULL,
     "username" TEXT NOT NULL UNIQUE,
     "password_hash" TEXT NOT NULL,
     "created_at" TEXT NOT NULL
 );
 
-CREATE TABLE "workbook" (
+CREATE TABLE IF NOT EXISTS "workbook" (
     "workbook_id" INTEGER PRIMARY KEY NOT NULL,
     "name" INTEGER NOT NULL,
     "year" INTEGER NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE "workbook" (
         ON DELETE CASCADE
 );
 
-CREATE TABLE "voucher" (
+CREATE TABLE IF NOT EXISTS "voucher" (
     "voucher_id" INTEGER PRIMARY KEY NOT NULL,
     "created_at" TEXT NOT NULL,
     "date" TEXT NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE "voucher" (
         ON DELETE CASCADE
 );
 
-CREATE TABLE "transaction" (
+CREATE TABLE IF NOT EXISTS "transaction" (
     "transaction_id" INTEGER PRIMARY KEY NOT NULL,
     "account" INTEGER NOT NULL,
     "amount" INTEGER NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE "transaction" (
         ON DELETE CASCADE
 );
 
-CREATE TABLE "attachment" (
+CREATE TABLE IF NOT EXISTS "attachment" (
     "attachment_id" INTEGER PRIMARY KEY NOT NULL,
     "name" TEXT NOT NULL,
     "data" BLOB NOT NULL,

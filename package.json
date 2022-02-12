@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./build.js"
+    "build": "NODE_ENV=production node ./build.js",
+    "start": "NODE_ENV=dev node ./build.js"
   },
   "author": "",
   "license": "MIT",
