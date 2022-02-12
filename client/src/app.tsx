@@ -86,8 +86,16 @@ const App: React.FC<Props> = props => {
                                     return (
                                         <tr key={idx}>
                                             <td className="col-2">{voucher.date}</td>
-                                            <td>{voucher.name}</td>
-                                            <td></td>
+                                            <td className="col-8">{voucher.name}</td>
+                                            <td className="col-2">
+                                                {voucher.attachments.map((attachment, idx) => {
+                                                    return (
+                                                        <span key={idx} title={attachment.name}>
+                                                            <i className="bi bi-paperclip" />
+                                                        </span>
+                                                    )
+                                                })}
+                                            </td>
                                         </tr>
                                     )
                                 })}

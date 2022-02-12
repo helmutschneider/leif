@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Voucher } from './types'
-import { areDebitsAndCreditsBalanced, ensureHasEmptyTransaction, formatDate, tryParseInt } from './util'
+import { Attachment, Voucher } from './types'
+import { areDebitsAndCreditsBalanced, arrayBufferToBase64, ensureHasEmptyTransaction, formatDate, toArray, tryParseInt } from './util'
 import accounts from '../../accounts-2022.json'
 
 type Props = {
@@ -131,7 +131,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                     </td>
                                     <td>
                                         <i
-                                            className="bi bi-x-circle-fill text-danger fs-4"
+                                            className="bi bi-x-circle-fill fs-4"
                                             onClick={event => {
                                                 event.preventDefault();
                                                 event.stopPropagation();
@@ -150,6 +150,82 @@ export const VoucherForm: React.FC<Props> = props => {
                         })}
                     </tbody>
                 </table>
+                <div className="row">
+                    <div className="col">
+                        <div className="d-grid">
+                            <label
+                                htmlFor="files"
+                                className="btn btn-secondary">
+                                Bifoga filer
+                            </label>
+                            <input
+                                id="files"
+                                onChange={event => {
+                                    if (!event.target.files) {
+                                        return
+                                    }
+                                    const files = toArray(event.target.files)
+                                    const promises = files.map(file => {
+                                        return file.arrayBuffer()
+                                    })
+
+                                    Promise.all(promises).then(buffers => {
+                                        return buffers.map((buffer, idx) => {
+                                            const file = files[idx]!;
+                                            const attachment: Attachment = {
+                                                data: arrayBufferToBase64(buffer),
+                                                mime: file.type,
+                                                name: file.name,
+                                                size: file.size,
+                                            }
+                                            return attachment
+                                        })
+                                    }).then(stuff => {
+                                        props.onChange({
+                                            ...props.voucher,
+                                            attachments: props.voucher.attachments.concat(stuff),
+                                        })
+                                    })
+                                }}
+                                multiple={true}
+                                style={{ display: 'none' }}
+                                type="file"
+                            />
+                        </div>
+                    </div>
+                    {props.voucher.attachments.map((attachment, idx) => {
+                        return (
+                            <div
+                                className="col"
+                                key={idx}>
+                                <div className="d-grid">
+                                    <button
+                                        className="btn btn-secondary"
+                                        style={{ cursor: 'auto' }}
+                                        role="none"
+                                    >
+                                        {attachment.name}
+                                        <i
+                                            className="bi bi-x-circle-fill ms-1"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                const next = props.voucher.attachments.slice()
+                                                next.splice(idx, 1)
+                                                props.onChange({
+                                                    ...props.voucher,
+                                                    attachments: next,
+                                                })
+                                            }}
+                                            role="button"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
                 <div className="d-grid">
                     <button
                         className="btn btn-success"

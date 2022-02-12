@@ -15,6 +15,7 @@ export type Attachment = {
     name: string
     mime: string
     data: Base64String
+    size: number
 }
 export type Voucher = {
     attachments: ReadonlyArray<Attachment>
