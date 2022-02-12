@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Config\FrameworkConfig;
 
-return static function (ContainerConfigurator $container) {
-    $container->extension('framework', [
-        'secret' => '%env(APP_SECRET)%',
-        'http_method_override' => false,
-        'php_errors' => [
-            'log' => true,
-        ],
-    ]);
+return static function (FrameworkConfig $config, ContainerConfigurator $container) {
+    $config
+        ->secret('%env(APP_SECRET)%')
+        ->httpMethodOverride(false);
+
+    $config
+        ->phpErrors()
+        ->log(true);
+
+    $config
+        ->session()
+        ->enabled(false);
 
     if ($container->env() === 'test') {
-        $container->extension('framework', [
-            'test' => true,
-            'session' => [
-                'storage_factory_id' => 'session.storage.factory.mock_file',
-            ],
-        ]);
+        $config->test(true);
     }
 };
