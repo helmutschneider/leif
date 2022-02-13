@@ -1,14 +1,16 @@
 <?php declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $container) {
-    $container->services()
+    $services = $container->services();
+    $services
         ->defaults()
         ->autowire(true)
         ->autoconfigure(true);
 
-    $container->services()
+    $services
         ->load('Leif\\', __DIR__ . '/../server/')
         ->exclude([
             __DIR__ . '/../server/DependencyInjection',
@@ -16,17 +18,52 @@ return static function (ContainerConfigurator $container) {
             __DIR__ . '/../server/Kernel.php',
         ]);
 
-    $container->services()
-        ->set('database', PDO::class)
+    $services
+        ->set('leif.database', PDO::class)
         ->args([
-            'sqlite:%kernel.project_dir%/var/app.db'
+            'sqlite:%kernel.project_dir%/var/app.db',
+            '',
+            '',
+            [
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ],
         ])
         ->call('exec', ['PRAGMA foreign_keys = ON;'])
-        ->alias(PDO::class, 'database');
+        ->alias(PDO::class, 'leif.database');
 
-    $container->services()
+    $services
         ->load('Leif\\Api\\', __DIR__ . '/../server/Api')
-        ->tag('controller.service_arguments')
-        ->autowire()
-        ->autoconfigure();
+        ->tag('controller.service_arguments');
+
+    $services
+        ->set(\Leif\Security\TokenUserProvider::class)
+        ->args([
+            '$ttl' => 86_400,
+        ]);
+
+    $services
+        ->load('Leif\\Command\\', __DIR__ . '/../server/Command/')
+        ->tag('console.command');
+
+    $services
+        ->set(\Leif\Security\SecretKey::class)
+        ->args([
+            '%kernel.secret%',
+        ]);
+
+    $services
+        ->set(
+            \Symfony\Component\PasswordHasher\PasswordHasherInterface::class,
+            \Symfony\Component\PasswordHasher\Hasher\NativePasswordHasher::class
+        )
+        ->args([
+            '$cost' => 15,
+        ]);
+
+    $services->set(
+        \Leif\Security\HmacHasherInterface::class,
+        \Leif\Security\NativeHmacHasher::class
+    );
 };

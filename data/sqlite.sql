@@ -2,6 +2,8 @@ CREATE TABLE IF NOT EXISTS "user" (
     "user_id" INTEGER PRIMARY KEY NOT NULL,
     "username" TEXT NOT NULL UNIQUE,
     "password_hash" TEXT NOT NULL,
+    "token_hash" BLOB NOT NULL,
+    "seen_at" TEXT NOT NULL,
     "created_at" TEXT NOT NULL
 );
 

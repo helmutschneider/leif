@@ -6,4 +6,8 @@ return function (RoutingConfigurator $routes) {
     $routes->add('index', '/')
         ->methods(['GET'])
         ->controller(\Leif\Api\IndexAction::class);
+
+    $routes->add('list_workbooks', '/api/workbooks')
+        ->methods(['GET'])
+        ->controller(\Leif\Api\ListWorkbooksAction::class);
 };
