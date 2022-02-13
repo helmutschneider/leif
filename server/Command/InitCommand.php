@@ -3,12 +3,8 @@
 namespace Leif\Command;
 
 use DateTimeImmutable;
-use Exception;
 use InvalidArgumentException;
 use Leif\Database;
-use Leif\Security\HmacHasher;
-use Leif\Security\SecretKey;
-use PDO;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
