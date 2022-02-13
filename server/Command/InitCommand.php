@@ -20,15 +20,13 @@ final class InitCommand extends Command
 {
     private Database $db;
     private PasswordHasherInterface $passwordHasher;
-    private HmacHasher $tokenHasher;
 
-    public function __construct(Database $db, PasswordHasherInterface $passwordHasher, HmacHasher $tokenHasher)
+    public function __construct(Database $db, PasswordHasherInterface $passwordHasher)
     {
         parent::__construct('init');
 
         $this->db = $db;
         $this->passwordHasher = $passwordHasher;
-        $this->tokenHasher = $tokenHasher;
     }
 
     protected function configure()
@@ -70,15 +68,13 @@ final class InitCommand extends Command
             $now = new DateTimeImmutable('now');
             $this->db->execute(
                 <<<SQL
-INSERT INTO user (username, password_hash, token_hash, created_at, seen_at)
-         VALUES  (?, ?, ?, ?, ?)
+INSERT INTO user (username, password_hash, created_at)
+         VALUES  (?, ?, ?)
 SQL
             ,
             [
                 $username,
                 $this->passwordHasher->hash($password),
-                $this->tokenHasher->hash($token),
-                $now->format('Y-m-d H:i:s'),
                 $now->format('Y-m-d H:i:s'),
             ]);
             $output->writeln('Creating user... OK');
@@ -88,7 +84,6 @@ SQL
                 $this->db->getLastInsertId(),
             ]);
             $output->writeln('Creating workbook... OK');
-            $output->writeln('API Token: ' . $token);
         });
 
         return 0;

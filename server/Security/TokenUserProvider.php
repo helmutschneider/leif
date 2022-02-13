@@ -66,17 +66,28 @@ final class TokenUserProvider implements UserProviderInterface
         $mustBeSeenAfter = $now
             ->sub(new DateInterval("PT${ttl}S"))
             ->format('Y-m-d H:i:s');
-        $row = $this->db->selectOne('SELECT * FROM user WHERE token_hash = :hash AND seen_at > :after', [
-            ':hash' => $this->hasher->hash($token),
-            ':after' => $mustBeSeenAfter,
-        ]);
+
+        $row = $this->db->selectOne(<<<SQL
+SELECT u.*,
+       t.token_id
+  FROM user AS u
+ INNER JOIN token AS t
+    ON t.user_id = u.user_id
+ WHERE t.value = :hash
+   AND t.seen_at > :after
+SQL,
+            [
+                ':hash' => $this->hasher->hash($token),
+                ':after' => $mustBeSeenAfter,
+            ]);
+
         if (!$row) {
             throw new UserNotFoundException();
         }
 
-        $this->db->execute('UPDATE user SET seen_at = :now WHERE user_id = :id', [
+        $this->db->execute('UPDATE token SET seen_at = :now WHERE token_id = :id', [
             ':now' => $now->format('Y-m-d H:i:s'),
-            ':id' => $row['user_id'],
+            ':id' => $row['token_id'],
         ]);
 
         return new User($row);

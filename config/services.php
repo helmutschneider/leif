@@ -5,6 +5,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $container) {
     $services = $container->services();
+    $params = $container->parameters();
+
     $services
         ->defaults()
         ->autowire(true)
@@ -37,10 +39,13 @@ return static function (ContainerConfigurator $container) {
         ->load('Leif\\Api\\', __DIR__ . '/../server/Api')
         ->tag('controller.service_arguments');
 
+    $params
+        ->set('leif.token_ttl', 86_400);
+
     $services
         ->set(\Leif\Security\TokenUserProvider::class)
         ->args([
-            '$ttl' => 86_400,
+            '$ttl' => '%leif.token_ttl%',
         ]);
 
     $services
@@ -71,4 +76,11 @@ return static function (ContainerConfigurator $container) {
         \Leif\Database::class,
         \Leif\PDODatabase::class
     );
+
+    $services
+        ->set(\Leif\Api\LoginAction::class)
+        ->tag('controller.service_arguments')
+        ->args([
+            '$ttl' => '%leif.token_ttl%',
+        ]);
 };

@@ -3,8 +3,8 @@
 namespace Leif\Api;
 
 use DateTimeImmutable;
+use DateInterval;
 use Leif\Database;
-use PDO;
 use Leif\Security\HmacHasher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,13 +22,15 @@ final class LoginAction
 
     private Database $db;
     private PasswordHasherInterface $passwordHasher;
-    private HmacHasher $tokeHasher;
+    private HmacHasher $tokenHasher;
+    private int $ttl;
 
-    public function __construct(Database $db, PasswordHasherInterface $hasher, HmacHasher $tokeHasher)
+    public function __construct(Database $db, PasswordHasherInterface $hasher, HmacHasher $tokenHasher, int $ttl)
     {
         $this->db = $db;
         $this->passwordHasher = $hasher;
-        $this->tokeHasher = $tokeHasher;
+        $this->tokenHasher = $tokenHasher;
+        $this->ttl = $ttl;
     }
 
     public function __invoke(Request $request): Response
@@ -52,10 +54,22 @@ final class LoginAction
             return new JsonResponse(static::ERR_BAD_CREDENTIALS, Response::HTTP_UNAUTHORIZED);
         }
         $token = bin2hex(random_bytes(32));
-        $this->db->execute('UPDATE user SET token_hash = :hash, seen_at = :now WHERE user_id = :id', [
-            ':hash' => $this->tokeHasher->hash($token),
-            ':now' => (new DateTimeImmutable('now'))->format('Y-m-d H:i:s'),
-            ':id' => $row['user_id'],
+        $now = new DateTimeImmutable('now');
+
+        $this->db->execute('INSERT INTO token (value, seen_at, user_id) VALUES (?, ?, ?)', [
+            $this->tokenHasher->hash($token),
+            $now->format('Y-m-d H:i:s'),
+            $row['user_id'],
+        ]);
+
+        // do some garbage collection of expired tokens.
+        $ttl = $this->ttl;
+        $mustBeSeenAfter = $now
+            ->sub(new DateInterval("PT${ttl}S"))
+            ->format('Y-m-d H:i:s');
+
+        $this->db->execute('DELETE FROM token WHERE seen_at < :after', [
+            ':after' => $mustBeSeenAfter,
         ]);
 
         return new JsonResponse([

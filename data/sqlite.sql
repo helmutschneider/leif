@@ -1,13 +1,22 @@
-CREATE TABLE IF NOT EXISTS "user" (
+CREATE TABLE "user" (
     "user_id" INTEGER PRIMARY KEY NOT NULL,
     "username" TEXT NOT NULL UNIQUE,
     "password_hash" TEXT NOT NULL,
-    "token_hash" BLOB NOT NULL,
-    "seen_at" TEXT NOT NULL,
     "created_at" TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS "workbook" (
+CREATE TABLE "token" (
+    "token_id" INTEGER PRIMARY KEY NOT NULL,
+    "value" BLOB NOT NULL,
+    "seen_at" TEXT NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    FOREIGN KEY ("user_id")
+        REFERENCES "user" ("user_id")
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+
+CREATE TABLE "workbook" (
     "workbook_id" INTEGER PRIMARY KEY NOT NULL,
     "name" INTEGER NOT NULL,
     "year" INTEGER NOT NULL,
@@ -18,7 +27,7 @@ CREATE TABLE IF NOT EXISTS "workbook" (
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "voucher" (
+CREATE TABLE "voucher" (
     "voucher_id" INTEGER PRIMARY KEY NOT NULL,
     "created_at" TEXT NOT NULL,
     "date" TEXT NOT NULL,
@@ -30,7 +39,7 @@ CREATE TABLE IF NOT EXISTS "voucher" (
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "transaction" (
+CREATE TABLE "transaction" (
     "transaction_id" INTEGER PRIMARY KEY NOT NULL,
     "account" INTEGER NOT NULL,
     "amount" INTEGER NOT NULL,
@@ -42,7 +51,7 @@ CREATE TABLE IF NOT EXISTS "transaction" (
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "attachment" (
+CREATE TABLE "attachment" (
     "attachment_id" INTEGER PRIMARY KEY NOT NULL,
     "name" TEXT NOT NULL,
     "data" BLOB NOT NULL,
