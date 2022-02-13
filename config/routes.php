@@ -7,7 +7,7 @@ return function (RoutingConfigurator $routes) {
         ->methods(['GET'])
         ->controller(\Leif\Api\IndexAction::class);
 
-    $routes->add('list_workbooks', '/api/workbooks')
+    $routes->add('list_workbooks', '/api/workbook')
         ->methods(['GET'])
         ->controller(\Leif\Api\ListWorkbooksAction::class);
 
@@ -15,7 +15,7 @@ return function (RoutingConfigurator $routes) {
         ->methods(['POST'])
         ->controller(\Leif\Api\LoginAction::class);
 
-    $routes->add('create_voucher', '/api/vouchers')
+    $routes->add('create_voucher', '/api/voucher')
         ->methods(['POST'])
         ->controller(\Leif\Api\CreateVoucherAction::class);
 };

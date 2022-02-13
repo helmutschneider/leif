@@ -21,15 +21,19 @@ export type Voucher = {
     attachments: ReadonlyArray<Attachment>
     created_at: string
     date: string
-    id?: number
     name: string
     transactions: ReadonlyArray<Transaction>
+    voucher_id?: number | string
+    workbook_id?: number | string
 }
-type WorkbookV1 = {
+export type Workbook = {
     balances: { [A in ExactAccountNumber]?: number }
     name: string
-    version: 1
     vouchers: ReadonlyArray<Voucher>
     year: number
+    workbook_id?: number | string
 }
-export type Workbook = WorkbookV1
+export type User = {
+    username: string
+    token: string
+}

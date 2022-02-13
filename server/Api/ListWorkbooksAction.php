@@ -48,23 +48,16 @@ SQL;
             ':id' => $user->getId(),
         ]);
 
-        $workbooksById = [];
-        $vouchersById = [];
 
-        foreach ($workbooks as $wb) {
-            $workbooksById[$wb['workbook_id']] = $wb;
-        }
-
-        foreach ($vouchers as $v) {
-            $v['created_at'] = (new DateTimeImmutable($v['created_at']))->format('c');
-            $vouchersById[$v['voucher_id']] = $v;
-        }
+        $transactionsByVoucherId = [];
 
         foreach ($transactions as $t) {
             $voucherId = $t['voucher_id'];
-            if (!isset($vouchersById[$voucherId]['transactions'])) {
-                $vouchersById[$voucherId]['transactions'] = [];
+
+            if (!isset($transactionsByVoucherId[$voucherId])) {
+                $transactionsByVoucherId[$voucherId] = [];
             }
+
             switch ($t['kind']) {
                 case CreateVoucherAction::VOUCHER_KIND_CREDIT:
                     $t['kind'] = 'credit';
@@ -73,17 +66,32 @@ SQL;
                     $t['kind'] = 'debit';
                     break;
             }
-            $vouchersById[$voucherId]['transactions'][] = $t;
+
+            $transactionsByVoucherId[$voucherId][] = $t;
         }
 
-        foreach ($vouchersById as $voucher) {
+        $vouchersByWorkbookId = [];
+
+        foreach ($vouchers as $voucher) {
             $wbId = $voucher['workbook_id'];
-            if (!isset($workbooksById[$wbId]['vouchers'])) {
-                $workbooksById[$wbId]['vouchers'] = [];
+            $voucherId = $voucher['voucher_id'];
+            if (!isset($vouchersByWorkbookId[$wbId])) {
+                $vouchersByWorkbookId[$wbId] = [];
             }
-            $workbooksById[$wbId]['vouchers'][] = $voucher;
+
+            $voucher['created_at'] = (new DateTimeImmutable($voucher['created_at']))->format('c');
+            $voucher['attachments'] = [];
+            $voucher['transactions'] = $transactionsByVoucherId[$voucherId] ?? [];
+            $vouchersByWorkbookId[$voucher['workbook_id']][] = $voucher;
         }
 
-        return new JsonResponse(array_values($workbooksById));
+        $result = [];
+
+        foreach ($workbooks as $wb) {
+            $wb['vouchers'] = $vouchersByWorkbookId[$wb['workbook_id']];
+            $result[] = $wb;
+        }
+
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 }

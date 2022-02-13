@@ -89,21 +89,20 @@ export function areDebitsAndCreditsBalanced(voucher: t.Voucher): boolean {
         return false
     }
 
-    let debits = 0;
-    let credits = 0;
+    let sum = 0
 
     for (const t of voucher.transactions) {
         switch (t.kind) {
             case 'debit':
-                debits += t.amount;
+                sum += t.amount;
                 break;
             case 'credit':
-                credits += t.amount;
+                sum -= t.amount;
                 break;
         }
     }
 
-    return debits === credits;
+    return sum === 0
 }
 
 export function emptyVoucher(): t.Voucher {
@@ -119,13 +118,6 @@ export function emptyVoucher(): t.Voucher {
     }
 }
 
-export function getNextVoucherId(previous: ReadonlyArray<t.Voucher>): number {
-    const ids = previous
-        .map(voucher => voucher.id ?? 0)
-        .concat(0);
-    return Math.max(...ids) + 1;
-}
-
 export function toArray<T>(stuff: ArrayLike<T>): ReadonlyArray<T> {
     return Array.prototype.slice.call(stuff);
 }
@@ -133,7 +125,7 @@ export function toArray<T>(stuff: ArrayLike<T>): ReadonlyArray<T> {
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
     let binary = '';
     const bytes = new Uint8Array(buffer);
-    for (var i = 0; i < bytes.byteLength; i++) {
+    for (let i = 0; i < bytes.byteLength; i++) {
         binary += String.fromCharCode(bytes[i]!);
     }
     return window.btoa(binary);

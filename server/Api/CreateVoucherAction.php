@@ -35,7 +35,7 @@ final class CreateVoucherAction
     {
         $body = $request->toArray();
 
-        if (!$this->isOwnerOfWorkbook($body['workbook_id'], $user)) {
+        if (!$this->isOwnerOfWorkbook((int)$body['workbook_id'], $user)) {
             return new JsonResponse(['message' => sprintf('Workbook \'%d\' not found.', $body['workbook_id'])], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 

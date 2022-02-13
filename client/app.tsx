@@ -1,35 +1,87 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import accounts from '../data/accounts-2022.json'
-import { formatDate, emptyVoucher, areDebitsAndCreditsBalanced, ensureHasEmptyTransaction, tryParseInt, getAccountName, formatSEK, calculateAccountBalances, ellipsis, getNextVoucherId } from './util';
+import {emptyVoucher, getAccountName, formatSEK, calculateAccountBalances, ellipsis } from './util';
 import * as t from './types'
 import { VoucherForm } from './voucher-form';
+import {User, Voucher, Workbook} from "./types";
+import {LoginForm} from "./login-form";
+import {FetchBackend, HttpBackend} from "./http";
 
-type Props = {}
+type Props = {
+    http: HttpBackend
+}
 type State = {
     search: string
     voucher: t.Voucher
     workbook: t.Workbook | undefined
+    user: User | undefined
+}
+
+const SESSION_STORAGE_USER_KEY = 'user'
+
+function tryGetUserFromSessionStorage(): User | undefined {
+    const json = window.sessionStorage.getItem(SESSION_STORAGE_USER_KEY)
+    let user: User | undefined
+    try {
+        user = JSON.parse(json ?? '')
+    } catch {}
+    if (typeof user !== 'object') {
+        return undefined
+    }
+    return user
 }
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
         search: '',
         voucher: emptyVoucher(),
-        workbook: {
-            balances: {},
-            name: 'Impossible Solution AB 2022',
-            version: 1,
-            vouchers: [
-                {
-                    ...emptyVoucher(),
-                    id: 1,
-                    name: 'Bankavgift',
-                },
-            ],
-            year: 2022,
-        },
+        workbook: undefined,
+        user: tryGetUserFromSessionStorage(),
     })
+
+    React.useEffect(() => {
+        if (state.user) {
+            window.sessionStorage.setItem(SESSION_STORAGE_USER_KEY, JSON.stringify(state.user));
+            if (props.http instanceof FetchBackend) {
+                props.http.defaultHeaders['Authorization'] = state.user.token
+            }
+
+            props.http
+                .send<ReadonlyArray<Workbook>>({ method: 'GET', url: '/api/workbook' })
+                .then(wbs => {
+                    setState({
+                        ...state,
+                        workbook: wbs[0]
+                    })
+                });
+        } else {
+            window.sessionStorage.removeItem(SESSION_STORAGE_USER_KEY);
+            if (props.http instanceof FetchBackend) {
+                delete props.http.defaultHeaders['Authorization'];
+            }
+        }
+    }, [state.user])
+
+    if (!state.user) {
+        return (
+            <div className="container">
+                <div className="row justify-content-center">
+                    <div className="col-lg-4">
+                        <h1>Logga in</h1>
+                        <LoginForm
+                            http={props.http}
+                            onLogin={user => {
+                                setState({
+                                    ...state,
+                                    user: user,
+                                })
+                            }}
+                        />
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     const workbook = state.workbook
 
@@ -72,6 +124,24 @@ const App: React.FC<Props> = props => {
                             type="text"
                             value={state.search}
                         />
+                        <ul className="navbar-nav me-auto mb-lg-0">
+                            <a
+                                className="nav-link text-nowrap"
+                                onClick={event => {
+                                    event.preventDefault()
+                                    event.stopPropagation()
+
+                                    setState({
+                                        ...state,
+                                        user: undefined,
+                                        workbook: undefined,
+                                    })
+                                }}
+                                href="#"
+                            >
+                                Logga ut
+                            </a>
+                        </ul>
                     </div>
                 </div>
             </nav>
@@ -113,18 +183,30 @@ const App: React.FC<Props> = props => {
                                     })
                                 }}
                                 onOK={() => {
-                                    const next: State = {
-                                        search: '',
-                                        voucher: emptyVoucher(),
-                                        workbook: {
-                                            ...workbook,
-                                            vouchers: workbook.vouchers.concat({
-                                                ...state.voucher,
-                                                id: getNextVoucherId(workbook.vouchers),
-                                            }),
-                                        },
+                                    const body: Voucher = {
+                                        ...state.voucher,
+                                        transactions: state.voucher.transactions.filter(t => {
+                                            return t.amount !== 0
+                                        }),
+                                        workbook_id: workbook.workbook_id!,
                                     }
-                                    setState(next)
+
+                                    props.http.send<Voucher>({
+                                        method: 'POST',
+                                        url: '/api/voucher',
+                                        body: body,
+                                    }).then(res => {
+                                        const next: State = {
+                                            search: '',
+                                            voucher: emptyVoucher(),
+                                            workbook: {
+                                                ...workbook,
+                                                vouchers: workbook.vouchers.concat(res),
+                                            },
+                                            user: state.user,
+                                        }
+                                        setState(next)
+                                    })
                                 }}
                                 voucher={state.voucher}
                             />
@@ -156,4 +238,7 @@ const App: React.FC<Props> = props => {
 }
 
 const root = document.getElementById('app');
-ReactDOM.render(<App />, root);
+ReactDOM.render(
+    <App http={new FetchBackend()} />,
+    root
+);
