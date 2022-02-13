@@ -4,6 +4,7 @@ namespace Leif\Security;
 
 use DateTimeImmutable;
 use DateInterval;
+use Leif\Database;
 use Leif\Security\User;
 use PDO;
 use RuntimeException;
@@ -15,22 +16,27 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 final class TokenUserProvider implements UserProviderInterface
 {
-    private PDO $db;
-    private HmacHasherInterface $hasher;
+    private Database $db;
+    private HmacHasher $hasher;
     private int $ttl;
 
-    public function __construct(PDO $db, HmacHasherInterface $hasher, int $ttl)
+    public function __construct(Database $db, HmacHasher $hasher, int $ttl)
     {
         $this->db = $db;
         $this->ttl = $ttl;
         $this->hasher = $hasher;
     }
 
-    public function refreshUser(UserInterface $user)
+    /**
+     * @param UserInterface $user
+     * @return UserInterface|void
+     */
+    public function refreshUser(UserInterface $user): UserInterface
     {
+        return $user;
     }
 
-    public function supportsClass(string $class)
+    public function supportsClass(string $class): bool
     {
         return $class === User::class;
     }
@@ -44,11 +50,9 @@ final class TokenUserProvider implements UserProviderInterface
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        $stmt = $this->db->prepare('SELECT * FROM user WHERE username = ?');
-        $stmt->execute([
-            $identifier,
+        $row = $this->db->selectOne('SELECT * FROM user WHERE username = :username', [
+            ':username' => $identifier,
         ]);
-        $row = $stmt->fetch();
         if (!$row) {
             throw new UserNotFoundException();
         }
@@ -62,20 +66,17 @@ final class TokenUserProvider implements UserProviderInterface
         $mustBeSeenAfter = $now
             ->sub(new DateInterval("PT${ttl}S"))
             ->format('Y-m-d H:i:s');
-        $stmt = $this->db->prepare('SELECT * FROM user WHERE token_hash = ? AND seen_at > ?');
-        $stmt->execute([
-            $this->hasher->hash($token),
-            $mustBeSeenAfter,
+        $row = $this->db->selectOne('SELECT * FROM user WHERE token_hash = :hash AND seen_at > :after', [
+            ':hash' => $this->hasher->hash($token),
+            ':after' => $mustBeSeenAfter,
         ]);
-        $row = $stmt->fetch();
         if (!$row) {
             throw new UserNotFoundException();
         }
 
-        $stmt = $this->db->prepare('UPDATE user SET seen_at = ? WHERE user_id = ?');
-        $stmt->execute([
-            $now->format('Y-m-d H:i:s'),
-            $row['user_id'],
+        $this->db->execute('UPDATE user SET seen_at = :now WHERE user_id = :id', [
+            ':now' => $now->format('Y-m-d H:i:s'),
+            ':id' => $row['user_id'],
         ]);
 
         return new User($row);

@@ -5,7 +5,8 @@ namespace Leif\Command;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
-use Leif\Security\HmacHasherInterface;
+use Leif\Database;
+use Leif\Security\HmacHasher;
 use Leif\Security\SecretKey;
 use PDO;
 use Symfony\Component\Console\Command\Command;
@@ -17,11 +18,11 @@ use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 final class InitCommand extends Command
 {
-    private PDO $db;
+    private Database $db;
     private PasswordHasherInterface $passwordHasher;
-    private HmacHasherInterface $tokenHasher;
+    private HmacHasher $tokenHasher;
 
-    public function __construct(PDO $db, PasswordHasherInterface $passwordHasher, HmacHasherInterface $tokenHasher)
+    public function __construct(Database $db, PasswordHasherInterface $passwordHasher, HmacHasher $tokenHasher)
     {
         parent::__construct('init');
 
@@ -45,7 +46,7 @@ final class InitCommand extends Command
         $username = $helper->ask($input, $output, new Question('Username: '));
         $password = $helper->ask($input, $output, new Question('Password: '));
         $workbookName = $helper->ask($input, $output, new Question('Workbook name: '));
-        $apiToken = bin2hex(random_bytes(32));
+        $token = bin2hex(random_bytes(32));
 
         if (!$username || !$password) {
             throw new InvalidArgumentException(
@@ -56,49 +57,39 @@ final class InitCommand extends Command
         $schema = file_get_contents(__DIR__ . '/../../data/sqlite.sql');
         $parts = explode(';', trim($schema));
 
-        $this->db->beginTransaction();
-
-        try {
+        $this->db->transaction(function () use ($parts, $output, $username, $password, $token, $workbookName) {
             foreach ($parts as $part) {
                 if (!$part) {
                     continue;
                 }
 
-                $stmt = $this->db->prepare($part);
-                $stmt->execute();
+                $this->db->execute($part);
             }
             $output->writeln('Creating database schema... OK');
 
             $now = new DateTimeImmutable('now');
-            $stmt = $this->db->prepare(
+            $this->db->execute(
                 <<<SQL
 INSERT INTO user (username, password_hash, token_hash, created_at, seen_at)
          VALUES  (?, ?, ?, ?, ?)
 SQL
-            );
-            $stmt->execute([
+            ,
+            [
                 $username,
                 $this->passwordHasher->hash($password),
-                $this->tokenHasher->hash($apiToken),
+                $this->tokenHasher->hash($token),
                 $now->format('Y-m-d H:i:s'),
                 $now->format('Y-m-d H:i:s'),
             ]);
             $output->writeln('Creating user... OK');
-
-            $stmt = $this->db->prepare('INSERT INTO workbook (name, year, user_id) VALUES (?, ?, ?)');
-            $stmt->execute([
+            $this->db->execute('INSERT INTO workbook (name, year, user_id) VALUES (?, ?, ?)', [
                 $workbookName,
                 date('Y'),
-                $this->db->lastInsertId(),
+                $this->db->getLastInsertId(),
             ]);
             $output->writeln('Creating workbook... OK');
-            $output->writeln('API Token: ' . $apiToken);
-
-            $this->db->commit();
-        } catch (Exception $e) {
-            $this->db->rollBack();
-            throw $e;
-        }
+            $output->writeln('API Token: ' . $token);
+        });
 
         return 0;
     }

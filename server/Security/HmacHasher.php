@@ -2,7 +2,7 @@
 
 namespace Leif\Security;
 
-interface HmacHasherInterface
+interface HmacHasher
 {
     public function hash(string $value): string;
     public function verify(string $hash, string $value): bool;

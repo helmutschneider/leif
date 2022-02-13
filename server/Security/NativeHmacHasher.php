@@ -5,10 +5,11 @@ namespace Leif\Security;
 use Symfony\Component\PasswordHasher\Exception\InvalidPasswordException;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
-final class NativeHmacHasher implements HmacHasherInterface
+final class NativeHmacHasher implements HmacHasher
 {
+    const HASH_IS_BINARY = false;
+
     private SecretKey $key;
-    private bool $binary = false;
 
     public function __construct(SecretKey $key)
     {
@@ -17,12 +18,12 @@ final class NativeHmacHasher implements HmacHasherInterface
 
     public function hash(string $value): string
     {
-        return hash_hmac('sha256', $value, $this->key->getValue(), $this->binary);
+        return hash_hmac('sha256', $value, $this->key->getValue(), static::HASH_IS_BINARY);
     }
 
     public function verify(string $hash, string $value): bool
     {
-        $hashedFromUser = $this->hash($value);
-        return hash_equals($hash, $hashedFromUser);
+        $userHash = $this->hash($value);
+        return hash_equals($hash, $userHash);
     }
 }

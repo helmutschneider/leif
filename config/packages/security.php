@@ -2,7 +2,7 @@
 
 use Symfony\Config\SecurityConfig;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 
 return static function (SecurityConfig $config, ContainerConfigurator $container) {
     $config
@@ -19,8 +19,14 @@ return static function (SecurityConfig $config, ContainerConfigurator $container
         ]);
 
     $config->accessControl()
+        ->path('^/api/login')
+        ->roles([
+            AuthenticatedVoter::PUBLIC_ACCESS,
+        ]);
+
+    $config->accessControl()
         ->path('^/api')
         ->roles([
-            'ROLE_USER',
+            AuthenticatedVoter::IS_AUTHENTICATED_FULLY,
         ]);
 };

@@ -10,4 +10,12 @@ return function (RoutingConfigurator $routes) {
     $routes->add('list_workbooks', '/api/workbooks')
         ->methods(['GET'])
         ->controller(\Leif\Api\ListWorkbooksAction::class);
+
+    $routes->add('login', '/api/login')
+        ->methods(['POST'])
+        ->controller(\Leif\Api\LoginAction::class);
+
+    $routes->add('create_voucher', '/api/vouchers')
+        ->methods(['POST'])
+        ->controller(\Leif\Api\CreateVoucherAction::class);
 };

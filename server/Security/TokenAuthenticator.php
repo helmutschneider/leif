@@ -14,6 +14,8 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 final class TokenAuthenticator extends AbstractAuthenticator
 {
+    const AUTH_HEADER = 'Authorization';
+
     private TokenUserProvider $userProvider;
 
     public function __construct(TokenUserProvider $userProvider)
@@ -23,16 +25,15 @@ final class TokenAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return true;
+        return $request->headers->has(static::AUTH_HEADER);
     }
 
     public function authenticate(Request $request)
     {
-        $token = $request->headers->get('Authorization', '');
+        $token = $request->headers->get(static::AUTH_HEADER, '');
+        $loader = [$this->userProvider, 'loadUserByApiToken'];
 
-        return new SelfValidatingPassport(new UserBadge($token, function (string $token) {
-            return $this->userProvider->loadUserByApiToken($token);
-        }));
+        return new SelfValidatingPassport(new UserBadge($token, $loader));
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
@@ -42,6 +43,10 @@ final class TokenAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        return new JsonResponse(['message' => 'Unauthorized.'], Response::HTTP_UNAUTHORIZED);
+        $data = [
+            'message' => $exception->getMessageKey(),
+        ];
+
+        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 }

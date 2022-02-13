@@ -63,7 +63,12 @@ return static function (ContainerConfigurator $container) {
         ]);
 
     $services->set(
-        \Leif\Security\HmacHasherInterface::class,
+        \Leif\Security\HmacHasher::class,
         \Leif\Security\NativeHmacHasher::class
+    );
+
+    $services->set(
+        \Leif\Database::class,
+        \Leif\PDODatabase::class
     );
 };
