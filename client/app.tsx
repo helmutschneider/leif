@@ -74,7 +74,7 @@ const App: React.FC<Props> = props => {
                         <div className="text-center">
                             <img
                                 className="m-3"
-                                style={{ borderRadius: '50%', width: '50%' }}
+                                style={{ borderRadius: '50%', width: '25%' }}
                                 src="/leif.jpg"
                             />
                         </div>
