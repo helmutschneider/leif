@@ -48,7 +48,7 @@ final class InitCommand extends Command
             );
         }
 
-        $schema = file_get_contents(__DIR__ . '/../../data/sqlite.sql');
+        $schema = file_get_contents(__DIR__ . '/../../../data/sqlite.sql');
         $parts = explode(';', trim($schema));
 
         $this->db->transaction(function () use ($parts, $output, $username, $password, $token, $workbookName) {

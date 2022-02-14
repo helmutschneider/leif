@@ -46,7 +46,6 @@ final class ImportCsvCommand extends Command
         $this->db->transaction(function () use ($handle, $workbookName, $userId, $output) {
             $workbookId = null;
             $buffer = [];
-            $sum = 0;
 
             while ($row = fgetcsv($handle)) {
                 $dt = DateTimeImmutable::createFromFormat('Y-m-d', $row[0]);
@@ -73,18 +72,17 @@ final class ImportCsvCommand extends Command
                     $workbookId = $this->db->getLastInsertId();
                 }
 
-                $debit = $this->parseAmount($row[3]);
-                $credit = $this->parseAmount($row[4]);
-
                 $buffer[] = [
                     'date' => $row[0],
                     'name' => $row[1],
                     'account' => $row[2],
-                    'debit' => $debit,
-                    'credit' => $credit,
+                    'debit' => $this->parseAmount($row[3]),
+                    'credit' => $this->parseAmount($row[4]),
                 ];
-                $sum += $debit;
-                $sum -= $credit;
+
+                $sum = array_reduce($buffer, function (int $carry, array $item) {
+                    return $carry + $item['debit'] - $item['credit'];
+                }, 0);
 
                 // commit the buffer when the sum is zero, which means that
                 // we have found a complete and valid voucher.
@@ -115,6 +113,11 @@ final class ImportCsvCommand extends Command
 
                     $buffer = [];
                 }
+            }
+
+            if ($buffer) {
+                var_dump($buffer);
+                throw new LogicException('Finished with a non-empty buffer. Bad!');
             }
         });
 
