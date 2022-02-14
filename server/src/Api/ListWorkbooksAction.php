@@ -62,11 +62,11 @@ SQL;
         foreach ($workbooks as $wb) {
             $wb['vouchers'] = $vouchersByWorkbookId[$wb['workbook_id']] ?? [];
             $wb['templates'] = $templatesByWorkbookId[$wb['workbook_id']] ?? [];
-            $wb['balance'] = [];
+            $wb['balance_carry'] = [];
 
             foreach ($balanceCarries as $item) {
                 if ($item['workbook_id'] === $wb['workbook_id']) {
-                    $wb['balance'][$item['account']] = $item['balance'];
+                    $wb['balance_carry'][$item['account']] = $item['balance'];
                 }
             }
 

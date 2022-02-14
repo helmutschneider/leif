@@ -3,7 +3,7 @@ import accounts from '../data/accounts-2022.json'
 export type AccountNumber = string | number;
 export type ExactAccountNumber = keyof typeof accounts;
 export type AccountBalanceMap = {
-    [key: AccountNumber]: number
+    [key: AccountNumber]: number | string
 };
 export type Transaction = {
     account: AccountNumber
@@ -27,7 +27,7 @@ export type Voucher = {
     workbook_id?: number | string
 }
 export type Workbook = {
-    balances: { [A in ExactAccountNumber]?: number }
+    balance_carry: { [key: AccountNumber]: number }
     name: string
     vouchers: ReadonlyArray<Voucher>
     year: number

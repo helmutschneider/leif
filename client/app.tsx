@@ -101,7 +101,7 @@ const App: React.FC<Props> = props => {
         return null
     }
 
-    const balances = calculateAccountBalances(workbook.vouchers);
+    const balances = calculateAccountBalances(workbook.vouchers, workbook.balance_carry);
     let filteredVouchers: Array<t.Voucher> = state.search === ''
         ? workbook.vouchers.slice()
         : workbook.vouchers.filter(voucher => {

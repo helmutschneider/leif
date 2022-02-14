@@ -1,5 +1,6 @@
 import accounts from '../data/accounts-2022.json'
 import * as t from './types'
+import {AccountBalanceMap} from "./types";
 
 type DateFormatter = {
     (date: Date): string
@@ -25,34 +26,36 @@ export function ellipsis(value: string, length: number): string {
     return value;
 }
 
-export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>): t.AccountBalanceMap {
-    const result: t.AccountBalanceMap = {}
+export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, carries: AccountBalanceMap = {}): t.AccountBalanceMap {
+    const result: t.AccountBalanceMap = carries;
     for (const voucher of vouchers) {
         for (const t of voucher.transactions) {
             const num = t.account
             if (typeof result[num] === 'undefined') {
                 result[num] = 0;
             }
+            const prev = tryParseInt(result[num] ?? '', 0)
             const amount = tryParseInt(t.amount, 0)
-            result[num] += t.kind === 'debit' ? amount : (-amount);
+            result[num] = prev + (t.kind === 'debit' ? amount : (-amount));
         }
     }
     return result;
 }
 
-export function formatSEK(amount: number): string {
+export function formatSEK(amount: string | number): string {
     const intFmt = new Intl.NumberFormat('sv-SE', {
         style: 'decimal',
         useGrouping: true,
     });
-    const padded = amount.toString().padStart(3, '0');
+    const num = tryParseInt(amount, 0);
+    const padded = num.toString().padStart(3, '0');
     const [int, fraction] = padded.split(/(\d{2})$/);
     const intStr = intFmt.format(parseInt(int ?? '0'));
     return `${intStr},${fraction} kr`;
 }
 
 export function getAccountName(account: t.AccountNumber): string {
-    return accounts[account as t.ExactAccountNumber];
+    return accounts[account as t.ExactAccountNumber] ?? '';
 }
 
 export function ensureHasEmptyTransaction(transactions: ReadonlyArray<t.Transaction>): ReadonlyArray<t.Transaction> {
