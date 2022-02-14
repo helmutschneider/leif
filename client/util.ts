@@ -27,7 +27,7 @@ export function ellipsis(value: string, length: number): string {
 }
 
 export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, carries: AccountBalanceMap = {}): t.AccountBalanceMap {
-    const result: t.AccountBalanceMap = carries;
+    const result: t.AccountBalanceMap = {...carries};
     for (const voucher of vouchers) {
         for (const t of voucher.transactions) {
             const num = t.account
