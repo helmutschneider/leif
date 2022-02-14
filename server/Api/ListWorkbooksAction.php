@@ -88,7 +88,7 @@ SQL;
         $result = [];
 
         foreach ($workbooks as $wb) {
-            $wb['vouchers'] = $vouchersByWorkbookId[$wb['workbook_id']];
+            $wb['vouchers'] = $vouchersByWorkbookId[$wb['workbook_id']] ?? [];
             $result[] = $wb;
         }
 
