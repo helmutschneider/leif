@@ -33,9 +33,8 @@ export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>): t.
             if (typeof result[num] === 'undefined') {
                 result[num] = 0;
             }
-            result[num] += t.kind === 'debit'
-                ? t.amount
-                : (-t.amount);
+            const amount = tryParseInt(t.amount, 0)
+            result[num] += t.kind === 'debit' ? amount : (-amount);
         }
     }
     return result;
@@ -92,12 +91,14 @@ export function areDebitsAndCreditsBalanced(voucher: t.Voucher): boolean {
     let sum = 0
 
     for (const t of voucher.transactions) {
+        const amount = tryParseInt(t.amount, 0)
+
         switch (t.kind) {
             case 'debit':
-                sum += t.amount;
+                sum += amount;
                 break;
             case 'credit':
-                sum -= t.amount;
+                sum -= amount;
                 break;
         }
     }

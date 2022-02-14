@@ -7,7 +7,7 @@ export type AccountBalanceMap = {
 };
 export type Transaction = {
     account: AccountNumber
-    amount: number
+    amount: number | string
     kind: 'credit' | 'debit'
 }
 type Base64String = string

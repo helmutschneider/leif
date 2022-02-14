@@ -11,9 +11,11 @@ type Props = {
     http: HttpBackend
 }
 type State = {
+    activeWorkbookIndex: number
     search: string
+    selectWorkbookDropdownOpen: boolean
     voucher: t.Voucher
-    workbook: t.Workbook | undefined
+    workbooks: ReadonlyArray<Workbook>
     user: User | undefined
 }
 
@@ -33,9 +35,11 @@ function tryGetUserFromSessionStorage(): User | undefined {
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
+        activeWorkbookIndex: 0,
         search: '',
+        selectWorkbookDropdownOpen: false,
         voucher: emptyVoucher(),
-        workbook: undefined,
+        workbooks: [],
         user: tryGetUserFromSessionStorage(),
     })
 
@@ -51,8 +55,8 @@ const App: React.FC<Props> = props => {
                 .then(wbs => {
                     setState({
                         ...state,
-                        workbook: wbs[0]
-                    })
+                        workbooks: wbs,
+                    });
                 });
         } else {
             window.sessionStorage.removeItem(SESSION_STORAGE_USER_KEY);
@@ -91,19 +95,27 @@ const App: React.FC<Props> = props => {
         )
     }
 
-    const workbook = state.workbook
+    const workbook = state.workbooks[state.activeWorkbookIndex]
 
     if (!workbook) {
         return null
     }
 
     const balances = calculateAccountBalances(workbook.vouchers);
-    const filteredVouchers = state.search === ''
-        ? workbook.vouchers
+    let filteredVouchers: Array<t.Voucher> = state.search === ''
+        ? workbook.vouchers.slice()
         : workbook.vouchers.filter(voucher => {
             const json = JSON.stringify(voucher).toLowerCase();
             return json.includes(state.search.toLowerCase())
         });
+
+    const comparator = new Intl.Collator('sv', {
+        numeric: true,
+    })
+
+    filteredVouchers.sort((a, b) => {
+        return comparator.compare(b.date, a.date)
+    })
 
     return (
         <div>
@@ -133,22 +145,69 @@ const App: React.FC<Props> = props => {
                             value={state.search}
                         />
                         <ul className="navbar-nav me-auto mb-lg-0">
-                            <a
-                                className="nav-link text-nowrap"
-                                onClick={event => {
-                                    event.preventDefault()
-                                    event.stopPropagation()
+                            <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link dropdown-toggle"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
 
-                                    setState({
-                                        ...state,
-                                        user: undefined,
-                                        workbook: undefined,
-                                    })
-                                }}
-                                href="#"
-                            >
-                                Logga ut
-                            </a>
+                                        setState({
+                                            ...state,
+                                            selectWorkbookDropdownOpen: !state.selectWorkbookDropdownOpen,
+                                        })
+                                    }}
+                                    href="#"
+                                    role="button"
+                                >
+                                    Välj arbetsbok
+                                </a>
+                                <ul
+                                    className="dropdown-menu"
+                                    style={{ display: state.selectWorkbookDropdownOpen ? 'block' : 'none' }}
+                                >
+                                    {state.workbooks.map((wb, index) => {
+                                        return (
+                                            <li key={index}>
+                                                <a
+                                                    className="dropdown-item"
+                                                    onClick={event => {
+                                                        event.preventDefault()
+                                                        event.stopPropagation()
+
+                                                        setState({
+                                                            ...state,
+                                                            activeWorkbookIndex: index,
+                                                            selectWorkbookDropdownOpen: false,
+                                                        })
+                                                    }}
+                                                    href="#">
+                                                    {wb.name}
+                                                </a>
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                            </li>
+                            <li className="nav-item">
+                                <a
+                                    className="nav-link text-nowrap"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+
+                                        setState({
+                                            ...state,
+                                            activeWorkbookIndex: 0,
+                                            user: undefined,
+                                            workbooks: [],
+                                        })
+                                    }}
+                                    href="#"
+                                >
+                                    Logga ut
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -204,13 +263,19 @@ const App: React.FC<Props> = props => {
                                         url: '/api/voucher',
                                         body: body,
                                     }).then(res => {
+                                        const wbs = state.workbooks.slice()
+
+                                        wbs[state.activeWorkbookIndex] = {
+                                            ...workbook,
+                                            vouchers: workbook.vouchers.concat(res),
+                                        };
+
                                         const next: State = {
+                                            activeWorkbookIndex: state.activeWorkbookIndex,
                                             search: '',
+                                            selectWorkbookDropdownOpen: false,
                                             voucher: emptyVoucher(),
-                                            workbook: {
-                                                ...workbook,
-                                                vouchers: workbook.vouchers.concat(res),
-                                            },
+                                            workbooks: wbs,
                                             user: state.user,
                                         }
                                         setState(next)
