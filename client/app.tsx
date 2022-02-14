@@ -67,7 +67,15 @@ const App: React.FC<Props> = props => {
             <div className="container">
                 <div className="row justify-content-center">
                     <div className="col-lg-4">
-                        <h1>Logga in</h1>
+                        <div className="text-center">
+                            <img
+                                className="m-3"
+                                style={{ borderRadius: '50%', width: '50%' }}
+                                src="/leif.jpg"
+                            />
+                        </div>
+
+                        <h3>Logga in</h3>
                         <LoginForm
                             http={props.http}
                             onLogin={user => {
@@ -103,7 +111,7 @@ const App: React.FC<Props> = props => {
                 <div className="container">
                     <div className="navbar-brand d-flex align-items-center">
                         <img
-                            src="leif.jpg"
+                            src="/leif.jpg"
                             style={{
                                 borderRadius: 20,
                             }}

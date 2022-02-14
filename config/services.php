@@ -13,11 +13,11 @@ return static function (ContainerConfigurator $container) {
         ->autoconfigure(true);
 
     $services
-        ->load('Leif\\', __DIR__ . '/../server/')
+        ->load('Leif\\', __DIR__ . '/../server/src/')
         ->exclude([
-            __DIR__ . '/../server/DependencyInjection',
-            __DIR__ . '/../server/Entity',
-            __DIR__ . '/../server/Kernel.php',
+            __DIR__ . '/../server/src/DependencyInjection',
+            __DIR__ . '/../server/src/Entity',
+            __DIR__ . '/../server/src/Kernel.php',
         ]);
 
     $services
@@ -36,7 +36,7 @@ return static function (ContainerConfigurator $container) {
         ->alias(PDO::class, 'leif.database');
 
     $services
-        ->load('Leif\\Api\\', __DIR__ . '/../server/Api')
+        ->load('Leif\\Api\\', __DIR__ . '/../server/src/Api')
         ->tag('controller.service_arguments');
 
     $params
@@ -49,7 +49,7 @@ return static function (ContainerConfigurator $container) {
         ]);
 
     $services
-        ->load('Leif\\Command\\', __DIR__ . '/../server/Command/')
+        ->load('Leif\\Command\\', __DIR__ . '/../server/src/Command/')
         ->tag('console.command');
 
     $services

@@ -9,7 +9,7 @@ final class IndexAction
     public function __invoke(): Response
     {
         $html = file_get_contents(
-            __DIR__ . '/../../client/index.html'
+            __DIR__ . '/../../../client/index.html'
         );
 
         return new Response($html, Response::HTTP_OK, [

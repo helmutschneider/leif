@@ -36,12 +36,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Leif\\": "server/"
+            "Leif\\": "server/src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Leif\\Tests\\": "server/Tests/"
+            "Leif\\Tests\\": "server/tests/"
         }
     },
     "replace": {
