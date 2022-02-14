@@ -2,8 +2,24 @@
 
 namespace Leif\Tests;
 
-use PHPUnit\Framework\TestCase as PHPUnitTestCase;
+use Leif\Database;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-abstract class TestCase extends PHPUnitTestCase
+abstract class TestCase extends KernelTestCase
 {
+    use DatabaseTrait;
+
+    protected ?Database $db = null;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        static::bootKernel([
+            'debug' => false,
+        ]);
+
+        $this->db = static::getContainer()->get(Database::class);
+        static::loadSchema($this->db);
+    }
 }

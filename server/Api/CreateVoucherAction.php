@@ -3,6 +3,7 @@
 namespace Leif\Api;
 
 use DateTimeImmutable;
+use InvalidArgumentException;
 use Leif\Database;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,10 +64,16 @@ final class CreateVoucherAction
             $voucherId = $this->db->getLastInsertId();
 
             foreach ($body['transactions'] ?? [] as $transaction) {
+                $kind = static::VOUCHER_KIND_MAP[$transaction['kind']] ?? null;
+
+                if ($kind === null) {
+                    throw new InvalidArgumentException('Invalid or empty transaction kind. Must be \'credit\' or \'debit\'.');
+                }
+
                 $this->db->execute('INSERT INTO "transaction" (account, amount, kind, voucher_id) VALUES (?, ?, ?, ?)', [
                     $transaction['account'],
                     abs($transaction['amount']),
-                    static::VOUCHER_KIND_MAP[$transaction['kind']],
+                    $kind,
                     $voucherId,
                 ]);
             }

@@ -19,12 +19,12 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (int) $this->row['user_id'];
     }
 
-    public function getUserIdentifier()
+    public function getUserIdentifier(): string
     {
         return $this->row['username'];
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return [
             'ROLE_USER',
@@ -36,15 +36,17 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->row['password_hash'];
     }
 
-    public function getSalt()
+    public function getSalt(): ?string
     {
+        return null;
     }
 
     public function eraseCredentials()
     {
     }
 
-    public function getUsername()
+    public function getUsername(): string
     {
+        return $this->row['username'];
     }
 }

@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 final class TokenAuthenticator extends AbstractAuthenticator
@@ -28,7 +29,7 @@ final class TokenAuthenticator extends AbstractAuthenticator
         return $request->headers->has(static::AUTH_HEADER);
     }
 
-    public function authenticate(Request $request)
+    public function authenticate(Request $request): Passport
     {
         $token = $request->headers->get(static::AUTH_HEADER, '');
         $loader = [$this->userProvider, 'loadUserByApiToken'];

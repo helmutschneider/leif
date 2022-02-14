@@ -14,12 +14,14 @@ final class TokenUserProvider implements UserProviderInterface
     private Database $db;
     private HmacHasher $hasher;
     private int $ttl;
+    private DateTimeImmutable $now;
 
-    public function __construct(Database $db, HmacHasher $hasher, int $ttl)
+    public function __construct(Database $db, HmacHasher $hasher, int $ttl, ?DateTimeImmutable $now = null)
     {
         $this->db = $db;
         $this->ttl = $ttl;
         $this->hasher = $hasher;
+        $this->now = $now ?? new DateTimeImmutable('now');
     }
 
     /**
@@ -56,9 +58,8 @@ final class TokenUserProvider implements UserProviderInterface
 
     public function loadUserByApiToken(string $token): UserInterface
     {
-        $now = new DateTimeImmutable('now');
         $ttl = $this->ttl;
-        $mustBeSeenAfter = $now
+        $mustBeSeenAfter = $this->now
             ->sub(new DateInterval("PT${ttl}S"))
             ->format('Y-m-d H:i:s');
 
@@ -81,7 +82,7 @@ SQL,
         }
 
         $this->db->execute('UPDATE token SET seen_at = :now WHERE token_id = :id', [
-            ':now' => $now->format('Y-m-d H:i:s'),
+            ':now' => $this->now->format('Y-m-d H:i:s'),
             ':id' => $row['token_id'],
         ]);
 

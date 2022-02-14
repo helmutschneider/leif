@@ -23,7 +23,7 @@ return static function (ContainerConfigurator $container) {
     $services
         ->set('leif.database', PDO::class)
         ->args([
-            'sqlite:%kernel.project_dir%/var/app.db',
+            '%env(resolve:DATABASE_URL)%',
             '',
             '',
             [
