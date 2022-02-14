@@ -49,15 +49,13 @@ final class CreateVoucherAction
         }
 
         $this->db->transaction(function () use ($body) {
-            $now = new DateTimeImmutable('now');
-
             $this->db->execute(
-                'INSERT INTO voucher (name, created_at, date, workbook_id) VALUES (?, ?, ?, ?)',
+                'INSERT INTO voucher (name, date, workbook_id, is_template) VALUES (?, ?, ?, ?)',
                 [
-                    $body['name'],
-                    $now->format('Y-m-d H:i:s'),
-                    $body['date'],
-                    $body['workbook_id']
+                    (string)$body['name'],
+                    (string)$body['date'],
+                    (int)$body['workbook_id'],
+                    (int) ($body['is_template'] ?? false),
                 ]
             );
 
@@ -70,9 +68,13 @@ final class CreateVoucherAction
                     throw new InvalidArgumentException('Invalid or empty transaction kind. Must be \'credit\' or \'debit\'.');
                 }
 
+                if ($transaction['amount'] < 0) {
+                    throw new InvalidArgumentException('\'amount\' must be greater than 0.');
+                }
+
                 $this->db->execute('INSERT INTO "transaction" (account, amount, kind, voucher_id) VALUES (?, ?, ?, ?)', [
-                    $transaction['account'],
-                    abs($transaction['amount']),
+                    (int)$transaction['account'],
+                    (int)$transaction['amount'],
                     $kind,
                     $voucherId,
                 ]);

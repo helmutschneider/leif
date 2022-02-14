@@ -24,10 +24,9 @@ trait DatabaseTrait
 
     public static function createUser(Database $db, string $username, string $password = ''): int
     {
-        $db->execute('INSERT INTO user (username, password_hash, created_at) VALUES (?, ?, ?)', [
+        $db->execute('INSERT INTO user (username, password_hash) VALUES (?, ?)', [
             $username,
             $password,
-            (new DateTimeImmutable('now'))->format('Y-m-d H:i:s'),
         ]);
         return $db->getLastInsertId();
     }
@@ -58,8 +57,7 @@ trait DatabaseTrait
 
     public static function createVoucher(Database $db, int $workbookId): int
     {
-        $db->execute('INSERT INTO voucher (created_at, date, name, workbook_id) VALUES (?, ?, ?, ?)', [
-            (new DateTimeImmutable('now'))->format('Y-m-d H:i:s'),
+        $db->execute('INSERT INTO voucher (date, name, workbook_id) VALUES (?, ?, ?)', [
             '2022-02-14',
             'Test voucher',
             $workbookId,

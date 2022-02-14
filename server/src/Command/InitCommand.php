@@ -61,17 +61,15 @@ final class InitCommand extends Command
             }
             $output->writeln('Creating database schema... OK');
 
-            $now = new DateTimeImmutable('now');
             $this->db->execute(
                 <<<SQL
-INSERT INTO user (username, password_hash, created_at)
-         VALUES  (?, ?, ?)
+INSERT INTO user (username, password_hash)
+         VALUES  (?, ?)
 SQL
             ,
             [
                 $username,
                 $this->passwordHasher->hash($password),
-                $now->format('Y-m-d H:i:s'),
             ]);
             $output->writeln('Creating user... OK');
             $this->db->execute('INSERT INTO workbook (name, year, user_id) VALUES (?, ?, ?)', [

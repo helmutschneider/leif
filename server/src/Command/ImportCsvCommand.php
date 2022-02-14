@@ -72,6 +72,19 @@ final class ImportCsvCommand extends Command
                     $workbookId = $this->db->getLastInsertId();
                 }
 
+                // balance carries.
+                if (preg_match('/^(\d+)$/', $row[6], $matches)) {
+                    $amount = $this->parseAmount($row[9]);
+                    if ($amount !== 0) {
+                        $this->db->execute('INSERT INTO balance_carry (account, balance, workbook_id) VALUES (?, ?, ?)', [
+                            $matches[1],
+                            $amount,
+                            $workbookId,
+                        ]);
+                        $output->writeln("OK: Balance carry $matches[1] $amount.");
+                    }
+                }
+
                 $buffer[] = [
                     'date' => $row[0],
                     'name' => $row[1],
@@ -92,8 +105,7 @@ final class ImportCsvCommand extends Command
 
                     $output->writeln("OK: $date $name");
 
-                    $this->db->execute('INSERT INTO voucher (created_at, date, name, workbook_id) VALUES (?, ?, ?, ?)', [
-                        (new DateTimeImmutable('now'))->format('Y-m-d H:i:s'),
+                    $this->db->execute('INSERT INTO voucher (date, name, workbook_id) VALUES (?, ?, ?)', [
                         $buffer[0]['date'],
                         $buffer[0]['name'],
                         $workbookId,
@@ -130,9 +142,14 @@ final class ImportCsvCommand extends Command
             return 0;
         }
 
-        $amount = preg_replace('/([^\d,])/', '', $amount);
+        // stupid hyphen.
+        // https://www.fileformat.info/info/unicode/char/2212/index.htm
+        $amount = strtr($amount, [
+            "\u{2212}" => '-',
+        ]);
+        $amount = preg_replace('/[^\d,-]/', '', $amount);
 
-        if (!preg_match('/^(\d+),(\d{2})$/', $amount, $matches)) {
+        if (!preg_match('/^(-?\d+),(\d{2})$/', $amount, $matches)) {
             throw new InvalidArgumentException(
                 sprintf('Value \'%s\' is not a valid monetary amount.', $amount)
             );
