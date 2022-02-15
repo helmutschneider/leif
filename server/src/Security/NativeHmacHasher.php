@@ -23,7 +23,7 @@ final class NativeHmacHasher implements HmacHasher
 
     public function verify(string $hash, string $value): bool
     {
-        $userHash = $this->hash($value);
-        return hash_equals($userHash, $value);
+        $hashedValue = $this->hash($value);
+        return hash_equals($hashedValue, $hash);
     }
 }
