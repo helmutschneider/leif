@@ -1,24 +1,19 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {
-    emptyVoucher,
-    getAccountName,
-    calculateAccountBalances,
-    ellipsis,
-    findIndexOfMostRecentlyEditedWorkbook, tryParseInt, formatAsMonetaryAmount,
+    findIndexOfMostRecentlyEditedWorkbook, tryParseInt,
 } from './util';
-import * as t from './types'
-import {VoucherForm} from './voucher-form';
-import {currencies, Currency, User, Voucher, Workbook} from "./types";
+import {currencies, Currency, User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
 import {FetchBackend, HttpBackend} from "./http";
 import {SettingsPage} from "./settings-page";
+import {VouchersPage} from "./vouchers-page";
 
 type Props = {
     currency: Currency
     http: HttpBackend
 }
-type View =
+type Page =
     | 'vouchers'
     | 'settings'
 
@@ -26,8 +21,7 @@ type State = {
     activeWorkbookIndex: number
     search: string
     selectWorkbookDropdownOpen: boolean
-    view: View
-    voucher: t.Voucher
+    view: Page
     workbooks: ReadonlyArray<Workbook>
     user: User | undefined
 }
@@ -58,7 +52,6 @@ const App: React.FC<Props> = props => {
         search: '',
         selectWorkbookDropdownOpen: false,
         view: 'vouchers',
-        voucher: emptyVoucher(),
         workbooks: [],
         user: tryGetUserFromSessionStorage(),
     })
@@ -133,139 +126,22 @@ const App: React.FC<Props> = props => {
 
     switch (state.view) {
         case 'vouchers':
-            const balances = calculateAccountBalances(workbook.vouchers, workbook.balance_carry);
-            let filteredVouchers: Array<t.Voucher> = state.search === ''
-                ? workbook.vouchers.slice()
-                : workbook.vouchers.filter(voucher => {
-                    const json = JSON.stringify(voucher).toLowerCase();
-                    return json.includes(state.search.toLowerCase())
-                });
-
-            const comparator = new Intl.Collator('sv', {
-                numeric: true,
-            })
-
-            // sort descending by the date and creation date.
-            // the date has priority.
-            filteredVouchers.sort((a, b) => {
-                return (comparator.compare(b.date, a.date) << 8)
-                    + (comparator.compare(b.created_at, a.created_at));
-            });
-
             viewStuff = (
-                <div className="row">
-                    <div className="col-8">
-                        <h5>
-                            Verifikat
-                            {
-                                state.search !== ''
-                                    ? ` (${filteredVouchers.length} resultat)`
-                                    : ''
-                            }
-                        </h5>
-                        <table className="table table-sm">
-                            <tbody>
-                            {filteredVouchers.map((voucher, idx) => {
-                                return (
-                                    <tr key={idx}>
-                                        <td className="col-2">{voucher.date}</td>
-                                        <td className="col-8">{voucher.name}</td>
-                                        <td className="col-2">
-                                            {voucher.attachments.map((attachment, idx) => {
-                                                return (
-                                                    <span
-                                                        key={idx}
-                                                        title={attachment.name}
-                                                        onClick={event => {
-                                                            event.preventDefault()
-                                                            event.stopPropagation()
-
-                                                            window.open(
-                                                                `/api/attachment/${attachment.attachment_id}?token=${state.user?.token}`,
-                                                                '_blank'
-                                                            );
-                                                        }}
-                                                        role="button"
-                                                    >
-                                                            <i className="bi bi-paperclip" />
-                                                        </span>
-                                                )
-                                            })}
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="col">
-                        <div className="mb-3">
-                            <h5>Lägg till verifikat</h5>
-                            <VoucherForm
-                                currency={props.currency}
-                                onChange={next => {
-                                    setState({
-                                        ...state,
-                                        voucher: next,
-                                    })
-                                }}
-                                onOK={() => {
-                                    const body: Voucher = {
-                                        ...state.voucher,
-                                        transactions: state.voucher.transactions.filter(t => {
-                                            return t.amount !== 0
-                                        }),
-                                        workbook_id: workbook.workbook_id!,
-                                    }
-
-                                    props.http.send<Voucher>({
-                                        method: 'POST',
-                                        url: '/api/voucher',
-                                        body: body,
-                                    }).then(res => {
-                                        const wbs = state.workbooks.slice()
-
-                                        wbs[state.activeWorkbookIndex] = {
-                                            ...workbook,
-                                            vouchers: workbook.vouchers.concat(res),
-                                        };
-
-                                        const next: State = {
-                                            activeWorkbookIndex: state.activeWorkbookIndex,
-                                            search: '',
-                                            selectWorkbookDropdownOpen: false,
-                                            view: 'vouchers',
-                                            voucher: emptyVoucher(),
-                                            workbooks: wbs,
-                                            user: state.user,
-                                        }
-                                        setState(next)
-                                    })
-                                }}
-                                voucher={state.voucher}
-                            />
-                        </div>
-                        <h5>Kontobalans</h5>
-                        <table className="table table-sm">
-                            <tbody>
-                            {Object.entries(balances).map((e, idx) => {
-                                const accountName = getAccountName(e[0]);
-                                return (
-                                    <tr key={idx}>
-                                        <td>{e[0]}</td>
-                                        <td>
-                                                <span title={accountName}>
-                                                    {ellipsis(accountName, 30)}
-                                                </span>
-                                        </td>
-                                        <td className="text-end">{formatAsMonetaryAmount(e[1], props.currency)}</td>
-                                    </tr>
-                                )
-                            })}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <VouchersPage
+                    currency={props.currency}
+                    http={props.http}
+                    onChange={next => {
+                        const wbs = state.workbooks.slice()
+                        wbs[state.activeWorkbookIndex] = next;
+                        setState({
+                            ...state,
+                            workbooks: wbs,
+                        })
+                    }}
+                    search={state.search}
+                    user={state.user}
+                    workbook={workbook}
+                />
             )
             break;
         case 'settings':
