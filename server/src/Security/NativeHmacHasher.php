@@ -7,7 +7,7 @@ use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 final class NativeHmacHasher implements HmacHasher
 {
-    const HASH_IS_BINARY = false;
+    const HASH_IS_BINARY = true;
 
     private SecretKey $key;
 
@@ -24,6 +24,6 @@ final class NativeHmacHasher implements HmacHasher
     public function verify(string $hash, string $value): bool
     {
         $userHash = $this->hash($value);
-        return hash_equals($hash, $userHash);
+        return hash_equals($userHash, $value);
     }
 }

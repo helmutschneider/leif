@@ -53,11 +53,11 @@ final class LoginAction
         if (!$this->passwordHasher->verify($row['password_hash'], $password)) {
             return new JsonResponse(static::ERR_BAD_CREDENTIALS, Response::HTTP_UNAUTHORIZED);
         }
-        $token = bin2hex(random_bytes(32));
+        $token = random_bytes(32);
         $now = new DateTimeImmutable('now');
 
         $this->db->execute('INSERT INTO token (value, seen_at, user_id) VALUES (?, ?, ?)', [
-            $this->tokenHasher->hash($token),
+            [$this->tokenHasher->hash($token), Database::PARAM_BLOB],
             $now->format('Y-m-d H:i:s'),
             $row['user_id'],
         ]);
@@ -75,7 +75,7 @@ final class LoginAction
         return new JsonResponse([
             'user_id' => $row['user_id'],
             'username' => $row['username'],
-            'token' => $token,
+            'token' => bin2hex($token),
         ], Response::HTTP_OK);
     }
 }
