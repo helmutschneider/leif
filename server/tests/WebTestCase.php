@@ -12,9 +12,6 @@ abstract class WebTestCase extends SymfonyWebTestCase
 
     protected static function createClient(array $options = [], array $server = []): KernelBrowser
     {
-        $options = array_merge($options, [
-            'debug' => false,
-        ]);
         $client = parent::createClient($options, $server);
         $db = $client->getContainer()->get(Database::class);
         assert($db instanceof Database);

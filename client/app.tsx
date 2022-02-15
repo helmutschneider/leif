@@ -85,7 +85,15 @@ const App: React.FC<Props> = props => {
                 delete props.http.defaultHeaders['Authorization'];
             }
         }
-    }, [state.user])
+    }, [state.user]);
+
+    React.useEffect(() => {
+        const wb = state.workbooks[state.activeWorkbookIndex]
+
+        if (wb) {
+            document.title = `Leif: ${wb.name}`;
+        }
+    }, [state.activeWorkbookIndex, state.workbooks]);
 
     if (!state.user) {
         return (
@@ -264,6 +272,7 @@ const App: React.FC<Props> = props => {
             viewStuff = (
                 <SettingsPage
                     currency={props.currency}
+                    http={props.http}
                     onChange={next => {
                         const wbs = state.workbooks.slice();
                         wbs[state.activeWorkbookIndex] = next;

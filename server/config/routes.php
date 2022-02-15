@@ -22,4 +22,8 @@ return function (RoutingConfigurator $routes) {
     $routes->add('get_attachment', '/api/attachment/{id}')
         ->methods(['GET'])
         ->controller(\Leif\Api\GetAttachmentAction::class);
+
+    $routes->add('update_workbook', '/api/workbook/{id}')
+        ->methods(['PUT'])
+        ->controller(\Leif\Api\UpdateWorkbookAction::class);
 };
