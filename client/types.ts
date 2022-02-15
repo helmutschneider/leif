@@ -12,6 +12,7 @@ export type Transaction = {
 }
 type Base64String = string
 export type Attachment = {
+    attachment_id?: number | string
     name: string
     mime: string
     data: Base64String
@@ -34,6 +35,7 @@ export type Workbook = {
     workbook_id?: number | string
 }
 export type User = {
+    user_id?: string | number
     username: string
     token: string
 }

@@ -227,7 +227,19 @@ const App: React.FC<Props> = props => {
                                             <td className="col-2">
                                                 {voucher.attachments.map((attachment, idx) => {
                                                     return (
-                                                        <span key={idx} title={attachment.name}>
+                                                        <span
+                                                            key={idx}
+                                                            title={attachment.name}
+                                                            onClick={event => {
+                                                                event.preventDefault()
+                                                                event.stopPropagation()
+
+                                                                window.open(
+                                                                    `/api/attachment/${attachment.attachment_id}?token=${state.user?.token}`
+                                                                );
+                                                            }}
+                                                            role="button"
+                                                        >
                                                             <i className="bi bi-paperclip" />
                                                         </span>
                                                     )

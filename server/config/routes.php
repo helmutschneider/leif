@@ -18,4 +18,8 @@ return function (RoutingConfigurator $routes) {
     $routes->add('create_voucher', '/api/voucher')
         ->methods(['POST'])
         ->controller(\Leif\Api\CreateVoucherAction::class);
+
+    $routes->add('get_attachment', '/api/attachment/{id}')
+        ->methods(['GET'])
+        ->controller(\Leif\Api\GetAttachmentAction::class);
 };

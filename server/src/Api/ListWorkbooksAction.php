@@ -17,7 +17,7 @@ SELECT t.*
     ON v.voucher_id = t.voucher_id
  INNER JOIN workbook AS w
     ON w.workbook_id = v.workbook_id
- WHERE w.user_id = :id
+ WHERE w.user_id = :user_id
    AND v.is_template = :is_template
 SQL;
 
@@ -26,7 +26,7 @@ SELECT v.*
   FROM voucher AS v
  INNER JOIN workbook AS w
     ON w.workbook_id = v.workbook_id
- WHERE w.user_id = :id
+ WHERE w.user_id = :user_id
    AND v.is_template = :is_template
 SQL;
 
@@ -35,7 +35,21 @@ SELECT bc.*
   FROM balance_carry AS bc
  INNER JOIN workbook AS w
     ON bc.workbook_id = w.workbook_id
- WHERE w.user_id = :id
+ WHERE w.user_id = :user_id
+SQL;
+
+    const SQL_GET_ATTACHMENTS = <<<SQL
+SELECT a.attachment_id,
+       a.name,
+       a.mime,
+       a.size,
+       a.voucher_id
+  FROM attachment AS a
+ INNER JOIN voucher AS v
+    ON v.voucher_id = a.voucher_id
+ INNER JOIN workbook AS wb
+    ON wb.workbook_id = v.workbook_id
+ WHERE wb.user_id = :user_id
 SQL;
 
 
@@ -53,7 +67,7 @@ SQL;
         ]);
 
         $balanceCarries = $this->db->selectAll(static::SQL_GET_BALANCE_CARRIES, [
-            ':id' => $user->getId(),
+            ':user_id' => $user->getId(),
         ]);
 
         $vouchersByWorkbookId = $this->findVouchersKeyedByWorkbookId($user->getId(), false);
@@ -79,12 +93,15 @@ SQL;
     protected function findVouchersKeyedByWorkbookId(int $userId, bool $isTemplate): array
     {
         $vouchers = $this->db->selectAll(static::SQL_GET_VOUCHERS, [
-            ':id' => $userId,
+            ':user_id' => $userId,
             ':is_template' => (int) $isTemplate,
         ]);
         $transactions = $this->db->selectAll(static::SQL_GET_TRANSACTIONS, [
-            ':id' => $userId,
+            ':user_id' => $userId,
             ':is_template' => (int) $isTemplate,
+        ]);
+        $attachments = $this->db->selectAll(static::SQL_GET_ATTACHMENTS, [
+            ':user_id' => $userId,
         ]);
 
         $transactionsByVoucherId = [];
@@ -108,6 +125,16 @@ SQL;
             $transactionsByVoucherId[$voucherId][] = $t;
         }
 
+        $attachmentsByVoucherId = [];
+
+        foreach ($attachments as $attachment) {
+            $voucherId = $attachment['voucher_id'];
+            if (!isset($attachmentsByVoucherId[$voucherId])) {
+                $attachmentsByVoucherId[$voucherId] = [];
+            }
+            $attachmentsByVoucherId[$voucherId][] = $attachment;
+        }
+
         $vouchersByWorkbookId = [];
 
         foreach ($vouchers as $voucher) {
@@ -118,7 +145,7 @@ SQL;
             }
 
             $voucher['created_at'] = (new DateTimeImmutable($voucher['created_at']))->format('c');
-            $voucher['attachments'] = [];
+            $voucher['attachments'] = $attachmentsByVoucherId[$voucherId] ?? [];
             $voucher['transactions'] = $transactionsByVoucherId[$voucherId] ?? [];
             $vouchersByWorkbookId[$voucher['workbook_id']][] = $voucher;
         }

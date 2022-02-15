@@ -79,6 +79,19 @@ final class CreateVoucherAction
                     $voucherId,
                 ]);
             }
+
+            foreach ($body['attachments'] ?? [] as $attachment) {
+                $size = mb_strlen($attachment['data'], '8bit');
+                $binary = base64_decode($attachment['data'], true);
+
+                $this->db->execute('INSERT INTO attachment (name, data, mime, size, voucher_id) VALUES (?, ?, ?, ?, ?)', [
+                    (string)$attachment['name'],
+                    [$binary, Database::PARAM_BLOB],
+                    (string)$attachment['mime'],
+                    $size,
+                    $voucherId,
+                ]);
+            }
         });
 
         $res = array_merge($body, [
