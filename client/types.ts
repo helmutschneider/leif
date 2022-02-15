@@ -50,7 +50,6 @@ export type Currency = {
     symbol: string
     thousandsSeparator: string
 }
-
 export const currencies: {[P in CurrencyCode]: Currency} = {
     SEK: {
         code: 'SEK',

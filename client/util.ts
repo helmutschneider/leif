@@ -1,6 +1,5 @@
 import accounts from '../data/accounts-2022.json'
 import * as t from './types'
-import {AccountBalanceMap, Currency, Workbook} from "./types";
 
 type DateFormatter = {
     (date: Date): string
@@ -26,7 +25,7 @@ export function ellipsis(value: string, length: number): string {
     return value;
 }
 
-export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, carries: AccountBalanceMap = {}): t.AccountBalanceMap {
+export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, carries: t.AccountBalanceMap = {}): t.AccountBalanceMap {
     const result: t.AccountBalanceMap = {...carries};
     for (const voucher of vouchers) {
         for (const t of voucher.transactions) {
@@ -42,7 +41,7 @@ export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, car
     return result;
 }
 
-export function formatAsMonetaryAmount(amount: string | number, currency: Currency): string {
+export function formatAsMonetaryAmount(amount: string | number, currency: t.Currency): string {
     const intFmt = new Intl.NumberFormat(currency.locale, {
         style: 'decimal',
         useGrouping: true,
@@ -58,7 +57,7 @@ export function formatAsMonetaryAmount(amount: string | number, currency: Curren
     return `${intStr}${currency.decimalSeparator}${fraction} ${currency.symbol}`;
 }
 
-export function monetaryAmountToInteger(amount: string, currency: Currency): number {
+export function monetaryAmountToInteger(amount: string, currency: t.Currency): number {
     const subunit = currency.subunit;
     const pattern = /^(-?\d+)(?:[,.](\d+)?)?$/;
     const matches = pattern.exec(
@@ -75,7 +74,7 @@ export function monetaryAmountToInteger(amount: string, currency: Currency): num
     return tryParseInt(intPart + fractionPart, 0);
 }
 
-export function integerToMonetaryString(amount: number | string, currency: Currency): string {
+export function integerToMonetaryString(amount: number | string, currency: t.Currency): string {
     const subunit = currency.subunit;
     const parsed = tryParseInt(amount, 0);
     const padded = parsed
@@ -170,7 +169,7 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
     return window.btoa(binary);
 }
 
-export function findIndexOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<Workbook>): number | undefined {
+export function findIndexOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<t.Workbook>): number | undefined {
     let mostRecent: number | undefined
     let max = 0
     for (let i = 0; i < workbooks.length; ++i) {
@@ -184,4 +183,15 @@ export function findIndexOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<W
         }
     }
     return mostRecent
+}
+
+export function findNextUnusedAccountNumber(balances: t.AccountBalanceMap): number | undefined {
+    const largestAccountNumber = Math.max(
+        ...Object.keys(balances).map(k => tryParseInt(k, 0))
+    )
+    const accountNumbers = Object.keys(accounts);
+    const indexOfLargestAccountNumber = accountNumbers.indexOf(largestAccountNumber.toFixed(0));
+    const nextAccountNumber = accountNumbers[indexOfLargestAccountNumber + 1];
+
+    return tryParseInt(nextAccountNumber, undefined)
 }

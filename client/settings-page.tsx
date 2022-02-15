@@ -1,9 +1,8 @@
 import * as React from 'react'
 import {accountOptions} from "./voucher-form";
 import {MoneyInput} from "./money-input";
-import accounts from "../data/accounts-2022.json";
 import {Currency, Workbook} from "./types";
-import {tryParseInt} from "./util";
+import {findNextUnusedAccountNumber, tryParseInt} from "./util";
 import {HttpBackend} from "./http";
 
 type Props = {
@@ -126,12 +125,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                     event.preventDefault()
                                     event.stopPropagation()
 
-                                    const largestAccountNumber = Math.max(
-                                        ...Object.keys(workbook.balance_carry).map(k => tryParseInt(k, 0))
-                                    )
-                                    const accountNumbers = Object.keys(accounts);
-                                    const indexOfLargestAccountNumber = accountNumbers.indexOf(largestAccountNumber.toFixed(0));
-                                    const nextAccountNumber = accountNumbers[indexOfLargestAccountNumber + 1];
+                                    const nextAccountNumber = findNextUnusedAccountNumber(workbook.balance_carry);
                                     const wb: Workbook = {
                                         ...workbook,
                                         balance_carry: {
