@@ -1,6 +1,13 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import {emptyVoucher, getAccountName, formatSEK, calculateAccountBalances, ellipsis } from './util';
+import {
+    emptyVoucher,
+    getAccountName,
+    formatSEK,
+    calculateAccountBalances,
+    ellipsis,
+    findIndexOfMostRecentlyEditedWorkbook, tryParseInt,
+} from './util';
 import * as t from './types'
 import { VoucherForm } from './voucher-form';
 import {User, Voucher, Workbook} from "./types";
@@ -10,14 +17,25 @@ import {FetchBackend, HttpBackend} from "./http";
 type Props = {
     http: HttpBackend
 }
+type View =
+    | 'vouchers'
+    | 'settings'
+
 type State = {
     activeWorkbookIndex: number
     search: string
     selectWorkbookDropdownOpen: boolean
+    view: View
     voucher: t.Voucher
     workbooks: ReadonlyArray<Workbook>
     user: User | undefined
 }
+
+const colorsForTheNavBar = [
+    '#A93F55',
+    '#54457F',
+    '#1F2F16',
+];
 
 const SESSION_STORAGE_USER_KEY = 'user'
 
@@ -38,6 +56,7 @@ const App: React.FC<Props> = props => {
         activeWorkbookIndex: 0,
         search: '',
         selectWorkbookDropdownOpen: false,
+        view: 'vouchers',
         voucher: emptyVoucher(),
         workbooks: [],
         user: tryGetUserFromSessionStorage(),
@@ -55,6 +74,7 @@ const App: React.FC<Props> = props => {
                 .then(wbs => {
                     setState({
                         ...state,
+                        activeWorkbookIndex: findIndexOfMostRecentlyEditedWorkbook(wbs) ?? 0,
                         workbooks: wbs,
                     });
                 });
@@ -78,7 +98,6 @@ const App: React.FC<Props> = props => {
                                 src="/leif.jpg"
                             />
                         </div>
-
                         <h3>Logga in</h3>
                         <LoginForm
                             http={props.http}
@@ -101,25 +120,165 @@ const App: React.FC<Props> = props => {
         return null
     }
 
-    const balances = calculateAccountBalances(workbook.vouchers, workbook.balance_carry);
-    let filteredVouchers: Array<t.Voucher> = state.search === ''
-        ? workbook.vouchers.slice()
-        : workbook.vouchers.filter(voucher => {
-            const json = JSON.stringify(voucher).toLowerCase();
-            return json.includes(state.search.toLowerCase())
-        });
+    let viewStuff: React.ReactNode = null
 
-    const comparator = new Intl.Collator('sv', {
-        numeric: true,
-    })
+    switch (state.view) {
+        case 'vouchers':
+            const balances = calculateAccountBalances(workbook.vouchers, workbook.balance_carry);
+            let filteredVouchers: Array<t.Voucher> = state.search === ''
+                ? workbook.vouchers.slice()
+                : workbook.vouchers.filter(voucher => {
+                    const json = JSON.stringify(voucher).toLowerCase();
+                    return json.includes(state.search.toLowerCase())
+                });
 
-    filteredVouchers.sort((a, b) => {
-        return comparator.compare(b.date, a.date)
-    })
+            const comparator = new Intl.Collator('sv', {
+                numeric: true,
+            })
+
+            filteredVouchers.sort((a, b) => {
+                return comparator.compare(b.date, a.date)
+            })
+
+            viewStuff = (
+                <div className="row">
+                    <div className="col-8">
+                        <h5>Verifikat</h5>
+                        <table className="table table-sm">
+                            <tbody>
+                            {filteredVouchers.map((voucher, idx) => {
+                                return (
+                                    <tr key={idx}>
+                                        <td className="col-2">{voucher.date}</td>
+                                        <td className="col-8">{voucher.name}</td>
+                                        <td className="col-2">
+                                            {voucher.attachments.map((attachment, idx) => {
+                                                return (
+                                                    <span
+                                                        key={idx}
+                                                        title={attachment.name}
+                                                        onClick={event => {
+                                                            event.preventDefault()
+                                                            event.stopPropagation()
+
+                                                            window.open(
+                                                                `/api/attachment/${attachment.attachment_id}?token=${state.user?.token}`,
+                                                                '_blank'
+                                                            );
+                                                        }}
+                                                        role="button"
+                                                    >
+                                                            <i className="bi bi-paperclip" />
+                                                        </span>
+                                                )
+                                            })}
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="col">
+                        <div className="mb-3">
+                            <h5>Lägg till verifikat</h5>
+                            <VoucherForm
+                                onChange={next => {
+                                    setState({
+                                        ...state,
+                                        voucher: next,
+                                    })
+                                }}
+                                onOK={() => {
+                                    const body: Voucher = {
+                                        ...state.voucher,
+                                        transactions: state.voucher.transactions.filter(t => {
+                                            return t.amount !== 0
+                                        }),
+                                        workbook_id: workbook.workbook_id!,
+                                    }
+
+                                    props.http.send<Voucher>({
+                                        method: 'POST',
+                                        url: '/api/voucher',
+                                        body: body,
+                                    }).then(res => {
+                                        const wbs = state.workbooks.slice()
+
+                                        wbs[state.activeWorkbookIndex] = {
+                                            ...workbook,
+                                            vouchers: workbook.vouchers.concat(res),
+                                        };
+
+                                        const next: State = {
+                                            activeWorkbookIndex: state.activeWorkbookIndex,
+                                            search: '',
+                                            selectWorkbookDropdownOpen: false,
+                                            view: 'vouchers',
+                                            voucher: emptyVoucher(),
+                                            workbooks: wbs,
+                                            user: state.user,
+                                        }
+                                        setState(next)
+                                    })
+                                }}
+                                voucher={state.voucher}
+                            />
+                        </div>
+                        <h5>Kontobalans</h5>
+                        <table className="table table-sm">
+                            <tbody>
+                            {Object.entries(balances).map((e, idx) => {
+                                const accountName = getAccountName(e[0]);
+                                return (
+                                    <tr key={idx}>
+                                        <td>{e[0]}</td>
+                                        <td>
+                                                <span title={accountName}>
+                                                    {ellipsis(accountName, 30)}
+                                                </span>
+                                        </td>
+                                        <td className="text-end">{formatSEK(e[1])}</td>
+                                    </tr>
+                                )
+                            })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )
+            break;
+        case 'settings':
+            viewStuff = (
+                <div className="row">
+                    <div className="col-4">
+                        <h5>Ingående kontobalans</h5>
+                        <table className="table table-sm">
+                            <tbody>
+                            {Object.entries(workbook.balance_carry).map((e, index) => {
+                                return (
+                                    <tr key={index}>
+                                        <td>{e[0]}</td>
+                                        <td>{e[1]}</td>
+                                    </tr>
+                                )
+                            })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )
+            break;
+    }
+
+    const colorIndex = tryParseInt(workbook.workbook_id ?? '', 0) % colorsForTheNavBar.length;
 
     return (
         <div>
-            <nav className="navbar navbar-dark bg-dark navbar-expand-lg">
+            <nav
+                className="navbar navbar-dark navbar-expand-lg sticky-top"
+                style={{background: colorsForTheNavBar[colorIndex]}}
+            >
                 <div className="container">
                     <div className="navbar-brand d-flex align-items-center">
                         <img
@@ -198,6 +357,42 @@ const App: React.FC<Props> = props => {
 
                                         setState({
                                             ...state,
+                                            selectWorkbookDropdownOpen: false,
+                                            view: 'vouchers',
+                                        })
+                                    }}
+                                    href="#"
+                                >
+                                    Verifikat
+                                </a>
+                            </li>
+                            <li className="nav-item">
+                                <a
+                                    className="nav-link text-nowrap"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+
+                                        setState({
+                                            ...state,
+                                            selectWorkbookDropdownOpen: false,
+                                            view: 'settings',
+                                        })
+                                    }}
+                                    href="#"
+                                >
+                                    Inställningar
+                                </a>
+                            </li>
+                            <li className="nav-item">
+                                <a
+                                    className="nav-link text-nowrap"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+
+                                        setState({
+                                            ...state,
                                             activeWorkbookIndex: 0,
                                             user: undefined,
                                             workbooks: [],
@@ -212,111 +407,8 @@ const App: React.FC<Props> = props => {
                     </div>
                 </div>
             </nav>
-
             <div className="container pt-3">
-                <div className="row">
-                    <div className="col-8">
-                        <h5>Verifikat</h5>
-                        <table className="table table-sm">
-                            <tbody>
-                                {filteredVouchers.map((voucher, idx) => {
-                                    return (
-                                        <tr key={idx}>
-                                            <td className="col-2">{voucher.date}</td>
-                                            <td className="col-8">{voucher.name}</td>
-                                            <td className="col-2">
-                                                {voucher.attachments.map((attachment, idx) => {
-                                                    return (
-                                                        <span
-                                                            key={idx}
-                                                            title={attachment.name}
-                                                            onClick={event => {
-                                                                event.preventDefault()
-                                                                event.stopPropagation()
-
-                                                                window.open(
-                                                                    `/api/attachment/${attachment.attachment_id}?token=${state.user?.token}`
-                                                                );
-                                                            }}
-                                                            role="button"
-                                                        >
-                                                            <i className="bi bi-paperclip" />
-                                                        </span>
-                                                    )
-                                                })}
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="col">
-                        <div className="mb-3">
-                            <h5>Lägg till verifikat</h5>
-                            <VoucherForm
-                                onChange={next => {
-                                    setState({
-                                        ...state,
-                                        voucher: next,
-                                    })
-                                }}
-                                onOK={() => {
-                                    const body: Voucher = {
-                                        ...state.voucher,
-                                        transactions: state.voucher.transactions.filter(t => {
-                                            return t.amount !== 0
-                                        }),
-                                        workbook_id: workbook.workbook_id!,
-                                    }
-
-                                    props.http.send<Voucher>({
-                                        method: 'POST',
-                                        url: '/api/voucher',
-                                        body: body,
-                                    }).then(res => {
-                                        const wbs = state.workbooks.slice()
-
-                                        wbs[state.activeWorkbookIndex] = {
-                                            ...workbook,
-                                            vouchers: workbook.vouchers.concat(res),
-                                        };
-
-                                        const next: State = {
-                                            activeWorkbookIndex: state.activeWorkbookIndex,
-                                            search: '',
-                                            selectWorkbookDropdownOpen: false,
-                                            voucher: emptyVoucher(),
-                                            workbooks: wbs,
-                                            user: state.user,
-                                        }
-                                        setState(next)
-                                    })
-                                }}
-                                voucher={state.voucher}
-                            />
-                        </div>
-                        <h5>Kontobalans</h5>
-                        <table className="table table-sm">
-                            <tbody>
-                                {Object.entries(balances).map((e, idx) => {
-                                    const accountName = getAccountName(e[0]);
-                                    return (
-                                        <tr key={idx}>
-                                            <td>{e[0]}</td>
-                                            <td>
-                                                <span title={accountName}>
-                                                    {ellipsis(accountName, 30)}
-                                                </span>
-                                            </td>
-                                            <td className="text-end">{formatSEK(e[1])}</td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                {viewStuff}
             </div>
         </div>
     )

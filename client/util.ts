@@ -1,6 +1,6 @@
 import accounts from '../data/accounts-2022.json'
 import * as t from './types'
-import {AccountBalanceMap} from "./types";
+import {AccountBalanceMap, Workbook} from "./types";
 
 type DateFormatter = {
     (date: Date): string
@@ -133,4 +133,20 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
         binary += String.fromCharCode(bytes[i]!);
     }
     return window.btoa(binary);
+}
+
+export function findIndexOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<Workbook>): number | undefined {
+    let mostRecent: number | undefined
+    let max = 0
+    for (let i = 0; i < workbooks.length; ++i) {
+        const wb = workbooks[i]
+        const ts = Math.max(
+            ...wb!.vouchers.map(voucher => Date.parse(voucher.created_at))
+        )
+        if (ts > max) {
+            mostRecent = i
+            max = ts
+        }
+    }
+    return mostRecent
 }

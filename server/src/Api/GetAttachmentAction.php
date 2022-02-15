@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 final class GetAttachmentAction
 {
     const SQL_GET_ATTACHMENT = <<<SQL
-SELECT *
+SELECT a.*
   FROM attachment AS a
  INNER JOIN voucher AS v
     ON v.voucher_id = a.voucher_id

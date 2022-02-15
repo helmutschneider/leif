@@ -150,7 +150,7 @@ export const VoucherForm: React.FC<Props> = props => {
                         })}
                     </tbody>
                 </table>
-                <div className="row">
+                <div className="row mb-1">
                     <div className="col">
                         <div className="d-grid">
                             <label
