@@ -15,7 +15,8 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 final class TokenAuthenticator extends AbstractAuthenticator
 {
-    const AUTH_HEADER = 'Authorization';
+    const AUTH_HEADER_NAME = 'Authorization';
+    const AUTH_QUERY_NAME = 'token';
 
     private TokenUserProvider $userProvider;
 
@@ -26,12 +27,14 @@ final class TokenAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has(static::AUTH_HEADER);
+        return $request->query->has(static::AUTH_QUERY_NAME)
+            || $request->headers->has(static::AUTH_HEADER_NAME);
     }
 
     public function authenticate(Request $request): Passport
     {
-        $token = $request->headers->get(static::AUTH_HEADER, '');
+        $token = $request->query->get(static::AUTH_QUERY_NAME, '')
+            ?: $request->headers->get(static::AUTH_HEADER_NAME, '');
         $loader = [$this->userProvider, 'loadUserByApiToken'];
 
         return new SelfValidatingPassport(new UserBadge($token, $loader));
