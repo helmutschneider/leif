@@ -40,7 +40,6 @@ final class InitCommand extends Command
         $username = $helper->ask($input, $output, new Question('Username: '));
         $password = $helper->ask($input, $output, new Question('Password: '));
         $workbookName = $helper->ask($input, $output, new Question('Workbook name: '));
-        $token = bin2hex(random_bytes(32));
 
         if (!$username || !$password) {
             throw new InvalidArgumentException(

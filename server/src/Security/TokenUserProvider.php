@@ -59,16 +59,10 @@ final class TokenUserProvider implements UserProviderInterface
 
     public function loadUserByApiToken(string $token): UserInterface
     {
-        if (!preg_match('/^[a-f0-9]+$/i', $token)) {
-            throw new BadCredentialsException('The token must be a hex encoded string.');
-        }
-
         $ttl = $this->ttl;
         $mustBeSeenAfter = $this->now
             ->sub(new DateInterval("PT${ttl}S"))
             ->format('Y-m-d H:i:s');
-
-        $bytes = hex2bin($token);
 
         // this query is susceptible to timing attacks but I'm not really
         // concerned about that right now. the tokens are so large that it
@@ -83,7 +77,7 @@ SELECT u.*,
    AND t.seen_at > :after
 SQL,
             [
-                ':hash' => [$this->hasher->hash($bytes), Database::PARAM_BLOB],
+                ':hash' => [$this->hasher->hash($token), Database::PARAM_BLOB],
                 ':after' => $mustBeSeenAfter,
             ]);
 

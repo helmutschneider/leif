@@ -29,13 +29,13 @@ final class ListWorkbooksActionTest extends WebTestCase
         assert($hasher instanceof HmacHasher);
 
         $userId = static::createUser($db, 'tester');
-        static::createToken($db, $hasher->hash('123'), $userId);
+        static::createToken($db, $hasher->hash(hex2bin('1234')), $userId);
         $workbookId = static::createWorkbook($db, $userId);
         $voucherId = static::createVoucher($db, $workbookId);
         static::createTransaction($db, $voucherId);
 
         $client->request('GET', '/api/workbook', [], [], [
-            'HTTP_AUTHORIZATION' => '123',
+            'HTTP_AUTHORIZATION' => '1234',
         ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);

@@ -22,11 +22,11 @@ trait DatabaseTrait
         }
     }
 
-    public static function createUser(Database $db, string $username, string $password = ''): int
+    public static function createUser(Database $db, string $username, string $plainTextPassword = ''): int
     {
         $db->execute('INSERT INTO user (username, password_hash) VALUES (?, ?)', [
             $username,
-            $password,
+            password_hash($plainTextPassword, PASSWORD_BCRYPT, ['cost' => 4]),
         ]);
         return $db->getLastInsertId();
     }
@@ -38,7 +38,7 @@ trait DatabaseTrait
         }
 
         $db->execute('INSERT INTO token (value, seen_at, user_id) VALUES (?, ?, ?)', [
-            $value,
+            [$value, Database::PARAM_BLOB],
             $seenAt,
             $userId,
         ]);

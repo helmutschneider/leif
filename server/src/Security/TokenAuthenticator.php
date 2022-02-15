@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
@@ -33,11 +34,15 @@ final class TokenAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $token = $request->query->get(static::AUTH_QUERY_NAME, '')
-            ?: $request->headers->get(static::AUTH_HEADER_NAME, '');
+        $bytes = $this->getTokenBytesFromRequest($request);
+
+        if ($bytes === null) {
+            throw new BadCredentialsException('The token must be a hex encoded string of even length.');
+        }
+
         $loader = [$this->userProvider, 'loadUserByApiToken'];
 
-        return new SelfValidatingPassport(new UserBadge($token, $loader));
+        return new SelfValidatingPassport(new UserBadge($bytes, $loader));
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
@@ -52,5 +57,17 @@ final class TokenAuthenticator extends AbstractAuthenticator
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+    }
+
+    private function getTokenBytesFromRequest(Request $request): ?string
+    {
+        $token = $request->query->get(static::AUTH_QUERY_NAME, '')
+            ?: $request->headers->get(static::AUTH_HEADER_NAME, '');
+
+        if (!preg_match('/^(?:[a-f0-9]{2})+$/i', $token)) {
+            return null;
+        }
+
+        return hex2bin($token);
     }
 }

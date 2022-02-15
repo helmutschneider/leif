@@ -13,7 +13,7 @@ final class LoginActionTest extends WebTestCase
         $client = static::createClient();
         $db = $client->getContainer()->get(Database::class);
 
-        static::createUser($db, 'tester', password_hash('test_password', PASSWORD_BCRYPT, ['cost' => 4]));
+        static::createUser($db, 'tester', 'test_password');
 
         $client->request('POST', '/api/login', [], [], [], json_encode([
             'username' => 'tester',
@@ -32,7 +32,7 @@ final class LoginActionTest extends WebTestCase
         $client = static::createClient();
         $db = $client->getContainer()->get(Database::class);
 
-        static::createUser($db, 'tester', password_hash('test_password', PASSWORD_BCRYPT, ['cost' => 4]));
+        static::createUser($db, 'tester', 'test_password');
 
         $client->request('POST', '/api/login', [], [], [], json_encode([
             'username' => 'tester',
