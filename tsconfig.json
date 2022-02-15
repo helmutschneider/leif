@@ -17,5 +17,9 @@
   },
   "include": [
     "client/**/*"
+  ],
+  "exclude": [
+    "client/**/*.test.ts",
+    "client/**/*.test.tsx"
   ]
 }

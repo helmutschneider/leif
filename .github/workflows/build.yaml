@@ -17,12 +17,21 @@ jobs:
           sudo update-alternatives --set phar.phar /usr/bin/phar.phar${PHP_VERSION}
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Cache dependencies
+      - name: Cache PHP dependencies
         uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
           path: ${{ env.COMPOSER_HOME }}
-      - name: Install dependencies
+      - name: Cache Node dependencies
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ~/.npm
+      - name: Install PHP dependencies
         run: composer install
-      - name: Test
+      - name: Install Node dependencies
+        run: npm install
+      - name: Server tests
         run: composer run test
+      - name: Client tests
+        run: npm test
