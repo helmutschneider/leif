@@ -1,15 +1,17 @@
 import * as React from 'react'
-import { Attachment, Voucher } from './types'
-import { areDebitsAndCreditsBalanced, arrayBufferToBase64, ensureHasEmptyTransaction, formatDate, toArray, tryParseInt } from './util'
+import {Attachment, Currency, Voucher} from './types'
+import { areDebitsAndCreditsBalanced, arrayBufferToBase64, ensureHasEmptyTransaction, formatDate, toArray } from './util'
 import accounts from '../data/accounts-2022.json'
+import {MoneyInput} from "./money-input";
 
 type Props = {
+    currency: Currency
     onChange: (next: Voucher) => unknown
     onOK: () => unknown
     voucher: Voucher
 }
 
-const accountOptions = Object.entries(accounts).map((e, idx) => {
+export const accountOptions = Object.entries(accounts).map((e, idx) => {
     return (
         <option key={idx} value={e[0]}>
             {e[0]}: {e[1]}
@@ -18,7 +20,7 @@ const accountOptions = Object.entries(accounts).map((e, idx) => {
 })
 
 export const VoucherForm: React.FC<Props> = props => {
-    const isBalanced = areDebitsAndCreditsBalanced(props.voucher)
+    const isBalanced = areDebitsAndCreditsBalanced(props.voucher);
 
     return (
         <React.Fragment>
@@ -88,14 +90,14 @@ export const VoucherForm: React.FC<Props> = props => {
                                         </select>
                                     </td>
                                     <td>
-                                        <input
-                                            className="form-control"
+                                        <MoneyInput
+                                            currency={props.currency}
                                             disabled={t.kind === 'credit' && t.amount !== 0}
-                                            onChange={event => {
+                                            onChange={amount => {
                                                 const transactions = props.voucher.transactions.slice()
                                                 transactions[idx] = {
                                                     ...t,
-                                                    amount: tryParseInt(event.target.value, 0),
+                                                    amount: amount,
                                                     kind: 'debit',
                                                 };
                                                 props.onChange({
@@ -104,19 +106,18 @@ export const VoucherForm: React.FC<Props> = props => {
                                                 })
                                             }}
                                             placeholder="Debit"
-                                            type="text"
                                             value={t.kind === 'credit' && t.amount !== 0 ? '-' : t.amount}
                                         />
                                     </td>
                                     <td>
-                                        <input
-                                            className="form-control"
+                                        <MoneyInput
+                                            currency={props.currency}
                                             disabled={t.kind === 'debit' && t.amount !== 0}
-                                            onChange={event => {
+                                            onChange={amount => {
                                                 const transactions = props.voucher.transactions.slice()
                                                 transactions[idx] = {
                                                     ...t,
-                                                    amount: tryParseInt(event.target.value, 0),
+                                                    amount: amount,
                                                     kind: 'credit',
                                                 };
                                                 props.onChange({
@@ -125,13 +126,12 @@ export const VoucherForm: React.FC<Props> = props => {
                                                 })
                                             }}
                                             placeholder="Kredit"
-                                            type="text"
                                             value={t.kind === 'debit' && t.amount !== 0 ? '-' : t.amount}
                                         />
                                     </td>
                                     <td>
                                         <i
-                                            className="bi bi-x-circle-fill fs-4"
+                                            className="bi bi-x-circle-fill"
                                             onClick={event => {
                                                 event.preventDefault();
                                                 event.stopPropagation();
@@ -229,7 +229,7 @@ export const VoucherForm: React.FC<Props> = props => {
                 <div className="d-grid">
                     <button
                         className="btn btn-success"
-                        disabled={!isBalanced}
+                        disabled={props.voucher.name === '' || !isBalanced}
                         onClick={event => {
                             event.preventDefault()
                             event.stopPropagation()

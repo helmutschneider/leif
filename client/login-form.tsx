@@ -33,7 +33,6 @@ export const LoginForm: React.FC<Props> = props => {
             props.onLogin(user);
         }, err => {
             setState({ ...state, isInProgress: false });
-            console.log(err)
         })
     }
 

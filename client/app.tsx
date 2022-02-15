@@ -3,18 +3,19 @@ import * as ReactDOM from 'react-dom'
 import {
     emptyVoucher,
     getAccountName,
-    formatSEK,
     calculateAccountBalances,
     ellipsis,
-    findIndexOfMostRecentlyEditedWorkbook, tryParseInt,
+    findIndexOfMostRecentlyEditedWorkbook, tryParseInt, formatAsMonetaryAmount,
 } from './util';
 import * as t from './types'
-import { VoucherForm } from './voucher-form';
-import {User, Voucher, Workbook} from "./types";
+import {VoucherForm} from './voucher-form';
+import {currencies, Currency, User, Voucher, Workbook} from "./types";
 import {LoginForm} from "./login-form";
 import {FetchBackend, HttpBackend} from "./http";
+import {SettingsPage} from "./settings-page";
 
 type Props = {
+    currency: Currency
     http: HttpBackend
 }
 type View =
@@ -34,7 +35,7 @@ type State = {
 const colorsForTheNavBar = [
     '#A93F55',
     '#54457F',
-    '#1F2F16',
+    '#65743A',
 ];
 
 const SESSION_STORAGE_USER_KEY = 'user'
@@ -136,14 +137,24 @@ const App: React.FC<Props> = props => {
                 numeric: true,
             })
 
+            // sort descending by the date and creation date.
+            // the date has priority.
             filteredVouchers.sort((a, b) => {
-                return comparator.compare(b.date, a.date)
-            })
+                return (comparator.compare(b.date, a.date) << 8)
+                    + (comparator.compare(b.created_at, a.created_at));
+            });
 
             viewStuff = (
                 <div className="row">
                     <div className="col-8">
-                        <h5>Verifikat</h5>
+                        <h5>
+                            Verifikat
+                            {
+                                state.search !== ''
+                                    ? ` (${filteredVouchers.length} resultat)`
+                                    : ''
+                            }
+                        </h5>
                         <table className="table table-sm">
                             <tbody>
                             {filteredVouchers.map((voucher, idx) => {
@@ -183,6 +194,7 @@ const App: React.FC<Props> = props => {
                         <div className="mb-3">
                             <h5>Lägg till verifikat</h5>
                             <VoucherForm
+                                currency={props.currency}
                                 onChange={next => {
                                     setState({
                                         ...state,
@@ -238,7 +250,7 @@ const App: React.FC<Props> = props => {
                                                     {ellipsis(accountName, 30)}
                                                 </span>
                                         </td>
-                                        <td className="text-end">{formatSEK(e[1])}</td>
+                                        <td className="text-end">{formatAsMonetaryAmount(e[1], props.currency)}</td>
                                     </tr>
                                 )
                             })}
@@ -250,28 +262,23 @@ const App: React.FC<Props> = props => {
             break;
         case 'settings':
             viewStuff = (
-                <div className="row">
-                    <div className="col-4">
-                        <h5>Ingående kontobalans</h5>
-                        <table className="table table-sm">
-                            <tbody>
-                            {Object.entries(workbook.balance_carry).map((e, index) => {
-                                return (
-                                    <tr key={index}>
-                                        <td>{e[0]}</td>
-                                        <td>{e[1]}</td>
-                                    </tr>
-                                )
-                            })}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <SettingsPage
+                    currency={props.currency}
+                    onChange={next => {
+                        const wbs = state.workbooks.slice();
+                        wbs[state.activeWorkbookIndex] = next;
+                        setState({
+                            ...state,
+                            workbooks: wbs,
+                        })
+                    }}
+                    workbook={workbook}
+                />
             )
             break;
     }
 
-    const colorIndex = tryParseInt(workbook.workbook_id ?? '', 0) % colorsForTheNavBar.length;
+    const colorIndex = tryParseInt(workbook.workbook_id, 0) % colorsForTheNavBar.length;
 
     return (
         <div>
@@ -304,6 +311,42 @@ const App: React.FC<Props> = props => {
                             value={state.search}
                         />
                         <ul className="navbar-nav me-auto mb-lg-0">
+                            <li className="nav-item">
+                                <a
+                                    className="nav-link text-nowrap"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+
+                                        setState({
+                                            ...state,
+                                            selectWorkbookDropdownOpen: false,
+                                            view: 'vouchers',
+                                        })
+                                    }}
+                                    href="#"
+                                >
+                                    Verifikat
+                                </a>
+                            </li>
+                            <li className="nav-item">
+                                <a
+                                    className="nav-link text-nowrap"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+
+                                        setState({
+                                            ...state,
+                                            selectWorkbookDropdownOpen: false,
+                                            view: 'settings',
+                                        })
+                                    }}
+                                    href="#"
+                                >
+                                    Inställningar
+                                </a>
+                            </li>
                             <li className="nav-item dropdown">
                                 <a
                                     className="nav-link dropdown-toggle"
@@ -357,42 +400,6 @@ const App: React.FC<Props> = props => {
 
                                         setState({
                                             ...state,
-                                            selectWorkbookDropdownOpen: false,
-                                            view: 'vouchers',
-                                        })
-                                    }}
-                                    href="#"
-                                >
-                                    Verifikat
-                                </a>
-                            </li>
-                            <li className="nav-item">
-                                <a
-                                    className="nav-link text-nowrap"
-                                    onClick={event => {
-                                        event.preventDefault()
-                                        event.stopPropagation()
-
-                                        setState({
-                                            ...state,
-                                            selectWorkbookDropdownOpen: false,
-                                            view: 'settings',
-                                        })
-                                    }}
-                                    href="#"
-                                >
-                                    Inställningar
-                                </a>
-                            </li>
-                            <li className="nav-item">
-                                <a
-                                    className="nav-link text-nowrap"
-                                    onClick={event => {
-                                        event.preventDefault()
-                                        event.stopPropagation()
-
-                                        setState({
-                                            ...state,
                                             activeWorkbookIndex: 0,
                                             user: undefined,
                                             workbooks: [],
@@ -416,6 +423,9 @@ const App: React.FC<Props> = props => {
 
 const root = document.getElementById('app');
 ReactDOM.render(
-    <App http={new FetchBackend()} />,
+    <App
+        currency={currencies.SEK}
+        http={new FetchBackend()}
+    />,
     root
 );

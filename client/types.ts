@@ -39,3 +39,25 @@ export type User = {
     username: string
     token: string
 }
+export type CurrencyCode =
+    | 'SEK'
+
+export type Currency = {
+    code: string
+    decimalSeparator: string
+    locale: string
+    subunit: number
+    symbol: string
+    thousandsSeparator: string
+}
+
+export const currencies: {[P in CurrencyCode]: Currency} = {
+    SEK: {
+        code: 'SEK',
+        decimalSeparator: ',',
+        locale: 'sv-SE',
+        subunit: 2,
+        symbol: 'kr',
+        thousandsSeparator: ' ',
+    },
+}

@@ -1,6 +1,6 @@
 import accounts from '../data/accounts-2022.json'
 import * as t from './types'
-import {AccountBalanceMap, Workbook} from "./types";
+import {AccountBalanceMap, Currency, Workbook} from "./types";
 
 type DateFormatter = {
     (date: Date): string
@@ -34,7 +34,7 @@ export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, car
             if (typeof result[num] === 'undefined') {
                 result[num] = 0;
             }
-            const prev = tryParseInt(result[num] ?? '', 0)
+            const prev = tryParseInt(result[num], 0)
             const amount = tryParseInt(t.amount, 0)
             result[num] = prev + (t.kind === 'debit' ? amount : (-amount));
         }
@@ -42,16 +42,48 @@ export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, car
     return result;
 }
 
-export function formatSEK(amount: string | number): string {
-    const intFmt = new Intl.NumberFormat('sv-SE', {
+export function formatAsMonetaryAmount(amount: string | number, currency: Currency): string {
+    const intFmt = new Intl.NumberFormat(currency.locale, {
         style: 'decimal',
         useGrouping: true,
     });
+    const subunit = currency.subunit;
     const num = tryParseInt(amount, 0);
-    const padded = num.toString().padStart(3, '0');
-    const [int, fraction] = padded.split(/(\d{2})$/);
-    const intStr = intFmt.format(parseInt(int ?? '0'));
-    return `${intStr},${fraction} kr`;
+    const padded = num
+        .toFixed(0)
+        .padStart(3, '0');
+    const pattern = new RegExp(`(\\d{${subunit}})$`);
+    const [int, fraction] = padded.split(pattern);
+    const intStr = intFmt.format(tryParseInt(int, 0));
+    return `${intStr}${currency.decimalSeparator}${fraction} ${currency.symbol}`;
+}
+
+export function monetaryAmountToInteger(amount: string, currency: Currency): number {
+    const subunit = currency.subunit;
+    const pattern = /^(-?\d+)(?:[,.](\d+)?)?$/;
+    const matches = pattern.exec(
+        amount.replace(/\s/g, '')
+    );
+
+    if (matches === null) {
+        return 0;
+    }
+
+    const intPart = matches[1];
+    const fractionPart = (matches[2] ?? '').padEnd(subunit, '0');
+
+    return tryParseInt(intPart + fractionPart, 0);
+}
+
+export function integerToMonetaryString(amount: number | string, currency: Currency): string {
+    const subunit = currency.subunit;
+    const parsed = tryParseInt(amount, 0);
+    const padded = parsed
+        .toFixed(0)
+        .padStart(subunit + 1, '0');
+    const pattern = new RegExp(`(\\d{${subunit}})$`);
+    const [int, fraction] = padded.split(pattern);
+    return int + currency.decimalSeparator + fraction;
 }
 
 export function getAccountName(account: t.AccountNumber): string {
@@ -70,17 +102,20 @@ export function ensureHasEmptyTransaction(transactions: ReadonlyArray<t.Transact
     return transactions
 }
 
-export function tryParseInt<D>(value: string | number, defaultValue: D): number | D {
+export function tryParseInt<D>(value: string | number | undefined, defaultValue: D): number | D {
     let result: number | D
     switch (typeof value) {
         case 'number':
-            result = value
+            result = value;
             break;
         case 'string':
-            result = parseInt(value, 10)
+            result = parseInt(value, 10);
+            break;
+        case 'undefined':
+            result = defaultValue;
             break;
     }
-    if (isNaN(result)) {
+    if (typeof result === 'number' && isNaN(result)) {
         result = defaultValue
     }
     return result
