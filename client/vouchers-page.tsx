@@ -5,7 +5,7 @@ import {
     ellipsis,
     emptyVoucher,
     formatAsMonetaryAmount,
-    getAccountName
+    getAccountName, tryParseInt
 } from "./util";
 import {HttpBackend} from "./http";
 import * as t from "./types";
@@ -44,9 +44,12 @@ export const VouchersPage: React.FC<Props> = props => {
             + (comparator.compare(b.created_at, a.created_at));
     });
 
+    const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
+    const editingVoucherId = tryParseInt(state.voucher.voucher_id, undefined);
+
     return (
         <div className="row">
-            <div className="col-8">
+            <div className="col-lg-8">
                 <h5>
                     Verifikat
                     {
@@ -83,6 +86,19 @@ export const VouchersPage: React.FC<Props> = props => {
                                         )
                                     })}
                                     <i
+                                        className="bi bi-gear-fill me-1"
+                                        onClick={event => {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+
+                                            setState({
+                                                voucher: voucher,
+                                            })
+                                        }}
+                                        title="Redigera"
+                                        role="button"
+                                    />
+                                    <i
                                         className="bi bi-x-circle-fill"
                                         onClick={event => {
                                             event.preventDefault();
@@ -101,9 +117,16 @@ export const VouchersPage: React.FC<Props> = props => {
                                                 props.onChange({
                                                     ...workbook,
                                                     vouchers: next,
-                                                })
+                                                });
+                                                setState({
+                                                    // if we had accidentally clicked the "edit" button
+                                                    // before deleting the voucher it would still be in
+                                                    // state, which is kinda weird.
+                                                    voucher: emptyVoucher(),
+                                                });
                                             })
                                         }}
+                                        title="Ta bort"
                                         role="button"
                                     />
                                 </td>
@@ -113,9 +136,39 @@ export const VouchersPage: React.FC<Props> = props => {
                     </tbody>
                 </table>
             </div>
-            <div className="col">
+            <div className="col-lg-4">
                 <div className="mb-3">
-                    <h5>Lägg till verifikat</h5>
+                    <div className="row">
+                        <div className="col">
+                            <h5>
+                                {isEditingVoucher ? 'Redigera verifikat' : 'Lägg till verifikat'}
+                            </h5>
+                        </div>
+                        <div className="col-md-auto">
+                        <span>
+                            {
+                                isEditingVoucher
+                                    ? (
+                                        <i
+                                            className="bi bi-x-circle-fill"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                setState({
+                                                    voucher: emptyVoucher(),
+                                                })
+                                            }}
+                                            title="Avbryt redigering"
+                                            role="button"
+                                        />
+                                    )
+                                    : null
+                            }
+                        </span>
+                        </div>
+                    </div>
+
                     <VoucherForm
                         currency={props.currency}
                         onChange={next => {
@@ -130,16 +183,32 @@ export const VouchersPage: React.FC<Props> = props => {
                                     return t.amount !== 0
                                 }),
                                 workbook_id: workbook.workbook_id!,
-                            }
+                            };
 
                             props.http.send<t.Voucher>({
-                                method: 'POST',
-                                url: '/api/voucher',
+                                method: isEditingVoucher ? 'PUT' : 'POST',
+                                url: isEditingVoucher
+                                    ? `/api/voucher/${editingVoucherId}`
+                                    : '/api/voucher',
                                 body: body,
                             }).then(res => {
+                                const next = workbook.vouchers.slice()
+
+                                if (isEditingVoucher) {
+                                    const idx = next.findIndex(item => {
+                                        return typeof editingVoucherId !== 'undefined'
+                                            && editingVoucherId === tryParseInt(item.voucher_id, undefined);
+                                    })
+                                    if (idx !== -1) {
+                                        next[idx] = res;
+                                    }
+                                } else {
+                                    next.push(res)
+                                }
+
                                 props.onChange({
                                     ...workbook,
-                                    vouchers: workbook.vouchers.concat(res),
+                                    vouchers: next,
                                 })
                                 setState({
                                     voucher: emptyVoucher(),

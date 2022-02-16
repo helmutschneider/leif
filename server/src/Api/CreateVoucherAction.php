@@ -44,7 +44,7 @@ final class CreateVoucherAction
             return new JsonResponse(static::ERR_NO_TRANSACTIONS, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        if (!$this->areCreditsAndDebitsBalanced($body['transactions'] ?? [])) {
+        if (!static::areCreditsAndDebitsBalanced($body['transactions'] ?? [])) {
             return new JsonResponse(static::ERR_NOT_BALANCED, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -62,40 +62,14 @@ final class CreateVoucherAction
             $voucherId = $this->db->getLastInsertId();
             $response = $body;
 
-            foreach ($body['transactions'] ?? [] as $transaction) {
-                $kind = static::VOUCHER_KIND_MAP[$transaction['kind']] ?? null;
-
-                if ($kind === null) {
-                    throw new InvalidArgumentException('Invalid or empty transaction kind. Must be \'credit\' or \'debit\'.');
-                }
-
-                if ($transaction['amount'] < 0) {
-                    throw new InvalidArgumentException('\'amount\' must be greater than 0.');
-                }
-
-                $this->db->execute('INSERT INTO "transaction" (account, amount, kind, voucher_id) VALUES (?, ?, ?, ?)', [
-                    (int)$transaction['account'],
-                    (int)$transaction['amount'],
-                    $kind,
-                    $voucherId,
-                ]);
+            foreach ($body['transactions'] ?? [] as $item) {
+                static::insertTransaction($this->db, $item, $voucherId);
             }
 
-            foreach ($body['attachments'] ?? [] as $index => $attachment) {
-                $size = mb_strlen($attachment['data'], '8bit');
-                $binary = base64_decode($attachment['data'], true);
-
-                $this->db->execute('INSERT INTO attachment (name, data, mime, size, voucher_id) VALUES (?, ?, ?, ?, ?)', [
-                    (string)$attachment['name'],
-                    [$binary, Database::PARAM_BLOB],
-                    (string)$attachment['mime'],
-                    $size,
-                    $voucherId,
-                ]);
-
+            foreach ($body['attachments'] ?? [] as $index => $item) {
+                $attachmentId = static::insertAttachment($this->db, $item, $voucherId);
+                $response['attachments'][$index]['attachment_id'] = $attachmentId;
                 unset($response['attachments'][$index]['data']);
-
-                $response['attachments'][$index]['attachment_id'] = $this->db->getLastInsertId();
             }
 
             $response['voucher_id'] = $voucherId;
@@ -104,7 +78,7 @@ final class CreateVoucherAction
         });
     }
 
-    private function areCreditsAndDebitsBalanced(array $transactions): bool
+    public static function areCreditsAndDebitsBalanced(array $transactions): bool
     {
         $sum = 0;
         foreach ($transactions as $transaction) {
@@ -118,6 +92,44 @@ final class CreateVoucherAction
             }
         }
         return $sum === 0;
+    }
+
+    public static function insertTransaction(Database $db, array $transaction, int $voucherId): int
+    {
+        $kind = static::VOUCHER_KIND_MAP[$transaction['kind']] ?? null;
+
+        if ($kind === null) {
+            throw new InvalidArgumentException('Invalid or empty transaction kind. Must be \'credit\' or \'debit\'.');
+        }
+
+        if ($transaction['amount'] < 0) {
+            throw new InvalidArgumentException('\'amount\' must be greater than 0.');
+        }
+
+        $db->execute('INSERT INTO "transaction" (account, amount, kind, voucher_id) VALUES (?, ?, ?, ?)', [
+            (int)$transaction['account'],
+            (int)$transaction['amount'],
+            $kind,
+            $voucherId,
+        ]);
+
+        return $db->getLastInsertId();
+    }
+
+    public static function insertAttachment(Database $db, array $attachment, int $voucherId): int
+    {
+        $binary = base64_decode($attachment['data'], true);
+        $size = mb_strlen($binary, '8bit');
+
+        $db->execute('INSERT INTO attachment (name, data, mime, size, voucher_id) VALUES (?, ?, ?, ?, ?)', [
+            (string)$attachment['name'],
+            [$binary, Database::PARAM_BLOB],
+            (string)$attachment['mime'],
+            $size,
+            $voucherId,
+        ]);
+
+        return $db->getLastInsertId();
     }
 
     private function isOwnerOfWorkbook(int $id, UserInterface $user): bool

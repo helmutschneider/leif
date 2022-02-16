@@ -17,7 +17,7 @@ export const accountOptions = Object.entries(accounts).map((e, idx) => {
             {e[0]}: {e[1]}
         </option>
     )
-})
+});
 
 export const VoucherForm: React.FC<Props> = props => {
     const isBalanced = areDebitsAndCreditsBalanced(props.voucher);

@@ -75,4 +75,16 @@ trait DatabaseTrait
         ]);
         return $db->getLastInsertId();
     }
+
+    public static function createAttachment(Database $db, int $voucherId): int
+    {
+        $db->execute('INSERT INTO attachment (name, data, mime, size, voucher_id) VALUES (?, ?, ?, ?, ?)', [
+            'test_attachment.txt',
+            'Hello World',
+            'text/plain',
+            0,
+            $voucherId,
+        ]);
+        return $db->getLastInsertId();
+    }
 }

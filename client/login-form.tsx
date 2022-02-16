@@ -96,7 +96,7 @@ export const LoginForm: React.FC<Props> = props => {
                                 aria-hidden="true"
                             />
                         )
-                        : 'Kör'
+                        : 'OK'
                     }
                 </button>
             </div>

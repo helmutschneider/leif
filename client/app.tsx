@@ -46,6 +46,8 @@ function tryGetUserFromSessionStorage(): User | undefined {
     return user
 }
 
+const CONTAINER_CLASS = 'container-xxl';
+
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
         activeWorkbookIndex: 0,
@@ -171,7 +173,7 @@ const App: React.FC<Props> = props => {
                 className="navbar navbar-dark navbar-expand-lg sticky-top"
                 style={{background: colorsForTheNavBar[colorIndex]}}
             >
-                <div className="container">
+                <div className={CONTAINER_CLASS}>
                     <div className="navbar-brand d-flex align-items-center">
                         <img
                             src="/leif.jpg"
@@ -182,7 +184,7 @@ const App: React.FC<Props> = props => {
                             title="Leif"
                         />
                     </div>
-                    <div className="collapse navbar-collapse">
+                    <div className="navbar-collapse">
                         <input
                             className="form-control form-control-lg"
                             onChange={event => {
@@ -299,7 +301,7 @@ const App: React.FC<Props> = props => {
                     </div>
                 </div>
             </nav>
-            <div className="container pt-3">
+            <div className={`${CONTAINER_CLASS} pt-3`}>
                 {viewStuff}
             </div>
         </div>

@@ -39,6 +39,13 @@ final class CreateVoucherActionTest extends WebTestCase
                 ],
             ],
             'workbook_id' => $workbookId,
+            'attachments' => [
+                [
+                    'name' => 'my_dude.txt',
+                    'mime' => 'text/plain',
+                    'data' => 'yee boi',
+                ],
+            ],
         ]));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
