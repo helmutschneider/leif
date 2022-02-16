@@ -18,7 +18,7 @@ CREATE TABLE "token" (
 
 CREATE TABLE "workbook" (
     "workbook_id" INTEGER PRIMARY KEY NOT NULL,
-    "name" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
     "year" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
     FOREIGN KEY ("user_id")
@@ -30,6 +30,7 @@ CREATE TABLE "workbook" (
 CREATE TABLE "voucher" (
     "voucher_id" INTEGER PRIMARY KEY NOT NULL,
     "created_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "date" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "workbook_id" INTEGER NOT NULL,
