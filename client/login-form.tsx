@@ -1,14 +1,10 @@
 import * as React from 'react'
-import {User} from "./types";
+import {KeyCode, User} from "./types";
 import {HttpBackend} from "./http";
 
 type Props = {
     http: HttpBackend
     onLogin: (user: User) => unknown
-}
-
-enum KeyCode {
-    Enter = 13,
 }
 
 export const LoginForm: React.FC<Props> = props => {

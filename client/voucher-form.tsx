@@ -1,8 +1,14 @@
 import * as React from 'react'
-import {Attachment, Currency, Voucher} from './types'
-import { areDebitsAndCreditsBalanced, arrayBufferToBase64, ensureHasEmptyTransaction, formatDate, toArray } from './util'
-import accounts from '../data/accounts-2022.json'
+import {Attachment, Currency, Voucher, accounts} from './types'
+import {
+    areDebitsAndCreditsBalanced,
+    arrayBufferToBase64,
+    ensureHasEmptyTransaction,
+    formatDate,
+    toArray,
+} from './util'
 import {MoneyInput} from "./money-input";
+import {Autocomplete} from "./autocomplete";
 
 type Props = {
     currency: Currency
@@ -10,14 +16,6 @@ type Props = {
     onOK: () => unknown
     voucher: Voucher
 }
-
-export const accountOptions = Object.entries(accounts).map((e, idx) => {
-    return (
-        <option key={idx} value={e[0]}>
-            {e[0]}: {e[1]}
-        </option>
-    )
-});
 
 export const VoucherForm: React.FC<Props> = props => {
     const isBalanced = areDebitsAndCreditsBalanced(props.voucher);
@@ -72,22 +70,38 @@ export const VoucherForm: React.FC<Props> = props => {
                             return (
                                 <tr key={idx}>
                                     <td>
-                                        <select
-                                            className="form-control"
+                                        <Autocomplete
+                                            data={accounts}
+                                            itemMatches={(item, query) => {
+                                                return JSON.stringify(item).includes(query);
+                                            }}
                                             onChange={event => {
                                                 const transactions = props.voucher.transactions.slice()
                                                 transactions[idx] = {
                                                     ...t,
                                                     account: event.target.value,
-                                                }
+                                                };
                                                 props.onChange({
                                                     ...props.voucher,
                                                     transactions: ensureHasEmptyTransaction(transactions),
-                                                })
+                                                });
                                             }}
-                                            value={t.account}>
-                                            {accountOptions}
-                                        </select>
+                                            onItemSelected={item => {
+                                                const transactions = props.voucher.transactions.slice()
+                                                transactions[idx] = {
+                                                    ...t,
+                                                    account: item.number,
+                                                };
+                                                props.onChange({
+                                                    ...props.voucher,
+                                                    transactions: ensureHasEmptyTransaction(transactions),
+                                                });
+                                            }}
+                                            renderItem={item => {
+                                                return `${item.number}: ${item.name}`;
+                                            }}
+                                            value={String(t.account)}
+                                        />
                                     </td>
                                     <td>
                                         <MoneyInput

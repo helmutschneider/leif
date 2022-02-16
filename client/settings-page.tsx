@@ -1,9 +1,9 @@
 import * as React from 'react'
-import {accountOptions} from "./voucher-form";
 import {MoneyInput} from "./money-input";
-import {Currency, Workbook} from "./types";
+import {Currency, Workbook, accounts} from "./types";
 import {findNextUnusedAccountNumber, tryParseInt} from "./util";
 import {HttpBackend} from "./http";
+import {Autocomplete} from "./autocomplete";
 
 type Props = {
     currency: Currency
@@ -59,8 +59,11 @@ export const SettingsPage: React.FC<Props> = props => {
                                 return (
                                     <tr key={index}>
                                         <td className="col-6">
-                                            <select
-                                                className="form-control"
+                                            <Autocomplete
+                                                data={accounts}
+                                                itemMatches={(item, query) => {
+                                                    return JSON.stringify(item).includes(query);
+                                                }}
                                                 onChange={event => {
                                                     const next = {
                                                         ...workbook.balance_carry,
@@ -73,10 +76,14 @@ export const SettingsPage: React.FC<Props> = props => {
                                                         balance_carry: next,
                                                     });
                                                 }}
+                                                onItemSelected={item => {
+
+                                                }}
+                                                renderItem={item => {
+                                                    return `${item.number}: ${item.name}`;
+                                                }}
                                                 value={e[0]}
-                                            >
-                                                {accountOptions}
-                                            </select>
+                                            />
                                         </td>
                                         <td>
                                             <MoneyInput
