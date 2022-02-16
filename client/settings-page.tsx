@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {MoneyInput} from "./money-input";
-import {Currency, Workbook, accounts} from "./types";
+import {Currency, Workbook, accounts, AccountBalanceMap} from "./types";
 import {findNextUnusedAccountNumber, tryParseInt} from "./util";
 import {HttpBackend} from "./http";
 import {Autocomplete} from "./autocomplete";
@@ -12,8 +12,30 @@ type Props = {
     workbook: Workbook
 }
 
+type AccountBalance = {
+    account: number
+    balance: number
+}
+
+type State = {
+    balances: ReadonlyArray<AccountBalance>
+    workbook: Workbook
+}
+
 export const SettingsPage: React.FC<Props> = props => {
-    const workbook = props.workbook
+    const [state, setState] = React.useState<State>({
+        balances: Object.entries(props.workbook.balance_carry).map(item => {
+            return {
+                account: tryParseInt(item[0], 0),
+                balance: tryParseInt(item[1], 0),
+            };
+        }),
+        workbook: {
+            ...props.workbook,
+        },
+    })
+
+    const workbook = state.workbook;
 
     return (
         <div>
@@ -25,10 +47,13 @@ export const SettingsPage: React.FC<Props> = props => {
                         <input
                             className="form-control"
                             onChange={event => {
-                                props.onChange({
-                                    ...workbook,
-                                    name: event.target.value,
-                                })
+                                setState({
+                                    balances: state.balances,
+                                    workbook: {
+                                        ...workbook,
+                                        name: event.target.value,
+                                    },
+                                });
                             }}
                             placeholder="Namn"
                             type="text"
@@ -40,10 +65,13 @@ export const SettingsPage: React.FC<Props> = props => {
                         <input
                             className="form-control"
                             onChange={event => {
-                                props.onChange({
-                                    ...workbook,
-                                    year: tryParseInt(event.target.value, 0),
-                                })
+                                setState({
+                                    balances: state.balances,
+                                    workbook: {
+                                        ...workbook,
+                                        year: tryParseInt(event.target.value, 0),
+                                    },
+                                });
                             }}
                             placeholder="Namn"
                             type="text"
@@ -55,7 +83,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                         <table className="table table-sm align-middle">
                             <tbody>
-                            {Object.entries(workbook.balance_carry).map((e, index) => {
+                            {state.balances.map((balance, index) => {
                                 return (
                                     <tr key={index}>
                                         <td className="col-6">
@@ -65,40 +93,49 @@ export const SettingsPage: React.FC<Props> = props => {
                                                     return JSON.stringify(item).includes(query);
                                                 }}
                                                 onChange={event => {
-                                                    const next = {
-                                                        ...workbook.balance_carry,
+                                                    const next = state.balances.slice()
+                                                    next[index] = {
+                                                        ...balance,
+                                                        account: tryParseInt(event.target.value, 0),
                                                     };
-                                                    delete next[e[0]];
-                                                    next[event.target.value] = 0;
-
-                                                    props.onChange({
-                                                        ...workbook,
-                                                        balance_carry: next,
+                                                    setState({
+                                                        balances: next,
+                                                        workbook: state.workbook,
                                                     });
                                                 }}
                                                 onItemSelected={item => {
-
+                                                    const next = state.balances.slice();
+                                                    next[index] = {
+                                                        ...balance,
+                                                        account: item.number,
+                                                    };
+                                                    setState({
+                                                        balances: next,
+                                                        workbook: state.workbook,
+                                                    });
                                                 }}
                                                 renderItem={item => {
                                                     return `${item.number}: ${item.name}`;
                                                 }}
-                                                value={e[0]}
+                                                value={String(balance.account)}
                                             />
                                         </td>
                                         <td>
                                             <MoneyInput
                                                 currency={props.currency}
-                                                onChange={next => {
-                                                    const wb: Workbook = {
-                                                        ...workbook,
-                                                        balance_carry: {
-                                                            ...workbook.balance_carry,
-                                                            [e[0]]: next,
-                                                        },
+                                                onChange={value => {
+                                                    const next = state.balances.slice()
+                                                    next[index] = {
+                                                        account: balance.account,
+                                                        balance: value,
                                                     };
-                                                    props.onChange(wb);
+
+                                                    setState({
+                                                        ...state,
+                                                        balances: next,
+                                                    });
                                                 }}
-                                                value={e[1]}
+                                                value={balance.balance}
                                             />
                                         </td>
                                         <td>
@@ -107,15 +144,13 @@ export const SettingsPage: React.FC<Props> = props => {
                                                 onClick={event => {
                                                     event.preventDefault();
                                                     event.stopPropagation();
-                                                    const next = {
-                                                        ...workbook.balance_carry,
-                                                    };
-                                                    delete next[e[0]];
+                                                    const next = state.balances.slice()
+                                                    next.splice(index, 1);
 
-                                                    props.onChange({
-                                                        ...workbook,
-                                                        balance_carry: next,
-                                                    })
+                                                    setState({
+                                                        balances: next,
+                                                        workbook: workbook,
+                                                    });
                                                 }}
                                                 role="button"
                                             />
@@ -133,14 +168,18 @@ export const SettingsPage: React.FC<Props> = props => {
                                     event.stopPropagation()
 
                                     const nextAccountNumber = findNextUnusedAccountNumber(workbook.balance_carry);
-                                    const wb: Workbook = {
-                                        ...workbook,
-                                        balance_carry: {
-                                            ...workbook.balance_carry,
-                                            [nextAccountNumber!]: 0,
-                                        },
-                                    };
-                                    props.onChange(wb);
+
+                                    if (!nextAccountNumber) {
+                                        return;
+                                    }
+
+                                    setState({
+                                        balances: state.balances.concat({
+                                            account: nextAccountNumber,
+                                            balance: 0,
+                                        }),
+                                        workbook: workbook,
+                                    });
                                 }}
                             >
                                 Lägg till rad
@@ -155,10 +194,20 @@ export const SettingsPage: React.FC<Props> = props => {
                     event.preventDefault();
                     event.stopPropagation();
 
+                    const next: Workbook = {
+                        ...workbook,
+                        balance_carry: state.balances.reduce((carry, item) => {
+                            carry[item.account] = item.balance;
+                            return carry;
+                        }, {} as AccountBalanceMap),
+                    };
+
                     props.http.send({
                         method: 'PUT',
                         url: `/api/workbook/${workbook.workbook_id}`,
-                        body: workbook,
+                        body: next,
+                    }).then(res => {
+                        props.onChange(next);
                     });
                 }}
             >

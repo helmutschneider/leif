@@ -29,7 +29,7 @@ export type Voucher = {
     workbook_id?: number | string
 }
 export type Workbook = {
-    balance_carry: { [key: AccountNumber]: number }
+    balance_carry: AccountBalanceMap
     name: string
     vouchers: ReadonlyArray<Voucher>
     year: number
