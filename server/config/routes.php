@@ -26,4 +26,8 @@ return function (RoutingConfigurator $routes) {
     $routes->add('update_workbook', '/api/workbook/{id}')
         ->methods(['PUT'])
         ->controller(\Leif\Api\UpdateWorkbookAction::class);
+
+    $routes->add('install', '/install')
+        ->methods(['GET', 'POST'])
+        ->controller(\Leif\Api\InstallAction::class);
 };
