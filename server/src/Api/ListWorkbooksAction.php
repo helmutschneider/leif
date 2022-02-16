@@ -19,6 +19,7 @@ SELECT t.*
     ON w.workbook_id = v.workbook_id
  WHERE w.user_id = :user_id
    AND v.is_template = :is_template
+ ORDER BY t.account ASC
 SQL;
 
     const SQL_GET_VOUCHERS = <<<SQL
@@ -28,6 +29,8 @@ SELECT v.*
     ON w.workbook_id = v.workbook_id
  WHERE w.user_id = :user_id
    AND v.is_template = :is_template
+ ORDER BY v.date DESC,
+          v.created_at DESC
 SQL;
 
     const SQL_GET_BALANCE_CARRIES = <<<SQL

@@ -41,7 +41,7 @@ export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, car
     return result;
 }
 
-export function formatAsMonetaryAmount(amount: string | number, currency: t.Currency): string {
+export function formatIntegerAsMoneyWithSeparatorsAndSymbol(amount: string | number, currency: t.Currency): string {
     const intFmt = new Intl.NumberFormat(currency.locale, {
         style: 'decimal',
         useGrouping: true,
@@ -55,6 +55,17 @@ export function formatAsMonetaryAmount(amount: string | number, currency: t.Curr
     const [int, fraction] = padded.split(pattern);
     const intStr = intFmt.format(tryParseInt(int, 0));
     return `${intStr}${currency.decimalSeparator}${fraction} ${currency.symbol}`;
+}
+
+export function formatIntegerAsMoneyDecimal(amount: number | string, currency: t.Currency): string {
+    const subunit = currency.subunit;
+    const parsed = tryParseInt(amount, 0);
+    const padded = parsed
+        .toFixed(0)
+        .padStart(subunit + 1, '0');
+    const pattern = new RegExp(`(\\d{${subunit}})$`);
+    const [int, fraction] = padded.split(pattern);
+    return int + currency.decimalSeparator + fraction;
 }
 
 export function monetaryAmountToInteger(amount: string, currency: t.Currency): number {
@@ -74,16 +85,7 @@ export function monetaryAmountToInteger(amount: string, currency: t.Currency): n
     return tryParseInt(intPart + fractionPart, 0);
 }
 
-export function integerToMonetaryString(amount: number | string, currency: t.Currency): string {
-    const subunit = currency.subunit;
-    const parsed = tryParseInt(amount, 0);
-    const padded = parsed
-        .toFixed(0)
-        .padStart(subunit + 1, '0');
-    const pattern = new RegExp(`(\\d{${subunit}})$`);
-    const [int, fraction] = padded.split(pattern);
-    return int + currency.decimalSeparator + fraction;
-}
+
 
 export function getAccountName(account: t.AccountNumber): string {
     return accounts[account as t.ExactAccountNumber] ?? '';
@@ -169,20 +171,19 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
     return window.btoa(binary);
 }
 
-export function findIndexOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<t.Workbook>): number | undefined {
-    let mostRecent: number | undefined
+export function findIdOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<t.Workbook>): number | undefined {
+    let mostRecentId: number | undefined
     let max = 0
-    for (let i = 0; i < workbooks.length; ++i) {
-        const wb = workbooks[i]
+    for (const wb of workbooks) {
         const ts = Math.max(
             ...wb!.vouchers.map(voucher => Date.parse(voucher.created_at))
         )
         if (ts > max) {
-            mostRecent = i
+            mostRecentId = tryParseInt(wb.workbook_id, undefined);
             max = ts
         }
     }
-    return mostRecent
+    return mostRecentId
 }
 
 export function findNextUnusedAccountNumber(balances: t.AccountBalanceMap): number | undefined {

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {
-    findIndexOfMostRecentlyEditedWorkbook, tryParseInt,
+    findIdOfMostRecentlyEditedWorkbook, tryParseInt,
 } from './util';
 import {currencies, Currency, User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
@@ -18,7 +18,7 @@ type Page =
     | 'settings'
 
 type State = {
-    activeWorkbookIndex: number
+    activeWorkbookId: number | undefined
     search: string
     selectWorkbookDropdownOpen: boolean
     view: Page
@@ -50,7 +50,7 @@ const CONTAINER_CLASS = 'container-xxl';
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
-        activeWorkbookIndex: 0,
+        activeWorkbookId: undefined,
         search: '',
         selectWorkbookDropdownOpen: false,
         view: 'vouchers',
@@ -70,7 +70,7 @@ const App: React.FC<Props> = props => {
                 .then(wbs => {
                     setState({
                         ...state,
-                        activeWorkbookIndex: findIndexOfMostRecentlyEditedWorkbook(wbs) ?? 0,
+                        activeWorkbookId: findIdOfMostRecentlyEditedWorkbook(wbs),
                         workbooks: wbs,
                     });
                 });
@@ -83,12 +83,15 @@ const App: React.FC<Props> = props => {
     }, [state.user]);
 
     React.useEffect(() => {
-        const wb = state.workbooks[state.activeWorkbookIndex]
+        const wb = state.workbooks.find(item => {
+            return typeof state.activeWorkbookId !== 'undefined'
+                && state.activeWorkbookId === tryParseInt(item.workbook_id, undefined);
+        })
 
         if (wb) {
             document.title = `Leif: ${wb.name}`;
         }
-    }, [state.activeWorkbookIndex, state.workbooks]);
+    }, [state.activeWorkbookId, state.workbooks]);
 
     if (!state.user) {
         return (
@@ -118,12 +121,16 @@ const App: React.FC<Props> = props => {
         )
     }
 
-    const workbook = state.workbooks[state.activeWorkbookIndex]
+    const workbook = state.workbooks.find(item => {
+        return typeof state.activeWorkbookId !== 'undefined'
+            && state.activeWorkbookId === tryParseInt(item.workbook_id, undefined);
+    })
 
     if (!workbook) {
         return null
     }
 
+    const activeWorkbookIndex = state.workbooks.indexOf(workbook);
     let viewStuff: React.ReactNode = null
 
     switch (state.view) {
@@ -134,7 +141,7 @@ const App: React.FC<Props> = props => {
                     http={props.http}
                     onChange={next => {
                         const wbs = state.workbooks.slice()
-                        wbs[state.activeWorkbookIndex] = next;
+                        wbs[activeWorkbookIndex] = next;
                         setState({
                             ...state,
                             workbooks: wbs,
@@ -153,7 +160,7 @@ const App: React.FC<Props> = props => {
                     http={props.http}
                     onChange={next => {
                         const wbs = state.workbooks.slice();
-                        wbs[state.activeWorkbookIndex] = next;
+                        wbs[activeWorkbookIndex] = next;
                         setState({
                             ...state,
                             workbooks: wbs,
@@ -266,7 +273,7 @@ const App: React.FC<Props> = props => {
 
                                                         setState({
                                                             ...state,
-                                                            activeWorkbookIndex: index,
+                                                            activeWorkbookId: tryParseInt(wb.workbook_id, undefined),
                                                             selectWorkbookDropdownOpen: false,
                                                         })
                                                     }}
@@ -287,7 +294,7 @@ const App: React.FC<Props> = props => {
 
                                         setState({
                                             ...state,
-                                            activeWorkbookIndex: 0,
+                                            activeWorkbookId: undefined,
                                             user: undefined,
                                             workbooks: [],
                                         })

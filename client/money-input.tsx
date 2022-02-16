@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Currency} from "./types";
-import {integerToMonetaryString, monetaryAmountToInteger, tryParseInt} from "./util";
+import {formatIntegerAsMoneyDecimal, monetaryAmountToInteger, tryParseInt} from "./util";
 
 type Props = {
     currency: Currency
@@ -16,7 +16,7 @@ type State = {
 
 export const MoneyInput: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
-        value: integerToMonetaryString(props.value, props.currency),
+        value: formatIntegerAsMoneyDecimal(props.value, props.currency),
     });
 
     React.useEffect(() => {
@@ -28,7 +28,7 @@ export const MoneyInput: React.FC<Props> = props => {
         // never differ.
         if (parsed !== current) {
             setState({
-                value: integerToMonetaryString(props.value, props.currency),
+                value: formatIntegerAsMoneyDecimal(props.value, props.currency),
             });
         }
 
