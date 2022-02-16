@@ -9,10 +9,12 @@ export type HttpBackend = {
     send: <T>(request: LeifRequest) => PromiseLike<T>
 }
 
+const JSON_CONTENT_TYPE = 'application/json'
+
 export class FetchBackend implements HttpBackend {
     public defaultHeaders: {[key: string]: string} = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Accept': JSON_CONTENT_TYPE,
+        'Content-Type': JSON_CONTENT_TYPE,
     }
 
     public send<T>(request: LeifRequest): PromiseLike<T> {
@@ -27,7 +29,11 @@ export class FetchBackend implements HttpBackend {
             if (res.status > 299) {
                 return Promise.reject(res)
             }
-            return res.json()
+            const contentType = res.headers.get('Content-Type');
+            if (contentType?.includes(JSON_CONTENT_TYPE)) {
+                return res.json()
+            }
+            return res.text()
         }, err => Promise.reject(err))
     }
 }

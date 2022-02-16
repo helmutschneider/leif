@@ -35,7 +35,7 @@ $errorMap = [
 
             <?php endif; ?>
 
-            <form method="POST" target="/install">
+            <form method="POST" target="">
                 <div class="mb-3">
                     <label class="form-label">Välj användarnamn</label>
                     <input

@@ -1,6 +1,12 @@
 import * as React from 'react'
 import {VoucherForm} from "./voucher-form";
-import {calculateAccountBalances, ellipsis, emptyVoucher, formatAsMonetaryAmount, getAccountName} from "./util";
+import {
+    calculateAccountBalances,
+    ellipsis,
+    emptyVoucher,
+    formatAsMonetaryAmount,
+    getAccountName
+} from "./util";
 import {HttpBackend} from "./http";
 import * as t from "./types";
 
@@ -56,11 +62,12 @@ export const VouchersPage: React.FC<Props> = props => {
                             <tr key={idx}>
                                 <td className="col-2">{voucher.date}</td>
                                 <td className="col-8">{voucher.name}</td>
-                                <td className="col-2">
+                                <td className="col-2 text-end">
                                     {voucher.attachments.map((attachment, idx) => {
                                         return (
-                                            <span
+                                            <i
                                                 key={idx}
+                                                className="bi bi-file-earmark-fill me-1"
                                                 title={attachment.name}
                                                 onClick={event => {
                                                     event.preventDefault()
@@ -72,11 +79,33 @@ export const VouchersPage: React.FC<Props> = props => {
                                                     );
                                                 }}
                                                 role="button"
-                                            >
-                                                            <i className="bi bi-paperclip" />
-                                                        </span>
+                                            />
                                         )
                                     })}
+                                    <i
+                                        className="bi bi-x-circle-fill"
+                                        onClick={event => {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+
+                                            if (!confirm('Ta bort verifikat?')) {
+                                                return;
+                                            }
+
+                                            props.http.send({
+                                                method: 'DELETE',
+                                                url: `/api/voucher/${voucher.voucher_id}`,
+                                            }).then(res => {
+                                                const next = workbook.vouchers.slice()
+                                                next.splice(idx, 1);
+                                                props.onChange({
+                                                    ...workbook,
+                                                    vouchers: next,
+                                                })
+                                            })
+                                        }}
+                                        role="button"
+                                    />
                                 </td>
                             </tr>
                         )

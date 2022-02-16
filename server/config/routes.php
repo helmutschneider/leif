@@ -19,6 +19,10 @@ return function (RoutingConfigurator $routes) {
         ->methods(['POST'])
         ->controller(\Leif\Api\CreateVoucherAction::class);
 
+    $routes->add('delete_voucher', '/api/voucher/{id}')
+        ->methods(['DELETE'])
+        ->controller(\Leif\Api\DeleteVoucherAction::class);
+
     $routes->add('get_attachment', '/api/attachment/{id}')
         ->methods(['GET'])
         ->controller(\Leif\Api\GetAttachmentAction::class);
