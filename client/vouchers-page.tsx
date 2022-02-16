@@ -70,7 +70,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                     <td>
                                         {voucher.transactions.map((item, k) => {
                                             return (
-                                                <div className="row">
+                                                <div className="row" key={k}>
                                                     <div className="col-6">{item.account}</div>
                                                     <div className="col-6 text-end">
                                                         {formatIntegerAsMoneyWithSeparatorsAndSymbol(
