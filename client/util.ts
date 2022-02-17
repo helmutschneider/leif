@@ -15,7 +15,7 @@ export function formatDate(date: Date, pattern: string): string {
     const regex = new RegExp(Object.keys(dateFormatters).join('|'), 'g');
     return pattern.replace(regex, (match) => {
         return dateFormatters[match]?.call(undefined, date) ?? ''
-    })
+    });
 }
 
 export function ellipsis(value: string, length: number): string {
@@ -205,4 +205,24 @@ export function findNextUnusedAccountNumber(accounts: AccountPlan, balances: Rea
     const nextAccountNumber = accountNumbers[indexOfLargestAccountNumber + 1];
 
     return tryParseInt(nextAccountNumber, undefined)
+}
+
+export function objectContains<T>(value: T, search: string) {
+    if (typeof value === 'undefined' || value === null) {
+        return false;
+    }
+    if (typeof value === 'object') {
+        for (const key in value) {
+            if (!Object.prototype.hasOwnProperty.call(value, key)) {
+                continue;
+            }
+            if (objectContains(value[key], search)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    return String(value)
+        .toLowerCase()
+        .includes(search.toLowerCase());
 }

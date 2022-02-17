@@ -4,7 +4,7 @@ import {
     areDebitsAndCreditsBalanced,
     arrayBufferToBase64,
     ensureHasEmptyTransaction,
-    formatDate,
+    formatDate, objectContains,
     toArray,
 } from './util'
 import {MoneyInput} from "./money-input";
@@ -124,11 +124,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                     <td>
                                         <Autocomplete
                                             data={Object.entries(props.accounts)}
-                                            itemMatches={(item, query) => {
-                                                return JSON.stringify(item)
-                                                    .toLowerCase()
-                                                    .includes(query.toLowerCase());
-                                            }}
+                                            itemMatches={objectContains}
                                             onChange={event => {
                                                 const transactions = props.voucher.transactions.slice()
                                                 transactions[idx] = {

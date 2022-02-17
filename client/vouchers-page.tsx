@@ -4,7 +4,7 @@ import {
     calculateAccountBalancesForYear,
     ellipsis,
     emptyVoucher,
-    formatIntegerAsMoneyWithSeparatorsAndSymbol,
+    formatIntegerAsMoneyWithSeparatorsAndSymbol, objectContains,
     tryParseInt
 } from "./util";
 import {HttpBackend} from "./http";
@@ -39,10 +39,9 @@ export const VouchersPage: React.FC<Props> = props => {
     const balances = calculateAccountBalancesForYear(
         workbook.vouchers, props.year, carryAccounts
     )
-    const searchInLowerCase = props.search.toLowerCase();
     const filteredVouchers: ReadonlyArray<t.Voucher> = workbook.vouchers.filter(voucher => {
         return (new Date(voucher.date)).getFullYear() === props.year
-            && (props.search === '' || JSON.stringify(voucher).toLowerCase().includes(searchInLowerCase));
+            && (props.search === '' || objectContains(voucher, props.search));
     });
 
     const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';

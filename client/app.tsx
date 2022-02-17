@@ -30,7 +30,8 @@ type State = {
 const colorsForTheNavBar = [
     '#A93F55',
     '#54457F',
-    '#65743A',
+    '#226F54',
+    '#FFB20F',
 ];
 
 const SESSION_STORAGE_USER_KEY = 'user'
