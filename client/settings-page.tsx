@@ -83,7 +83,7 @@ export const SettingsPage: React.FC<Props> = props => {
                             value={state.workbook.year}
                         />
                     </div>
-                    <div className="mb-3">
+                    <div className="mb-1">
                         <label className="form-label">Ingående kontobalans</label>
 
                         <table className="table table-sm align-middle">
@@ -199,6 +199,31 @@ export const SettingsPage: React.FC<Props> = props => {
                             </button>
                         </div>
                     </div>
+
+                    <div className="d-grid">
+                        <button
+                            className="btn btn-success"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                const next: Workbook = {
+                                    ...state.workbook,
+                                    account_carries: state.carries,
+                                };
+
+                                props.http.send({
+                                    method: 'PUT',
+                                    url: `/api/workbook/${props.workbook.workbook_id}`,
+                                    body: next,
+                                }).then(res => {
+                                    props.onChange(next);
+                                });
+                            }}
+                        >
+                            OK
+                        </button>
+                    </div>
                 </div>
 
                 <div className="col-4">
@@ -293,7 +318,6 @@ export const SettingsPage: React.FC<Props> = props => {
                         </div>
                     </div>
 
-
                     <VoucherForm
                         accounts={props.accounts}
                         currency={props.currency}
@@ -344,28 +368,6 @@ export const SettingsPage: React.FC<Props> = props => {
                     />
                 </div>
             </div>
-            <button
-                className="btn btn-success"
-                onClick={event => {
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const next: Workbook = {
-                        ...state.workbook,
-                        account_carries: state.carries,
-                    };
-
-                    props.http.send({
-                        method: 'PUT',
-                        url: `/api/workbook/${props.workbook.workbook_id}`,
-                        body: next,
-                    }).then(res => {
-                        props.onChange(next);
-                    });
-                }}
-            >
-                OK
-            </button>
         </div>
 
     )
