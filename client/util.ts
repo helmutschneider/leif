@@ -1,5 +1,5 @@
-import accounts from '../data/accounts-2022.json'
 import * as t from './types'
+import {Account} from "./types";
 
 type DateFormatter = {
     (date: Date): string
@@ -83,12 +83,6 @@ export function monetaryAmountToInteger(amount: string, currency: t.Currency): n
     const fractionPart = (matches[2] ?? '').padEnd(subunit, '0');
 
     return tryParseInt(intPart + fractionPart, 0);
-}
-
-
-
-export function getAccountName(account: t.AccountNumber): string {
-    return accounts[account as t.ExactAccountNumber] ?? '';
 }
 
 export function ensureHasEmptyTransaction(transactions: ReadonlyArray<t.Transaction>): ReadonlyArray<t.Transaction> {
@@ -188,11 +182,11 @@ export function findIdOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<t.Wo
     return mostRecentId;
 }
 
-export function findNextUnusedAccountNumber(balances: t.AccountBalanceMap): number | undefined {
+export function findNextUnusedAccountNumber(accounts: ReadonlyArray<Account>, balances: t.AccountBalanceMap): number | undefined {
     const largestAccountNumber = Math.max(
         ...Object.keys(balances).map(k => tryParseInt(k, 0))
     )
-    const accountNumbers = Object.keys(accounts);
+    const accountNumbers = accounts.map(a => a.number);
     const indexOfLargestAccountNumber = accountNumbers.indexOf(largestAccountNumber.toFixed(0));
     const nextAccountNumber = accountNumbers[indexOfLargestAccountNumber + 1];
 

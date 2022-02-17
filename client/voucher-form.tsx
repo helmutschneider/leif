@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Attachment, Currency, Voucher, accounts} from './types'
+import {Account, Attachment, Currency, Voucher} from './types'
 import {
     areDebitsAndCreditsBalanced,
     arrayBufferToBase64,
@@ -11,6 +11,7 @@ import {MoneyInput} from "./money-input";
 import {Autocomplete} from "./autocomplete";
 
 type Props = {
+    accounts: ReadonlyArray<Account>
     currency: Currency
     onChange: (next: Voucher) => unknown
     onOK: () => unknown
@@ -71,7 +72,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                 <tr key={idx}>
                                     <td>
                                         <Autocomplete
-                                            data={accounts}
+                                            data={props.accounts}
                                             itemMatches={(item, query) => {
                                                 return JSON.stringify(item).includes(query);
                                             }}

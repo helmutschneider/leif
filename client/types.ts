@@ -1,8 +1,4 @@
-import accountsAsTable from '../data/accounts-2022.json'
-import {tryParseInt} from "./util";
-
 export type AccountNumber = string | number;
-export type ExactAccountNumber = keyof typeof accountsAsTable;
 export type AccountBalanceMap = {
     [key: AccountNumber]: number | string
 };
@@ -42,7 +38,6 @@ export type User = {
 }
 export type CurrencyCode =
     | 'SEK'
-
 export type Currency = {
     code: string
     decimalSeparator: string
@@ -61,19 +56,14 @@ export const currencies: {[P in CurrencyCode]: Currency} = {
         thousandsSeparator: ' ',
     },
 }
-
-type Account = {
+export type Account = {
     name: string
-    number: number
+    number: number | string
 }
-
-export const accounts: ReadonlyArray<Account> = Object.entries(accountsAsTable).map(item => {
-    return {
-        name: item[1],
-        number: tryParseInt(item[0], 0),
-    };
-});
-
+export type AccountBalance = {
+    account: number
+    balance: number
+}
 export enum KeyCode {
     ArrowDown = 40,
     ArrowUp = 38,

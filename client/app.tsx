@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom'
 import {
     findIdOfMostRecentlyEditedWorkbook, tryParseInt,
 } from './util';
-import {currencies, Currency, User, Workbook} from "./types";
+import {Account, currencies, Currency, User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
 import {FetchBackend, HttpBackend} from "./http";
 import {SettingsPage} from "./settings-page";
@@ -18,10 +18,11 @@ type Page =
     | 'settings'
 
 type State = {
+    accounts: ReadonlyArray<Account>
     activeWorkbookId: number | undefined
+    page: Page
     search: string
     selectWorkbookDropdownOpen: boolean
-    view: Page
     workbooks: ReadonlyArray<Workbook>
     user: User | undefined
 }
@@ -50,10 +51,11 @@ const CONTAINER_CLASS = 'container-xxl';
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
+        accounts: [],
         activeWorkbookId: undefined,
         search: '',
         selectWorkbookDropdownOpen: false,
-        view: 'vouchers',
+        page: 'vouchers',
         workbooks: [],
         user: tryGetUserFromSessionStorage(),
     })
@@ -65,15 +67,25 @@ const App: React.FC<Props> = props => {
                 props.http.defaultHeaders['Authorization'] = state.user.token
             }
 
-            props.http
-                .send<ReadonlyArray<Workbook>>({ method: 'GET', url: '/api/workbook' })
-                .then(wbs => {
-                    setState({
-                        ...state,
-                        activeWorkbookId: findIdOfMostRecentlyEditedWorkbook(wbs),
-                        workbooks: wbs,
-                    });
+            const workbooksPromise = props.http.send<ReadonlyArray<Workbook>>({
+                method: 'GET',
+                url: '/api/workbook',
+            });
+
+            const accountsPromise = props.http.send<ReadonlyArray<Account>>({
+                method: 'GET',
+                url: '/api/account-plan/1',
+            });
+
+            Promise.all([workbooksPromise, accountsPromise]).then(stuff => {
+                const [wbs, accounts] = stuff;
+                setState({
+                    ...state,
+                    accounts: accounts,
+                    activeWorkbookId: findIdOfMostRecentlyEditedWorkbook(wbs),
+                    workbooks: wbs,
                 });
+            });
         } else {
             window.sessionStorage.removeItem(SESSION_STORAGE_USER_KEY);
             if (props.http instanceof FetchBackend) {
@@ -133,10 +145,11 @@ const App: React.FC<Props> = props => {
     const activeWorkbookIndex = state.workbooks.indexOf(workbook);
     let viewStuff: React.ReactNode = null
 
-    switch (state.view) {
+    switch (state.page) {
         case 'vouchers':
             viewStuff = (
                 <VouchersPage
+                    accounts={state.accounts}
                     currency={props.currency}
                     http={props.http}
                     onChange={next => {
@@ -156,6 +169,7 @@ const App: React.FC<Props> = props => {
         case 'settings':
             viewStuff = (
                 <SettingsPage
+                    accounts={state.accounts}
                     currency={props.currency}
                     http={props.http}
                     onChange={next => {
@@ -214,8 +228,8 @@ const App: React.FC<Props> = props => {
 
                                         setState({
                                             ...state,
+                                            page: 'vouchers',
                                             selectWorkbookDropdownOpen: false,
-                                            view: 'vouchers',
                                         })
                                     }}
                                     href="#"
@@ -232,8 +246,8 @@ const App: React.FC<Props> = props => {
 
                                         setState({
                                             ...state,
+                                            page: 'settings',
                                             selectWorkbookDropdownOpen: false,
-                                            view: 'settings',
                                         })
                                     }}
                                     href="#"

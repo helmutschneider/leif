@@ -36,13 +36,16 @@ final class ParseAccountsCommand extends Command
             if (!$account) {
                 continue;
             }
-            $out[$account] = $parts[6] ?: $parts[3];
+            $out[] = [
+                'name' => $parts[6] ?: $parts[3],
+                'number' => (int) $account,
+            ];
         }
 
         fclose($handle);
 
-        $json = json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES |  JSON_UNESCAPED_UNICODE);
-        $output->writeln($json, OutputInterface::OUTPUT_RAW);
+        $outputAsStr = sprintf("<?php return %s;\n", var_export($out, true));
+        $output->writeln($outputAsStr, OutputInterface::OUTPUT_RAW);
 
         return 0;
     }

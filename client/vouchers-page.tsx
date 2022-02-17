@@ -5,12 +5,13 @@ import {
     ellipsis,
     emptyVoucher,
     formatIntegerAsMoneyWithSeparatorsAndSymbol,
-    getAccountName, tryParseInt
+    tryParseInt
 } from "./util";
 import {HttpBackend} from "./http";
 import * as t from "./types";
 
 type Props = {
+    accounts: ReadonlyArray<t.Account>
     currency: t.Currency
     http: HttpBackend
     onChange: (next: t.Workbook) => unknown
@@ -41,6 +42,10 @@ export const VouchersPage: React.FC<Props> = props => {
 
     const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
     const editingVoucherId = tryParseInt(state.voucher.voucher_id, undefined);
+    const accountNameMap = props.accounts.reduce((carry, item) => {
+        carry[item.number] = item.name;
+        return carry;
+    }, {} as {[key: number | string]: string});
 
     return (
         <div className="row">
@@ -245,6 +250,7 @@ export const VouchersPage: React.FC<Props> = props => {
                     </div>
 
                     <VoucherForm
+                        accounts={props.accounts}
                         currency={props.currency}
                         onChange={next => {
                             setState({
@@ -299,7 +305,7 @@ export const VouchersPage: React.FC<Props> = props => {
                 <table className="table table-sm">
                     <tbody>
                     {Object.entries(balances).map((e, idx) => {
-                        const accountName = getAccountName(e[0]);
+                        const accountName = accountNameMap[e[0]] ?? '';
                         return (
                             <tr key={idx}>
                                 <td>{e[0]}</td>

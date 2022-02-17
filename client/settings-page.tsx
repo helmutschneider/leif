@@ -1,20 +1,16 @@
 import * as React from 'react'
 import {MoneyInput} from "./money-input";
-import {Currency, Workbook, accounts, AccountBalanceMap} from "./types";
+import {Currency, Workbook, AccountBalanceMap, Account, AccountBalance} from "./types";
 import {findNextUnusedAccountNumber, tryParseInt} from "./util";
 import {HttpBackend} from "./http";
 import {Autocomplete} from "./autocomplete";
 
 type Props = {
+    accounts: ReadonlyArray<Account>
     currency: Currency
     http: HttpBackend
     onChange: (next: Workbook) => unknown
     workbook: Workbook
-}
-
-type AccountBalance = {
-    account: number
-    balance: number
 }
 
 type State = {
@@ -88,7 +84,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                     <tr key={index}>
                                         <td className="col-6">
                                             <Autocomplete
-                                                data={accounts}
+                                                data={props.accounts}
                                                 itemMatches={(item, query) => {
                                                     return JSON.stringify(item).includes(query);
                                                 }}
@@ -107,7 +103,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                                     const next = state.balances.slice();
                                                     next[index] = {
                                                         ...balance,
-                                                        account: item.number,
+                                                        account: tryParseInt(item.number, 0),
                                                     };
                                                     setState({
                                                         balances: next,
@@ -167,7 +163,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                     event.preventDefault()
                                     event.stopPropagation()
 
-                                    const nextAccountNumber = findNextUnusedAccountNumber(workbook.balance_carry);
+                                    const nextAccountNumber = findNextUnusedAccountNumber(props.accounts, workbook.balance_carry);
 
                                     if (!nextAccountNumber) {
                                         return;
