@@ -172,18 +172,20 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 export function findIdOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<t.Workbook>): number | undefined {
-    let mostRecentId: number | undefined
-    let max = 0
+    let mostRecentId: number | undefined;
+    let max = -1;
     for (const wb of workbooks) {
         const ts = Math.max(
-            ...wb!.vouchers.map(voucher => Date.parse(voucher.created_at))
-        )
+            ...wb.vouchers
+                .map(voucher => Date.parse(voucher.created_at))
+                .concat(0) // we need something to compare against something even if the voucher list is empty.
+        );
         if (ts > max) {
             mostRecentId = tryParseInt(wb.workbook_id, undefined);
-            max = ts
+            max = ts;
         }
     }
-    return mostRecentId
+    return mostRecentId;
 }
 
 export function findNextUnusedAccountNumber(balances: t.AccountBalanceMap): number | undefined {

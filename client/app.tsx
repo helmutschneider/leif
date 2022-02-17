@@ -124,7 +124,7 @@ const App: React.FC<Props> = props => {
     const workbook = state.workbooks.find(item => {
         return typeof state.activeWorkbookId !== 'undefined'
             && state.activeWorkbookId === tryParseInt(item.workbook_id, undefined);
-    })
+    });
 
     if (!workbook) {
         return null
