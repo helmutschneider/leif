@@ -4,14 +4,13 @@ import {
     findYearOfMostRecentlyEditedVoucher,
     tryParseInt,
 } from './util';
-import {currencies, Currency, User, Workbook} from "./types";
+import {User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
 import {FetchBackend, HttpBackend, LeifRequest} from "./http";
 import {SettingsPage} from "./settings-page";
 import {VouchersPage} from "./vouchers-page";
 
 type Props = {
-    currency: Currency
     httpBackend: HttpBackend
 }
 type Page =
@@ -34,18 +33,18 @@ const colorsForTheNavBar = [
     '#EC9F05',
 ];
 
-const SESSION_STORAGE_USER_KEY = 'user'
+const SESSION_STORAGE_USER_KEY = 'user';
 
 function tryGetUserFromSessionStorage(): User | undefined {
-    const json = window.sessionStorage.getItem(SESSION_STORAGE_USER_KEY)
-    let user: User | undefined
+    const json = window.sessionStorage.getItem(SESSION_STORAGE_USER_KEY);
+    let user: User | undefined;
     try {
         user = JSON.parse(json ?? '');
     } catch {}
     if (typeof user !== 'object') {
         return undefined;
     }
-    return user
+    return user;
 }
 
 const CONTAINER_CLASS = 'container-xxl';
@@ -334,9 +333,6 @@ const App: React.FC<Props> = props => {
 
 const root = document.getElementById('app');
 ReactDOM.render(
-    <App
-        currency={currencies.SEK}
-        httpBackend={new FetchBackend()}
-    />,
+    <App httpBackend={new FetchBackend()} />,
     root
 );

@@ -1,7 +1,7 @@
 import {
     calculateAccountBalancesForYear,
     findYearOfMostRecentlyEditedVoucher,
-    formatDate, formatIntegerAsMoneyDecimal,
+    formatDate, formatIntegerAsMoneyDecimal, monetaryAmountToInteger,
     objectContains,
     tryParseInt
 } from "./util";
@@ -191,6 +191,21 @@ describe('formatIntegerAsMoneyDecimal tests', () => {
     ];
     it.each(cases)('should format correctly', (value, expected) => {
         const result = formatIntegerAsMoneyDecimal(value, currencies.SEK);
+        expect(result).toBe(expected);
+    });
+});
+
+describe('monetaryAmountToInteger tests', () => {
+    const cases: ReadonlyArray<[string, number]> = [
+        ['15,00', 1500],
+        ['15.00', 1500],
+        ['-15.00', -1500],
+        ['   22,00  ', 2200],
+        ['   -23.00  ', -2300],
+    ];
+
+    it.each(cases)('should parse the amount correctly', (value, expected) => {
+        const result = monetaryAmountToInteger(value, currencies.SEK);
         expect(result).toBe(expected);
     });
 });
