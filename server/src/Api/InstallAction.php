@@ -48,7 +48,7 @@ final class InstallAction
 
             if ($errors === []) {
                 $this->db->transaction(function () use ($username, $password) {
-                    DatabaseTrait::loadSchema($this->db);
+                    static::loadSchema($this->db);
                     $this->db->execute('INSERT INTO user (username, password_hash) VALUES  (?, ?)', [
                         $username,
                         $this->passwordHasher->hash($password),
@@ -70,6 +70,20 @@ final class InstallAction
         return new Response($html, Response::HTTP_OK, [
             'Content-Type' => 'text/html',
         ]);
+    }
+
+    public static function loadSchema(Database $db): void
+    {
+        $schema = file_get_contents(__DIR__ . '/../../../data/sqlite.sql');
+        $parts = explode(';', trim($schema));
+
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if (!$part) {
+                continue;
+            }
+            $db->execute($part);
+        }
     }
 
     public static function isTableSchemaLoaded(Database $db): bool

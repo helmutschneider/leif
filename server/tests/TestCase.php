@@ -2,6 +2,7 @@
 
 namespace Leif\Tests;
 
+use Leif\Api\InstallAction;
 use Leif\Database;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -20,6 +21,6 @@ abstract class TestCase extends KernelTestCase
         ]);
 
         $this->db = static::getContainer()->get(Database::class);
-        static::loadSchema($this->db);
+        InstallAction::loadSchema($this->db);
     }
 }

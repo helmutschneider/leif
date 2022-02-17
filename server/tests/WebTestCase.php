@@ -2,6 +2,7 @@
 
 namespace Leif\Tests;
 
+use Leif\Api\InstallAction;
 use Leif\Database;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use \Symfony\Bundle\FrameworkBundle\Test\WebTestCase as SymfonyWebTestCase;
@@ -15,7 +16,7 @@ abstract class WebTestCase extends SymfonyWebTestCase
         $client = parent::createClient($options, $server);
         $db = $client->getContainer()->get(Database::class);
         assert($db instanceof Database);
-        static::loadSchema($db);
+        InstallAction::loadSchema($db);
 
         return $client;
     }

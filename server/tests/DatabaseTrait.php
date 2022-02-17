@@ -8,20 +8,6 @@ use Leif\Database;
 
 trait DatabaseTrait
 {
-    public static function loadSchema(Database $db)
-    {
-        $schema = file_get_contents(__DIR__ . '/../../data/sqlite.sql');
-        $parts = explode(';', trim($schema));
-
-        foreach ($parts as $part) {
-            $part = trim($part);
-            if (!$part) {
-                continue;
-            }
-            $db->execute($part);
-        }
-    }
-
     public static function createUser(Database $db, string $username, string $plainTextPassword = ''): int
     {
         $db->execute('INSERT INTO user (username, password_hash) VALUES (?, ?)', [
