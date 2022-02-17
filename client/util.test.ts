@@ -197,11 +197,17 @@ describe('formatIntegerAsMoneyDecimal tests', () => {
 
 describe('monetaryAmountToInteger tests', () => {
     const cases: ReadonlyArray<[string, number]> = [
+        ['0.01', 1],
+        ['0,05', 5],
+        ['13', 1300],
+        ['13.2', 1320],
         ['15,00', 1500],
         ['15.00', 1500],
         ['-15.00', -1500],
         ['   22,00  ', 2200],
         ['   -23.00  ', -2300],
+        ['50 kr', 5000],
+        ['-50 kr', -5000]
     ];
 
     it.each(cases)('should parse the amount correctly', (value, expected) => {

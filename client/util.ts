@@ -79,11 +79,11 @@ export function formatIntegerAsMoneyDecimal(amount: number | string, currency: t
 }
 
 export function monetaryAmountToInteger(amount: string, currency: t.Currency): number {
+    amount = amount.replace(/[^-\d,.]/g, '')
+
     const subunit = currency.subunit;
     const pattern = /^(-?\d+)(?:[,.](\d+)?)?$/;
-    const matches = pattern.exec(
-        amount.replace(/\s/g, '')
-    );
+    const matches = pattern.exec(amount);
 
     if (matches === null) {
         return 0;
