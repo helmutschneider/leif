@@ -12,6 +12,13 @@ used as a stupid data store where most computation is done by the frontend. Ever
 persisted to a single SQLite database which makes backups fast and easy. The frontend
 only supports the Swedish language at the moment but that may change in the future.
 
+## Features
+- Dual-entry bookkeeping with vouchers & transactions
+- Account balances calculated by year
+- File attachments
+- Voucher templates
+- Carry-forward accounts (user configurable)
+
 ## Requirements
 - NodeJS 14+
 - PHP 7.4+
