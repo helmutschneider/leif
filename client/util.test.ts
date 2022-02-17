@@ -26,6 +26,7 @@ describe('findIdOfMostRecentlyEditedWorkbook tests', () => {
             {
                 account_carries: [],
                 name: 'My dude',
+                templates: [],
                 vouchers: [],
                 workbook_id: 1,
                 year: 2022,
@@ -39,13 +40,17 @@ describe('findIdOfMostRecentlyEditedWorkbook tests', () => {
             {
                 account_carries: [],
                 name: 'My dude',
+                templates: [],
                 vouchers: [
                     {
                         attachments: [],
-                        created_at: '2022-02-12T00:00:00Z',
+                        created_at: '',
                         date: '',
+                        is_template: false,
                         name: '',
+                        notes: '',
                         transactions: [],
+                        updated_at: '2022-02-12T00:00:00Z',
                     },
                 ],
                 workbook_id: 1,
@@ -54,13 +59,17 @@ describe('findIdOfMostRecentlyEditedWorkbook tests', () => {
             {
                 account_carries: [],
                 name: 'My dude again',
+                templates: [],
                 vouchers: [
                     {
                         attachments: [],
-                        created_at: '2022-02-17T00:00:00Z',
+                        created_at: '',
                         date: '',
+                        is_template: false,
                         name: '',
+                        notes: '',
                         transactions: [],
+                        updated_at: '2022-02-17T00:00:00Z',
                     },
                 ],
                 workbook_id: 2,
