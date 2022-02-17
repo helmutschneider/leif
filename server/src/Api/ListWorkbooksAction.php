@@ -156,6 +156,7 @@ SQL;
             $voucher['updated_at'] = (new DateTimeImmutable($voucher['updated_at']))->format('c');
             $voucher['attachments'] = $attachmentsByVoucherId[$voucherId] ?? [];
             $voucher['transactions'] = $transactionsByVoucherId[$voucherId] ?? [];
+            $voucher['is_template'] = (bool) $voucher['is_template'];
             $vouchersByWorkbookId[$voucher['workbook_id']][] = $voucher;
         }
 

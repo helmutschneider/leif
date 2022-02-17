@@ -197,6 +197,7 @@ const App: React.FC<Props> = props => {
                 <div className={CONTAINER_CLASS}>
                     <div className="navbar-brand d-flex align-items-center">
                         <img
+                            className="me-3"
                             src="/leif.jpg"
                             style={{
                                 borderRadius: 20,
@@ -204,6 +205,7 @@ const App: React.FC<Props> = props => {
                             height={40}
                             title="Leif"
                         />
+                        {workbook.name}
                     </div>
                     <div className="navbar-collapse">
                         <input
@@ -214,7 +216,7 @@ const App: React.FC<Props> = props => {
                                     search: event.target.value,
                                 })
                             }}
-                            placeholder={`Sök i ${workbook.name}`}
+                            placeholder="Sök"
                             type="text"
                             value={state.search}
                         />

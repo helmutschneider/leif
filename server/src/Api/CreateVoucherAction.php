@@ -50,10 +50,11 @@ final class CreateVoucherAction
 
         return $this->db->transaction(function () use ($body) {
             $this->db->execute(
-                'INSERT INTO voucher (name, date, workbook_id, is_template) VALUES (?, ?, ?, ?)',
+                'INSERT INTO voucher (name, notes, date, workbook_id, is_template) VALUES (?, ?, ?, ?, ?)',
                 [
-                    (string)$body['name'],
-                    (string)$body['date'],
+                    $body['name'],
+                    ($body['notes'] ?? ''),
+                    $body['date'],
                     (int)$body['workbook_id'],
                     (int) ($body['is_template'] ?? false),
                 ]
@@ -122,9 +123,9 @@ final class CreateVoucherAction
         $size = mb_strlen($binary, '8bit');
 
         $db->execute('INSERT INTO attachment (name, data, mime, size, voucher_id) VALUES (?, ?, ?, ?, ?)', [
-            (string)$attachment['name'],
+            $attachment['name'],
             [$binary, Database::PARAM_BLOB],
-            (string)$attachment['mime'],
+            $attachment['mime'],
             $size,
             $voucherId,
         ]);

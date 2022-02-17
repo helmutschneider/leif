@@ -18,7 +18,9 @@ export type Voucher = {
     date: string
     is_template: boolean
     name: string
+    notes: string
     transactions: ReadonlyArray<Transaction>
+    updated_at: string
     voucher_id?: number | string
     workbook_id?: number | string
 }

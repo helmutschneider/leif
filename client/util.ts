@@ -145,14 +145,16 @@ export function areDebitsAndCreditsBalanced(voucher: t.Voucher): boolean {
 export function emptyVoucher(): t.Voucher {
     return {
         attachments: [],
-        created_at: (new Date()).toISOString(),
+        created_at: '',
         date: formatDate(new Date(), 'yyyy-MM-dd'),
         is_template: false,
         name: '',
+        notes: '',
         transactions: [
             { account: 1910, amount: 0, kind: 'debit' },
             { account: 1910, amount: 0, kind: 'credit' },
         ],
+        updated_at: '',
     }
 }
 
@@ -175,7 +177,8 @@ export function findIdOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<t.Wo
     for (const wb of workbooks) {
         const ts = Math.max(
             ...wb.vouchers
-                .map(voucher => Date.parse(voucher.created_at))
+                .concat(wb.templates)
+                .map(voucher => Date.parse(voucher.updated_at))
                 .concat(0) // we need something to compare against something even if the voucher list is empty.
         );
         if (ts > max) {

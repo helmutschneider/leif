@@ -33,6 +33,7 @@ CREATE TABLE "voucher" (
     "updated_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "date" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "notes" TEXT NOT NULL DEFAULT '',
     "workbook_id" INTEGER NOT NULL,
     "is_template" INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY ("workbook_id")

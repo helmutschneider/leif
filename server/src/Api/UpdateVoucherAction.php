@@ -44,6 +44,15 @@ SELECT a.attachment_id
  WHERE v.voucher_id = :voucher_id
 SQL;
 
+    const SQL_UPDATE_VOUCHER = <<<SQL
+UPDATE voucher
+   SET date = :date,
+       name = :name,
+       notes = :notes,
+       updated_at = :updated_at
+ WHERE voucher_id = :voucher_id
+SQL;
+
 
     private Database $db;
 
@@ -74,9 +83,10 @@ SQL;
         return $this->db->transaction(function () use ($voucher, $body, $transactions, $id) {
             $body['updated_at'] = (new DateTimeImmutable('now'))->format('Y-m-d H:i:s');
 
-            $this->db->execute('UPDATE voucher SET date = :date, name = :name, updated_at = :updated_at WHERE voucher_id = :voucher_id', [
+            $this->db->execute(static::SQL_UPDATE_VOUCHER, [
                 ':date' => $body['date'] ?? $voucher['date'],
                 ':name' => $body['name'] ?? $voucher['name'],
+                ':notes' => $body['notes'] ?? $voucher['notes'],
                 ':updated_at' => $body['updated_at'],
                 ':voucher_id' => $id,
             ]);
