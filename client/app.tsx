@@ -6,13 +6,13 @@ import {
 } from './util';
 import {currencies, Currency, User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
-import {FetchBackend, HttpBackend} from "./http";
+import {FetchBackend, HttpBackend, LeifRequest} from "./http";
 import {SettingsPage} from "./settings-page";
 import {VouchersPage} from "./vouchers-page";
 
 type Props = {
     currency: Currency
-    http: HttpBackend
+    httpBackend: HttpBackend
 }
 type Page =
     | 'vouchers'
@@ -22,8 +22,8 @@ type State = {
     page: Page
     search: string
     selectYearDropdownOpen: boolean
-    workbook: Workbook | undefined
     user: User | undefined
+    workbook: Workbook | undefined
     year: number
 }
 
@@ -40,34 +40,57 @@ function tryGetUserFromSessionStorage(): User | undefined {
     const json = window.sessionStorage.getItem(SESSION_STORAGE_USER_KEY)
     let user: User | undefined
     try {
-        user = JSON.parse(json ?? '')
+        user = JSON.parse(json ?? '');
     } catch {}
     if (typeof user !== 'object') {
-        return undefined
+        return undefined;
     }
     return user
 }
 
 const CONTAINER_CLASS = 'container-xxl';
+const AUTHORIZATION_HEADER = 'Authorization';
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
         search: '',
         selectYearDropdownOpen: false,
         page: 'vouchers',
-        workbook: undefined,
         user: tryGetUserFromSessionStorage(),
+        workbook: undefined,
         year: (new Date()).getFullYear(),
-    })
+    });
+
+    function logout() {
+        setState({
+            ...state,
+            user: undefined,
+            workbook: undefined,
+        });
+    }
+
+    function http<T>(request: LeifRequest): PromiseLike<T> {
+        const headers = {...request.headers};
+
+        if (state.user) {
+            headers[AUTHORIZATION_HEADER] = state.user.token;
+        }
+
+        return props.httpBackend.send({
+            ...request,
+            headers: headers,
+        }).then(undefined, (err: Response) => {
+            if (err.status === 401) {
+                logout();
+            }
+            return Promise.reject(err);
+        });
+    }
 
     React.useEffect(() => {
         if (state.user) {
             window.sessionStorage.setItem(SESSION_STORAGE_USER_KEY, JSON.stringify(state.user));
-            if (props.http instanceof FetchBackend) {
-                props.http.defaultHeaders['Authorization'] = state.user.token
-            }
-
-            props.http.send<Workbook>({
+            http<Workbook>({
                 method: 'GET',
                 url: '/api/workbook',
             }).then(res => {
@@ -79,9 +102,6 @@ const App: React.FC<Props> = props => {
             });
         } else {
             window.sessionStorage.removeItem(SESSION_STORAGE_USER_KEY);
-            if (props.http instanceof FetchBackend) {
-                delete props.http.defaultHeaders['Authorization'];
-            }
         }
     }, [state.user]);
 
@@ -99,7 +119,7 @@ const App: React.FC<Props> = props => {
                         </div>
                         <h3>Logga in</h3>
                         <LoginForm
-                            http={props.http}
+                            http={http}
                             onLogin={user => {
                                 setState({
                                     ...state,
@@ -125,7 +145,7 @@ const App: React.FC<Props> = props => {
         case 'vouchers':
             viewStuff = (
                 <VouchersPage
-                    http={props.http}
+                    http={http}
                     onChange={next => {
                         setState({
                             ...state,
@@ -142,7 +162,7 @@ const App: React.FC<Props> = props => {
         case 'settings':
             viewStuff = (
                 <SettingsPage
-                    http={props.http}
+                    http={http}
                     onChange={next => {
                         setState({
                             ...state,
@@ -294,11 +314,7 @@ const App: React.FC<Props> = props => {
                                         event.preventDefault()
                                         event.stopPropagation()
 
-                                        setState({
-                                            ...state,
-                                            user: undefined,
-                                            workbook: undefined,
-                                        })
+                                        logout();
                                     }}
                                     href="#"
                                 >
@@ -320,7 +336,7 @@ const root = document.getElementById('app');
 ReactDOM.render(
     <App
         currency={currencies.SEK}
-        http={new FetchBackend()}
+        httpBackend={new FetchBackend()}
     />,
     root
 );

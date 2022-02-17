@@ -1,11 +1,11 @@
 import * as React from 'react'
 import {Workbook, Voucher, currencies, User} from "./types";
 import {emptyVoucher, tryParseInt} from "./util";
-import {HttpBackend} from "./http";
+import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
 
 type Props = {
-    http: HttpBackend
+    http: HttpSendFn
     onChange: (next: Workbook) => unknown
     workbook: Workbook
     user: User
@@ -75,7 +75,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                 event.preventDefault()
                                 event.stopPropagation()
 
-                                props.http.send({
+                                props.http({
                                     method: 'PUT',
                                     url: `/api/user/${props.user.user_id}`,
                                     body: {
@@ -130,7 +130,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                                     return;
                                                 }
 
-                                                props.http.send({
+                                                props.http({
                                                     method: 'DELETE',
                                                     url: `/api/voucher/${template.voucher_id}`,
                                                 }).then(res => {
@@ -199,7 +199,7 @@ export const SettingsPage: React.FC<Props> = props => {
                         onOK={() => {
                             const isEditingTemplate = typeof state.template.voucher_id !== 'undefined';
 
-                            props.http.send<Voucher>({
+                            props.http<Voucher>({
                                 method: isEditingTemplate ? 'PUT' : 'POST',
                                 url: isEditingTemplate
                                     ? `/api/voucher/${state.template.voucher_id}`

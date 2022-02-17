@@ -7,12 +7,12 @@ import {
     formatIntegerAsMoneyWithSeparatorsAndSymbol, objectContains,
     tryParseInt
 } from "./util";
-import {HttpBackend} from "./http";
+import {HttpSendFn} from "./http";
 import * as t from "./types";
 import {currencies} from "./types";
 
 type Props = {
-    http: HttpBackend
+    http: HttpSendFn
     onChange: (next: t.Workbook) => unknown
     search: string
     user: t.User
@@ -184,7 +184,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                                     return;
                                                 }
 
-                                                props.http.send({
+                                                props.http({
                                                     method: 'DELETE',
                                                     url: `/api/voucher/${voucher.voucher_id}`,
                                                 }).then(res => {
@@ -267,7 +267,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                 }),
                             };
 
-                            props.http.send<t.Voucher>({
+                            props.http<t.Voucher>({
                                 method: isEditingVoucher ? 'PUT' : 'POST',
                                 url: isEditingVoucher
                                     ? `/api/voucher/${editingVoucherId}`

@@ -1,9 +1,9 @@
 import * as React from 'react'
 import {KeyCode, User} from "./types";
-import {HttpBackend} from "./http";
+import {HttpSendFn} from "./http";
 
 type Props = {
-    http: HttpBackend
+    http: HttpSendFn
     onLogin: (user: User) => unknown
 }
 
@@ -20,7 +20,7 @@ export const LoginForm: React.FC<Props> = props => {
             isInProgress: true,
         })
 
-        props.http.send<User>({
+        props.http<User>({
             method: 'POST',
             url: '/api/login',
             body: state,
