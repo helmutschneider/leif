@@ -1,4 +1,4 @@
-import {findIdOfMostRecentlyEditedWorkbook, formatDate, tryParseInt} from "./util";
+import {findYearOfMostRecentlyEditedVoucher, formatDate, tryParseInt} from "./util";
 
 describe('tryParseInt tests', () => {
     const cases: ReadonlyArray<[string | number | undefined, unknown, unknown]> = [
@@ -17,66 +17,46 @@ describe('tryParseInt tests', () => {
 
 describe('findIdOfMostRecentlyEditedWorkbook tests', () => {
     it('should return undefined with no workbooks', () => {
-        const result = findIdOfMostRecentlyEditedWorkbook([]);
+        const result = findYearOfMostRecentlyEditedVoucher({
+            accounts: {},
+            carry_accounts: '',
+            currency: 'SEK',
+            templates: [],
+            vouchers: [],
+        });
         expect(result).toBeUndefined()
     })
 
-    it('should return an ID when the workbook does not have any vouchers', () => {
-        const result = findIdOfMostRecentlyEditedWorkbook([
-            {
-                account_carries: [],
-                name: 'My dude',
-                templates: [],
-                vouchers: [],
-                workbook_id: 1,
-                year: 2022,
-            },
-        ]);
-        expect(result).toBe(1);
-    });
-
     it('should find the most recently edited workbook by looking at the vouchers', () => {
-        const result = findIdOfMostRecentlyEditedWorkbook([
-            {
-                account_carries: [],
-                name: 'My dude',
-                templates: [],
-                vouchers: [
-                    {
-                        attachments: [],
-                        created_at: '',
-                        date: '',
-                        is_template: false,
-                        name: '',
-                        notes: '',
-                        transactions: [],
-                        updated_at: '2022-02-12T00:00:00Z',
-                    },
-                ],
-                workbook_id: 1,
-                year: 2022,
-            },
-            {
-                account_carries: [],
-                name: 'My dude again',
-                templates: [],
-                vouchers: [
-                    {
-                        attachments: [],
-                        created_at: '',
-                        date: '',
-                        is_template: false,
-                        name: '',
-                        notes: '',
-                        transactions: [],
-                        updated_at: '2022-02-17T00:00:00Z',
-                    },
-                ],
-                workbook_id: 2,
-                year: 2021,
-            },
-        ]);
-        expect(result).toBe(2);
+        const result = findYearOfMostRecentlyEditedVoucher({
+            accounts: {},
+            carry_accounts: '',
+            currency: 'SEK',
+            templates: [],
+            vouchers: [
+                {
+                    attachments: [],
+                    created_at: '',
+                    date: '2021-01-01',
+                    is_template: false,
+                    name: '',
+                    notes: '',
+                    transactions: [],
+                    updated_at: '2022-02-12T00:00:00Z',
+                },
+                {
+                    attachments: [],
+                    created_at: '',
+                    date: '2023-02-17',
+                    is_template: false,
+                    name: '',
+                    notes: '',
+                    transactions: [],
+                    updated_at: '2022-02-17T00:00:00Z',
+                },
+            ],
+        });
+        expect(result).toBe(2023);
     });
 });
 

@@ -22,15 +22,13 @@ export type Voucher = {
     transactions: ReadonlyArray<Transaction>
     updated_at: string
     voucher_id?: number | string
-    workbook_id?: number | string
 }
 export type Workbook = {
-    account_carries: ReadonlyArray<AccountBalance>
-    name: string
+    accounts: AccountPlan
+    carry_accounts: string
+    currency: CurrencyCode
     templates: ReadonlyArray<Voucher>
     vouchers: ReadonlyArray<Voucher>
-    year: number
-    workbook_id?: number | string
 }
 export type User = {
     user_id?: string | number

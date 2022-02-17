@@ -13,10 +13,8 @@ final class DeleteVoucherAction
     const SQL_VOUCHER_EXISTS = <<<SQL
 SELECT 1
   FROM voucher AS v
- INNER JOIN workbook AS w
-    ON w.workbook_id = v.workbook_id
  WHERE v.voucher_id = :id
-   AND w.user_id = :user_id
+   AND v.user_id = :user_id
 SQL;
 
     private Database $db;

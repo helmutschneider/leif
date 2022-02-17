@@ -9,7 +9,7 @@ use Leif\Security\SecretKey;
 use Leif\Tests\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ListWorkbooksActionTest extends WebTestCase
+final class GetWorkbookTest extends WebTestCase
 {
     public function testPreventsUnauthenticatedAccess(): void
     {
@@ -18,7 +18,7 @@ final class ListWorkbooksActionTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testListsWorkbooks()
+    public function testGetWorkbook()
     {
         $client = static::createClient();
 
@@ -30,8 +30,7 @@ final class ListWorkbooksActionTest extends WebTestCase
 
         $userId = static::createUser($db, 'tester');
         static::createToken($db, $hasher->hash(hex2bin('1234')), $userId);
-        $workbookId = static::createWorkbook($db, $userId);
-        $voucherId = static::createVoucher($db, $workbookId);
+        $voucherId = static::createVoucher($db, $userId);
         static::createTransaction($db, $voucherId);
 
         $client->request('GET', '/api/workbook', [], [], [
@@ -42,7 +41,6 @@ final class ListWorkbooksActionTest extends WebTestCase
 
         $body = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertCount(1, $body);
-        $this->assertArrayHasKey('transactions', $body[0]['vouchers'][0]);
+        $this->assertArrayHasKey('vouchers', $body);
     }
 }

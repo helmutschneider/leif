@@ -1,9 +1,10 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {
-    findIdOfMostRecentlyEditedWorkbook, tryParseInt,
+    findYearOfMostRecentlyEditedVoucher,
+    tryParseInt,
 } from './util';
-import {AccountPlan, currencies, Currency, User, Workbook} from "./types";
+import {currencies, Currency, User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
 import {FetchBackend, HttpBackend} from "./http";
 import {SettingsPage} from "./settings-page";
@@ -18,13 +19,12 @@ type Page =
     | 'settings'
 
 type State = {
-    accounts: AccountPlan
-    activeWorkbookId: number | undefined
     page: Page
     search: string
-    selectWorkbookDropdownOpen: boolean
-    workbooks: ReadonlyArray<Workbook>
+    selectYearDropdownOpen: boolean
+    workbook: Workbook | undefined
     user: User | undefined
+    year: number
 }
 
 const colorsForTheNavBar = [
@@ -51,13 +51,12 @@ const CONTAINER_CLASS = 'container-xxl';
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
-        accounts: {},
-        activeWorkbookId: undefined,
         search: '',
-        selectWorkbookDropdownOpen: false,
+        selectYearDropdownOpen: false,
         page: 'vouchers',
-        workbooks: [],
+        workbook: undefined,
         user: tryGetUserFromSessionStorage(),
+        year: (new Date()).getFullYear(),
     })
 
     React.useEffect(() => {
@@ -67,23 +66,14 @@ const App: React.FC<Props> = props => {
                 props.http.defaultHeaders['Authorization'] = state.user.token
             }
 
-            const workbooksPromise = props.http.send<ReadonlyArray<Workbook>>({
+            props.http.send<Workbook>({
                 method: 'GET',
                 url: '/api/workbook',
-            });
-
-            const accountsPromise = props.http.send<AccountPlan>({
-                method: 'GET',
-                url: '/api/account-plan/1',
-            });
-
-            Promise.all([workbooksPromise, accountsPromise]).then(stuff => {
-                const [wbs, accounts] = stuff;
+            }).then(res => {
                 setState({
                     ...state,
-                    accounts: accounts,
-                    activeWorkbookId: findIdOfMostRecentlyEditedWorkbook(wbs),
-                    workbooks: wbs,
+                    workbook: res,
+                    year: findYearOfMostRecentlyEditedVoucher(res) ?? state.year,
                 });
             });
         } else {
@@ -93,17 +83,6 @@ const App: React.FC<Props> = props => {
             }
         }
     }, [state.user]);
-
-    React.useEffect(() => {
-        const wb = state.workbooks.find(item => {
-            return typeof state.activeWorkbookId !== 'undefined'
-                && state.activeWorkbookId === tryParseInt(item.workbook_id, undefined);
-        })
-
-        if (wb) {
-            document.title = `Leif: ${wb.name}`;
-        }
-    }, [state.activeWorkbookId, state.workbooks]);
 
     if (!state.user) {
         return (
@@ -133,60 +112,65 @@ const App: React.FC<Props> = props => {
         )
     }
 
-    const workbook = state.workbooks.find(item => {
-        return typeof state.activeWorkbookId !== 'undefined'
-            && state.activeWorkbookId === tryParseInt(item.workbook_id, undefined);
-    });
+    const workbook = state.workbook;
 
     if (!workbook) {
         return null
     }
 
-    const activeWorkbookIndex = state.workbooks.indexOf(workbook);
     let viewStuff: React.ReactNode = null
 
     switch (state.page) {
         case 'vouchers':
             viewStuff = (
                 <VouchersPage
-                    accounts={state.accounts}
-                    currency={props.currency}
                     http={props.http}
                     onChange={next => {
-                        const wbs = state.workbooks.slice()
-                        wbs[activeWorkbookIndex] = next;
                         setState({
                             ...state,
-                            workbooks: wbs,
+                            workbook: next,
                         })
                     }}
                     search={state.search}
                     user={state.user}
                     workbook={workbook}
+                    year={state.year}
                 />
             )
             break;
         case 'settings':
             viewStuff = (
                 <SettingsPage
-                    accounts={state.accounts}
-                    currency={props.currency}
                     http={props.http}
                     onChange={next => {
-                        const wbs = state.workbooks.slice();
-                        wbs[activeWorkbookIndex] = next;
                         setState({
                             ...state,
-                            workbooks: wbs,
+                            workbook: next,
                         })
                     }}
+                    user={state.user}
                     workbook={workbook}
                 />
             )
             break;
     }
 
-    const colorIndex = tryParseInt(workbook.workbook_id, 0) % colorsForTheNavBar.length;
+    const yearsAsMap = workbook.vouchers
+        .map(voucher => (new Date(voucher.date)).getFullYear())
+        .reduce((carry, year) => {
+            carry[year] = true;
+            return carry;
+        }, {} as {[key: number]: boolean});
+
+    const years = Object.keys(yearsAsMap).map(year => tryParseInt(year, 0));
+    years.sort((a, b) => {
+        if (a === b) {
+            return 0;
+        }
+        return b > a ? 1 : -1
+    })
+
+    const colorIndex = state.year % colorsForTheNavBar.length;
 
     return (
         <div>
@@ -205,7 +189,7 @@ const App: React.FC<Props> = props => {
                             height={40}
                             title="Leif"
                         />
-                        {workbook.name}
+                        {state.year}
                     </div>
                     <div className="navbar-collapse">
                         <input
@@ -231,7 +215,7 @@ const App: React.FC<Props> = props => {
                                         setState({
                                             ...state,
                                             page: 'vouchers',
-                                            selectWorkbookDropdownOpen: false,
+                                            selectYearDropdownOpen: false,
                                         })
                                     }}
                                     href="#"
@@ -249,7 +233,7 @@ const App: React.FC<Props> = props => {
                                         setState({
                                             ...state,
                                             page: 'settings',
-                                            selectWorkbookDropdownOpen: false,
+                                            selectYearDropdownOpen: false,
                                         })
                                     }}
                                     href="#"
@@ -266,19 +250,19 @@ const App: React.FC<Props> = props => {
 
                                         setState({
                                             ...state,
-                                            selectWorkbookDropdownOpen: !state.selectWorkbookDropdownOpen,
+                                            selectYearDropdownOpen: !state.selectYearDropdownOpen,
                                         })
                                     }}
                                     href="#"
                                     role="button"
                                 >
-                                    Välj arbetsbok
+                                    Välj år
                                 </a>
                                 <ul
                                     className="dropdown-menu"
-                                    style={{ display: state.selectWorkbookDropdownOpen ? 'block' : 'none' }}
+                                    style={{ display: state.selectYearDropdownOpen ? 'block' : 'none' }}
                                 >
-                                    {state.workbooks.map((wb, index) => {
+                                    {years.map((year, index) => {
                                         return (
                                             <li key={index}>
                                                 <a
@@ -289,12 +273,13 @@ const App: React.FC<Props> = props => {
 
                                                         setState({
                                                             ...state,
-                                                            activeWorkbookId: tryParseInt(wb.workbook_id, undefined),
-                                                            selectWorkbookDropdownOpen: false,
+                                                            page: 'vouchers',
+                                                            selectYearDropdownOpen: false,
+                                                            year: year,
                                                         })
                                                     }}
                                                     href="#">
-                                                    {wb.name}
+                                                    {year}
                                                 </a>
                                             </li>
                                         )
@@ -310,9 +295,8 @@ const App: React.FC<Props> = props => {
 
                                         setState({
                                             ...state,
-                                            activeWorkbookId: undefined,
                                             user: undefined,
-                                            workbooks: [],
+                                            workbook: undefined,
                                         })
                                     }}
                                     href="#"

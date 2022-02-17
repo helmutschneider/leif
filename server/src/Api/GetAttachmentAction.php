@@ -14,10 +14,8 @@ SELECT a.*
   FROM attachment AS a
  INNER JOIN voucher AS v
     ON v.voucher_id = a.voucher_id
- INNER JOIN workbook AS wb
-    ON wb.workbook_id = v.workbook_id
  WHERE a.attachment_id = :id
-   AND wb.user_id = :user_id
+   AND v.user_id = :user_id
 SQL;
 
     private Database $db;

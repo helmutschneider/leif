@@ -46,8 +46,7 @@ final class DeleteVoucherTest extends WebTestCase
 
         $userId = static::createUser($db, 'tester');
         static::createToken($db, $hasher->hash(hex2bin('1234')), $userId);
-        $workbookId = static::createWorkbook($db, $userId);
 
-        return static::createVoucher($db, $workbookId);
+        return static::createVoucher($db, $userId);
     }
 }

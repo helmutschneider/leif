@@ -113,8 +113,7 @@ final class UpdateVoucherTest extends WebTestCase
 
         $userId = static::createUser($db, 'tester');
         static::createToken($db, $hasher->hash(hex2bin('1234')), $userId);
-        $workbookId = static::createWorkbook($db, $userId);
-        $voucherId = static::createVoucher($db, $workbookId);
+        $voucherId = static::createVoucher($db, $userId);
 
         static::createAttachment($db, $voucherId);
 

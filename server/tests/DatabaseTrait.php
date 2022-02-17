@@ -45,22 +45,12 @@ trait DatabaseTrait
         return $db->getLastInsertId();
     }
 
-    public static function createWorkbook(Database $db, int $userId): int
+    public static function createVoucher(Database $db, int $userId): int
     {
-        $db->execute('INSERT INTO workbook (name, year, user_id) VALUES (?, ?, ?)', [
-            'Test workbook',
-            2022,
-            $userId,
-        ]);
-        return $db->getLastInsertId();
-    }
-
-    public static function createVoucher(Database $db, int $workbookId): int
-    {
-        $db->execute('INSERT INTO voucher (date, name, workbook_id) VALUES (?, ?, ?)', [
+        $db->execute('INSERT INTO voucher (date, name, user_id) VALUES (?, ?, ?)', [
             '2022-02-14',
             'Test voucher',
-            $workbookId,
+            $userId,
         ]);
         return $db->getLastInsertId();
     }

@@ -37,14 +37,12 @@ final class ImportCsvCommand extends Command
         $helper = $this->getHelper('question');
         assert($helper instanceof QuestionHelper);
 
-        $workbookName = $helper->ask($input, $output, new Question('Workbook name: '));
         $userId = $helper->ask($input, $output, new Question('User ID: '));
 
         $path = $input->getArgument('csv_path');
         $handle = fopen($path, 'rb');
 
-        $this->db->transaction(function () use ($handle, $workbookName, $userId, $output) {
-            $workbookId = null;
+        $this->db->transaction(function () use ($handle, $userId, $output) {
             $buffer = [];
 
             while ($row = fgetcsv($handle)) {
@@ -59,30 +57,6 @@ final class ImportCsvCommand extends Command
                     var_dump($buffer);
 
                     throw new LogicException('New date with non-empty buffer. Bad!');
-                }
-
-                // we need to parse the first transaction before we can create
-                // the workbook.
-                if ($workbookId === null) {
-                    $this->db->execute('INSERT INTO workbook (name, year, user_id) VALUES (?, ?, ?)', [
-                        $workbookName,
-                        $dt->format('Y'),
-                        $userId,
-                    ]);
-                    $workbookId = $this->db->getLastInsertId();
-                }
-
-                // balance carries.
-                if (preg_match('/^(\d+)$/', $row[6], $matches)) {
-                    $amount = $this->parseAmount($row[9]);
-                    if ($amount !== 0) {
-                        $this->db->execute('INSERT INTO account_carry (account, balance, workbook_id) VALUES (?, ?, ?)', [
-                            $matches[1],
-                            $amount,
-                            $workbookId,
-                        ]);
-                        $output->writeln("OK: Account carry $matches[1] $amount.");
-                    }
                 }
 
                 $buffer[] = [
@@ -105,10 +79,10 @@ final class ImportCsvCommand extends Command
 
                     $output->writeln("OK: $date $name");
 
-                    $this->db->execute('INSERT INTO voucher (date, name, workbook_id) VALUES (?, ?, ?)', [
+                    $this->db->execute('INSERT INTO voucher (date, name, user_id) VALUES (?, ?, ?)', [
                         $buffer[0]['date'],
                         $buffer[0]['name'],
-                        $workbookId,
+                        $userId,
                     ]);
                     $voucherId = $this->db->getLastInsertId();
 
@@ -138,6 +112,8 @@ final class ImportCsvCommand extends Command
 
     protected function parseAmount(string $amount): int
     {
+        $amount = trim($amount);
+
         if (!$amount) {
             return 0;
         }

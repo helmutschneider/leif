@@ -36,10 +36,6 @@ final class CreateVoucherAction
     {
         $body = $request->toArray();
 
-        if (!$this->isOwnerOfWorkbook((int)$body['workbook_id'], $user)) {
-            return new JsonResponse(['message' => sprintf('Workbook \'%d\' not found.', $body['workbook_id'])], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
         if (empty($body['transactions'])) {
             return new JsonResponse(static::ERR_NO_TRANSACTIONS, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
@@ -48,15 +44,15 @@ final class CreateVoucherAction
             return new JsonResponse(static::ERR_NOT_BALANCED, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        return $this->db->transaction(function () use ($body) {
+        return $this->db->transaction(function () use ($body, $user) {
             $this->db->execute(
-                'INSERT INTO voucher (name, notes, date, workbook_id, is_template) VALUES (?, ?, ?, ?, ?)',
+                'INSERT INTO voucher (name, notes, date, is_template, user_id) VALUES (?, ?, ?, ?, ?)',
                 [
                     $body['name'],
                     ($body['notes'] ?? ''),
                     $body['date'],
-                    (int)$body['workbook_id'],
                     (int) ($body['is_template'] ?? false),
+                    $user->getId(),
                 ]
             );
 
@@ -131,15 +127,5 @@ final class CreateVoucherAction
         ]);
 
         return $db->getLastInsertId();
-    }
-
-    private function isOwnerOfWorkbook(int $id, UserInterface $user): bool
-    {
-        $wb = $this->db->selectOne('SELECT 1 FROM workbook WHERE workbook_id = :id AND user_id = :user_id', [
-            ':id' => $id,
-            ':user_id' => $user->getId(),
-        ]);
-
-        return $wb !== null;
     }
 }

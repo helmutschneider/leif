@@ -1,23 +1,20 @@
 import * as React from 'react'
-import {MoneyInput} from "./money-input";
-import {Currency, Workbook, AccountBalance, AccountPlan, Voucher} from "./types";
-import {emptyVoucher, findNextUnusedAccountNumber, tryParseInt} from "./util";
+import {Workbook, Voucher, currencies, User} from "./types";
+import {emptyVoucher, tryParseInt} from "./util";
 import {HttpBackend} from "./http";
-import {Autocomplete} from "./autocomplete";
 import {VoucherForm} from "./voucher-form";
 
 type Props = {
-    accounts: AccountPlan
-    currency: Currency
     http: HttpBackend
     onChange: (next: Workbook) => unknown
     workbook: Workbook
+    user: User
 }
 
 type State = {
-    carries: ReadonlyArray<AccountBalance>
+    carryAccounts: string
     template: Voucher
-    workbook: Workbook
+    username: string
 }
 
 export const SettingsPage: React.FC<Props> = props => {
@@ -25,200 +22,72 @@ export const SettingsPage: React.FC<Props> = props => {
         return {
             ...emptyVoucher(),
             is_template: true,
-            workbook_id: props.workbook.workbook_id,
         }
     }
 
     const [state, setState] = React.useState<State>({
-        carries: props.workbook.account_carries.slice(),
+        carryAccounts: props.workbook.carry_accounts,
         template: emptyTemplate(),
-        workbook: {
-            ...props.workbook,
-            templates: [],
-            vouchers: [],
-            workbook_id: undefined,
-        },
+        username: props.user.username,
     });
 
     return (
         <div>
             <div className="row">
                 <div className="col-4">
-                    <h5>Arbetsbok</h5>
+                    <h5>Generellt</h5>
+
                     <div className="mb-3">
-                        <label className="form-label">Namn</label>
+                        <label className="form-label">Användarnamn</label>
                         <input
+                            className="form-control"
+                            disabled={true}
+                            onChange={event => {
+                                setState({
+                                    ...state,
+                                    username: event.target.value,
+                                });
+                            }}
+                            type="text"
+                            value={state.username}
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label">Nolla ej konton</label>
+                        <textarea
                             className="form-control"
                             onChange={event => {
                                 setState({
-                                    carries: state.carries,
-                                    template: state.template,
-                                    workbook: {
-                                        ...state.workbook,
-                                        name: event.target.value,
-                                    },
+                                    ...state,
+                                    carryAccounts: event.target.value,
                                 });
                             }}
-                            placeholder="Namn"
-                            type="text"
-                            value={state.workbook.name}
+                            rows={4}
+                            value={state.carryAccounts}
                         />
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">År</label>
-                        <input
-                            className="form-control"
-                            onChange={event => {
-                                setState({
-                                    carries: state.carries,
-                                    template: state.template,
-                                    workbook: {
-                                        ...state.workbook,
-                                        year: tryParseInt(event.target.value, 0),
-                                    },
-                                });
-                            }}
-                            placeholder="Namn"
-                            type="text"
-                            value={state.workbook.year}
-                        />
-                    </div>
-                    <div className="mb-1">
-                        <label className="form-label">Ingående kontobalans</label>
-
-                        <table className="table table-sm align-middle">
-                            <tbody>
-                            {state.carries.map((balance, index) => {
-                                return (
-                                    <tr key={index}>
-                                        <td className="col-6">
-                                            <Autocomplete
-                                                data={Object.entries(props.accounts)}
-                                                itemMatches={(item, query) => {
-                                                    return JSON.stringify(item)
-                                                        .toLowerCase()
-                                                        .includes(query.toLowerCase());
-                                                }}
-                                                onChange={event => {
-                                                    const next = state.carries.slice()
-                                                    next[index] = {
-                                                        ...balance,
-                                                        account: event.target.value,
-                                                    };
-                                                    setState({
-                                                        carries: next,
-                                                        template: state.template,
-                                                        workbook: state.workbook,
-                                                    });
-                                                }}
-                                                onItemSelected={item => {
-                                                    const next = state.carries.slice();
-                                                    next[index] = {
-                                                        ...balance,
-                                                        account: item[0],
-                                                    };
-                                                    setState({
-                                                        carries: next,
-                                                        template: state.template,
-                                                        workbook: state.workbook,
-                                                    });
-                                                }}
-                                                renderItem={item => {
-                                                    return `${item[0]}: ${item[1]}`;
-                                                }}
-                                                value={String(balance.account)}
-                                            />
-                                        </td>
-                                        <td>
-                                            <MoneyInput
-                                                currency={props.currency}
-                                                onChange={value => {
-                                                    const next = state.carries.slice()
-                                                    next[index] = {
-                                                        account: balance.account,
-                                                        balance: value,
-                                                    };
-
-                                                    setState({
-                                                        ...state,
-                                                        carries: next,
-                                                    });
-                                                }}
-                                                value={balance.balance}
-                                            />
-                                        </td>
-                                        <td>
-                                            <i
-                                                className="bi bi-x-circle-fill"
-                                                onClick={event => {
-                                                    event.preventDefault();
-                                                    event.stopPropagation();
-                                                    const next = state.carries.slice()
-                                                    next.splice(index, 1);
-
-                                                    setState({
-                                                        carries: next,
-                                                        template: state.template,
-                                                        workbook: state.workbook,
-                                                    });
-                                                }}
-                                                role="button"
-                                            />
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                            </tbody>
-                        </table>
-                        <div className="d-grid">
-                            <button
-                                className="btn btn-secondary"
-                                onClick={event => {
-                                    event.preventDefault()
-                                    event.stopPropagation()
-
-                                    const nextAccountNumber = findNextUnusedAccountNumber(
-                                        props.accounts, state.workbook.account_carries
-                                    );
-
-                                    if (!nextAccountNumber) {
-                                        return;
-                                    }
-
-                                    setState({
-                                        carries: state.carries.concat({
-                                            account: nextAccountNumber,
-                                            balance: 0,
-                                        }),
-                                        template: state.template,
-                                        workbook: state.workbook,
-                                    });
-                                }}
-                            >
-                                Lägg till rad
-                            </button>
-                        </div>
                     </div>
 
                     <div className="d-grid">
                         <button
                             className="btn btn-success"
                             onClick={event => {
-                                event.preventDefault();
-                                event.stopPropagation();
-
-                                const next: Workbook = {
-                                    ...state.workbook,
-                                    account_carries: state.carries,
-                                };
+                                event.preventDefault()
+                                event.stopPropagation()
 
                                 props.http.send({
                                     method: 'PUT',
-                                    url: `/api/workbook/${props.workbook.workbook_id}`,
-                                    body: next,
+                                    url: `/api/user/${props.user.user_id}`,
+                                    body: {
+                                        username: state.username,
+                                        carry_accounts: state.carryAccounts,
+                                    },
                                 }).then(res => {
-                                    props.onChange(next);
-                                });
+                                    props.onChange({
+                                        ...props.workbook,
+                                        carry_accounts: state.carryAccounts,
+                                    });
+                                })
                             }}
                         >
                             OK
@@ -319,8 +188,8 @@ export const SettingsPage: React.FC<Props> = props => {
                     </div>
 
                     <VoucherForm
-                        accounts={props.accounts}
-                        currency={props.currency}
+                        accounts={props.workbook.accounts}
+                        currency={currencies[props.workbook.currency]}
                         onChange={next => {
                             setState({
                                 ...state,

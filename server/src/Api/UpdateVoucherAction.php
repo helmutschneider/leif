@@ -15,10 +15,8 @@ final class UpdateVoucherAction
     const SQL_GET_VOUCHER = <<<SQL
 SELECT v.*
   FROM voucher AS v
- INNER JOIN workbook AS w
-    ON w.workbook_id = v.workbook_id
  WHERE v.voucher_id = :voucher_id
-   AND w.user_id = :user_id
+   AND v.user_id = :user_id
 SQL;
 
     const SQL_DELETE_TRANSACTIONS = <<<SQL

@@ -7,9 +7,9 @@ return function (RoutingConfigurator $routes) {
         ->methods(['GET'])
         ->controller(\Leif\Api\IndexAction::class);
 
-    $routes->add('list_workbooks', '/api/workbook')
+    $routes->add('get_workbook', '/api/workbook')
         ->methods(['GET'])
-        ->controller(\Leif\Api\ListWorkbooksAction::class);
+        ->controller(\Leif\Api\GetWorkbookAction::class);
 
     $routes->add('login', '/api/login')
         ->methods(['POST'])
@@ -31,15 +31,11 @@ return function (RoutingConfigurator $routes) {
         ->methods(['GET'])
         ->controller(\Leif\Api\GetAttachmentAction::class);
 
-    $routes->add('update_workbook', '/api/workbook/{id}')
-        ->methods(['PUT'])
-        ->controller(\Leif\Api\UpdateWorkbookAction::class);
-
     $routes->add('install', '/install')
         ->methods(['GET', 'POST'])
         ->controller(\Leif\Api\InstallAction::class);
 
-    $routes->add('get_account_plan', '/api/account-plan/{id}')
-        ->methods(['GET'])
-        ->controller(\Leif\Api\GetAccountPlan::class);
+    $routes->add('update_user', '/api/user/{id}')
+        ->methods(['PUT'])
+        ->controller(\Leif\Api\UpdateUserAction::class);
 };

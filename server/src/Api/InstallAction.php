@@ -14,7 +14,6 @@ final class InstallAction
 {
     const ERR_MISSING_USERNAME = 0;
     const ERR_MISSING_PASSWORD = 1;
-    const ERR_MISSING_WORKBOOK_NAME = 2;
 
     private Database $db;
     private PasswordHasherInterface $passwordHasher;
@@ -34,12 +33,10 @@ final class InstallAction
         $errors = [];
         $username = '';
         $password = '';
-        $workbookName = '';
 
         if ($request->isMethod('POST')) {
             $body = $request->request->all();
             $username = $body['username'] ?? '';
-            $workbookName = $body['workbook_name'] ?? '';
             $password = $body['password'] ?? '';
 
             if (!$username) {
@@ -48,21 +45,13 @@ final class InstallAction
             if (!$password) {
                 $errors[] = static::ERR_MISSING_PASSWORD;
             }
-            if (!$workbookName) {
-                $errors[] = static::ERR_MISSING_WORKBOOK_NAME;
-            }
 
             if ($errors === []) {
-                $this->db->transaction(function () use ($username, $password, $workbookName) {
+                $this->db->transaction(function () use ($username, $password) {
                     DatabaseTrait::loadSchema($this->db);
                     $this->db->execute('INSERT INTO user (username, password_hash) VALUES  (?, ?)', [
                         $username,
                         $this->passwordHasher->hash($password),
-                    ]);
-                    $this->db->execute('INSERT INTO workbook (name, year, user_id) VALUES (?, ?, ?)', [
-                        $workbookName,
-                        date('Y'),
-                        $this->db->getLastInsertId(),
                     ]);
                 });
                 return new RedirectResponse('/');
@@ -75,7 +64,6 @@ final class InstallAction
                 'errors' => $errors,
                 'username' => $username,
                 'password' => $password,
-                'workbookName' => $workbookName,
             ]),
         ]);
 
@@ -88,7 +76,7 @@ final class InstallAction
     {
         $ok = $db->selectOne('SELECT 1 FROM sqlite_schema WHERE type = :type AND name = :name', [
             ':type' => 'table',
-            ':name' => 'workbook',
+            ':name' => 'voucher',
         ]);
         return $ok !== null;
     }

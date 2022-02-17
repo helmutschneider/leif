@@ -1,5 +1,5 @@
 import * as t from './types'
-import {AccountBalance, AccountPlan} from "./types";
+import {AccountBalance, AccountNumber, AccountPlan} from "./types";
 
 type DateFormatter = {
     (date: Date): string
@@ -25,22 +25,29 @@ export function ellipsis(value: string, length: number): string {
     return value;
 }
 
-export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, carries: ReadonlyArray<t.AccountBalance> = []): t.AccountBalanceMap {
-    const result: t.AccountBalanceMap = carries.reduce((carry, item) => {
-        carry[item.account] = item.balance;
-        return carry;
-    }, {} as t.AccountBalanceMap);
+export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, year: number, carryAccounts: ReadonlyArray<AccountNumber>): t.AccountBalanceMap {
+    const result: t.AccountBalanceMap = {}
+    const parsedCarryAccounts = carryAccounts.map(num => tryParseInt(num, undefined));
+
     for (const voucher of vouchers) {
-        for (const t of voucher.transactions) {
-            const num = t.account
-            if (typeof result[num] === 'undefined') {
-                result[num] = 0;
+        const dt = new Date(voucher.date);
+        const voucherYear = dt.getFullYear();
+
+        for (const transaction of voucher.transactions) {
+            const account = tryParseInt(transaction.account, undefined);
+
+            if (typeof account === 'undefined') {
+                continue;
             }
-            const prev = tryParseInt(result[num], 0)
-            const amount = tryParseInt(t.amount, 0)
-            result[num] = prev + (t.kind === 'debit' ? amount : (-amount));
+
+            if (year === voucherYear || (voucherYear <= year && parsedCarryAccounts.includes(account))) {
+                const prev = tryParseInt(result[account], 0);
+                const amount = tryParseInt(transaction.amount, 0);
+                result[account] = prev + (transaction.kind === 'debit' ? amount : (-amount));
+            }
         }
     }
+
     return result;
 }
 
@@ -171,22 +178,22 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
     return window.btoa(binary);
 }
 
-export function findIdOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<t.Workbook>): number | undefined {
-    let mostRecentId: number | undefined;
+export function findYearOfMostRecentlyEditedVoucher(workbook: t.Workbook): number | undefined {
+    let mostRecentlyEditedYear: number | undefined
     let max = -1;
-    for (const wb of workbooks) {
-        const ts = Math.max(
-            ...wb.vouchers
-                .concat(wb.templates)
-                .map(voucher => Date.parse(voucher.updated_at))
-                .concat(0) // we need something to compare against something even if the voucher list is empty.
-        );
+
+    const stuff = workbook.vouchers.concat(workbook.templates);
+
+    for (const voucher of stuff) {
+        const ts = Date.parse(voucher.updated_at);
+
         if (ts > max) {
-            mostRecentId = tryParseInt(wb.workbook_id, undefined);
+            mostRecentlyEditedYear = (new Date(voucher.date)).getFullYear();
             max = ts;
         }
     }
-    return mostRecentId;
+
+    return mostRecentlyEditedYear;
 }
 
 export function findNextUnusedAccountNumber(accounts: AccountPlan, balances: ReadonlyArray<AccountBalance>): number | undefined {

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {VoucherForm} from "./voucher-form";
 import {
-    calculateAccountBalances,
+    calculateAccountBalancesForYear,
     ellipsis,
     emptyVoucher,
     formatIntegerAsMoneyWithSeparatorsAndSymbol,
@@ -9,15 +9,15 @@ import {
 } from "./util";
 import {HttpBackend} from "./http";
 import * as t from "./types";
+import {currencies} from "./types";
 
 type Props = {
-    accounts: t.AccountPlan
-    currency: t.Currency
     http: HttpBackend
     onChange: (next: t.Workbook) => unknown
     search: string
     user: t.User
     workbook: t.Workbook
+    year: number
 }
 
 type State = {
@@ -31,17 +31,23 @@ export const VouchersPage: React.FC<Props> = props => {
         voucher: emptyVoucher(),
     });
 
+    const carryAccounts = props.workbook.carry_accounts
+        .replace(/[^\d,]/g, '')
+        .split(',')
+        .map(num => tryParseInt(num, 0));
     const workbook = props.workbook
-    const balances = calculateAccountBalances(workbook.vouchers, workbook.account_carries);
-    const filteredVouchers: ReadonlyArray<t.Voucher> = props.search === ''
-        ? workbook.vouchers
-        : workbook.vouchers.filter(voucher => {
-            const json = JSON.stringify(voucher).toLowerCase();
-            return json.includes(props.search.toLowerCase())
-        });
+    const balances = calculateAccountBalancesForYear(
+        workbook.vouchers, props.year, carryAccounts
+    )
+    const searchInLowerCase = props.search.toLowerCase();
+    const filteredVouchers: ReadonlyArray<t.Voucher> = workbook.vouchers.filter(voucher => {
+        return (new Date(voucher.date)).getFullYear() === props.year
+            && (props.search === '' || JSON.stringify(voucher).toLowerCase().includes(searchInLowerCase));
+    });
 
     const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
     const editingVoucherId = tryParseInt(state.voucher.voucher_id, undefined);
+    const currency = currencies[props.workbook.currency];
 
     return (
         <div className="row">
@@ -78,7 +84,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                                             item.kind === 'credit'
                                                                 ? ('-' + item.amount)
                                                                 : item.amount,
-                                                            props.currency
+                                                            currency
                                                         )}
                                                     </div>
                                                 </div>
@@ -246,8 +252,8 @@ export const VouchersPage: React.FC<Props> = props => {
                     </div>
 
                     <VoucherForm
-                        accounts={props.accounts}
-                        currency={props.currency}
+                        accounts={props.workbook.accounts}
+                        currency={currency}
                         onChange={next => {
                             setState({
                                 openVoucherIds: state.openVoucherIds,
@@ -260,7 +266,6 @@ export const VouchersPage: React.FC<Props> = props => {
                                 transactions: state.voucher.transactions.filter(t => {
                                     return t.amount !== 0
                                 }),
-                                workbook_id: workbook.workbook_id!,
                             };
 
                             props.http.send<t.Voucher>({
@@ -302,7 +307,7 @@ export const VouchersPage: React.FC<Props> = props => {
                 <table className="table table-sm">
                     <tbody>
                     {Object.entries(balances).map((e, idx) => {
-                        const accountName = props.accounts[e[0]] ?? '';
+                        const accountName = props.workbook.accounts[e[0]] ?? '';
                         return (
                             <tr key={idx}>
                                 <td>{e[0]}</td>
@@ -311,7 +316,9 @@ export const VouchersPage: React.FC<Props> = props => {
                                         {ellipsis(accountName, 30)}
                                     </span>
                                 </td>
-                                <td className="text-end">{formatIntegerAsMoneyWithSeparatorsAndSymbol(e[1], props.currency)}</td>
+                                <td className="text-end">
+                                    {formatIntegerAsMoneyWithSeparatorsAndSymbol(e[1], currency)}
+                                </td>
                             </tr>
                         )
                     })}
