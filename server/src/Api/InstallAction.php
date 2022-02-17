@@ -74,7 +74,7 @@ final class InstallAction
 
     public static function isTableSchemaLoaded(Database $db): bool
     {
-        $ok = $db->selectOne('SELECT 1 FROM sqlite_schema WHERE type = :type AND name = :name', [
+        $ok = $db->selectOne('SELECT 1 FROM sqlite_master WHERE type = :type AND name = :name', [
             ':type' => 'table',
             ':name' => 'voucher',
         ]);
