@@ -1,4 +1,4 @@
-import {findIdOfMostRecentlyEditedWorkbook, tryParseInt} from "./util";
+import {findIdOfMostRecentlyEditedWorkbook, formatDate, tryParseInt} from "./util";
 
 describe('tryParseInt tests', () => {
     const cases: ReadonlyArray<[string | number | undefined, unknown, unknown]> = [
@@ -24,7 +24,7 @@ describe('findIdOfMostRecentlyEditedWorkbook tests', () => {
     it('should return an ID when the workbook does not have any vouchers', () => {
         const result = findIdOfMostRecentlyEditedWorkbook([
             {
-                balance_carry: {},
+                account_carries: [],
                 name: 'My dude',
                 vouchers: [],
                 workbook_id: 1,
@@ -37,7 +37,7 @@ describe('findIdOfMostRecentlyEditedWorkbook tests', () => {
     it('should find the most recently edited workbook by looking at the vouchers', () => {
         const result = findIdOfMostRecentlyEditedWorkbook([
             {
-                balance_carry: {},
+                account_carries: [],
                 name: 'My dude',
                 vouchers: [
                     {
@@ -52,7 +52,7 @@ describe('findIdOfMostRecentlyEditedWorkbook tests', () => {
                 year: 2022,
             },
             {
-                balance_carry: {},
+                account_carries: [],
                 name: 'My dude again',
                 vouchers: [
                     {
@@ -68,5 +68,20 @@ describe('findIdOfMostRecentlyEditedWorkbook tests', () => {
             },
         ]);
         expect(result).toBe(2);
+    });
+});
+
+describe('formatDate tests', () => {
+    const cases: ReadonlyArray<[string, Date, string]> = [
+        ['yyyy-MM-dd', new Date(2021, 0, 15), '2021-01-15'],
+        ['yyyy', new Date(2021, 0, 15), '2021'],
+        ['MM', new Date(2021, 0, 15), '01'],
+        ['dd', new Date(2021, 0, 15), '15'],
+        ['yyyy-yyyy-yyyy', new Date(2021, 0, 15), '2021-2021-2021'],
+    ]
+
+    it.each(cases)('should format correctly', (format, date, expected) => {
+        const result = formatDate(date, format);
+        expect(result).toBe(expected);
     });
 });

@@ -287,13 +287,14 @@ export const VouchersPage: React.FC<Props> = props => {
                                 props.onChange({
                                     ...workbook,
                                     vouchers: next,
-                                })
+                                });
                                 setState({
                                     openVoucherIds: state.openVoucherIds,
                                     voucher: emptyVoucher(),
-                                })
+                                });
                             })
                         }}
+                        templates={props.workbook.templates}
                         voucher={state.voucher}
                     />
                 </div>

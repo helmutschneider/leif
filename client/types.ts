@@ -16,6 +16,7 @@ export type Voucher = {
     attachments: ReadonlyArray<Attachment>
     created_at: string
     date: string
+    is_template: boolean
     name: string
     transactions: ReadonlyArray<Transaction>
     voucher_id?: number | string
@@ -24,6 +25,7 @@ export type Voucher = {
 export type Workbook = {
     account_carries: ReadonlyArray<AccountBalance>
     name: string
+    templates: ReadonlyArray<Voucher>
     vouchers: ReadonlyArray<Voucher>
     year: number
     workbook_id?: number | string

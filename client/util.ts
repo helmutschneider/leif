@@ -146,8 +146,9 @@ export function emptyVoucher(): t.Voucher {
     return {
         attachments: [],
         created_at: (new Date()).toISOString(),
-        name: '',
         date: formatDate(new Date(), 'yyyy-MM-dd'),
+        is_template: false,
+        name: '',
         transactions: [
             { account: 1910, amount: 0, kind: 'debit' },
             { account: 1910, amount: 0, kind: 'credit' },

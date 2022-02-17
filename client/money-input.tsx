@@ -7,6 +7,7 @@ type Props = {
     disabled?: boolean
     onChange: (value: number) => unknown
     placeholder?: string
+    tabIndex?: number
     value: number | string
 }
 
@@ -54,6 +55,7 @@ export const MoneyInput: React.FC<Props> = props => {
                     })
                 }}
                 placeholder={props.placeholder}
+                tabIndex={props.tabIndex}
                 type="text"
                 value={state.value}
             />

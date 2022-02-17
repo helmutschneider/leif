@@ -7,15 +7,18 @@ type Props<T> = {
     itemMatches: (item: T, query: string) => boolean
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => unknown
     onItemSelected: (item: T) => unknown
+    placeholder?: string
     renderItem: (item: T) => React.ReactNode
+    tabIndex?: number
     value: string
 }
 
 const dropdownStyle: React.CSSProperties = {
     maxHeight: '500px',
+    minWidth: '300px',
     overflowY: 'scroll',
     position: 'absolute',
-    width: '300px',
+    width: '100%',
     zIndex: 10,
 }
 
@@ -123,6 +126,8 @@ export function Autocomplete<T>(props: Props<T>): JSX.Element {
                 onBlur={event => {
                     closeSoonish();
                 }}
+                placeholder={props.placeholder}
+                tabIndex={props.tabIndex}
                 type="text"
                 value={props.value}
             />
