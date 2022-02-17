@@ -116,13 +116,23 @@ final class CreateVoucherAction
     public static function insertAttachment(Database $db, array $attachment, int $voucherId): int
     {
         $binary = base64_decode($attachment['data'], true);
+        $name = $attachment['name'];
+
+        if ($binary === false) {
+            throw new InvalidArgumentException(
+                "Invalid base64 string in attachment '$name'."
+            );
+        }
+
+        $checksum = hash('sha256', $binary, true);
         $size = mb_strlen($binary, '8bit');
 
-        $db->execute('INSERT INTO attachment (name, data, mime, size, voucher_id) VALUES (?, ?, ?, ?, ?)', [
-            $attachment['name'],
+        $db->execute('INSERT INTO attachment (name, data, mime, size, checksum, voucher_id) VALUES (?, ?, ?, ?, ?, ?)', [
+            $name,
             [$binary, Database::PARAM_BLOB],
             $attachment['mime'],
             $size,
+            [$checksum, Database::PARAM_BLOB],
             $voucherId,
         ]);
 

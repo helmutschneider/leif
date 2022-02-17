@@ -34,6 +34,7 @@ SELECT a.attachment_id,
        a.name,
        a.mime,
        a.size,
+       HEX(a.checksum) AS checksum,
        a.voucher_id
   FROM attachment AS a
  INNER JOIN voucher AS v

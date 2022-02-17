@@ -68,11 +68,12 @@ trait DatabaseTrait
 
     public static function createAttachment(Database $db, int $voucherId): int
     {
-        $db->execute('INSERT INTO attachment (name, data, mime, size, voucher_id) VALUES (?, ?, ?, ?, ?)', [
+        $db->execute('INSERT INTO attachment (name, data, mime, size, checksum, voucher_id) VALUES (?, ?, ?, ?, ?, ?)', [
             'test_attachment.txt',
             'Hello World',
             'text/plain',
             0,
+            ['', Database::PARAM_BLOB],
             $voucherId,
         ]);
         return $db->getLastInsertId();

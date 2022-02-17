@@ -50,6 +50,7 @@ CREATE TABLE "attachment" (
     "data" BLOB NOT NULL,
     "mime" TEXT NOT NULL,
     "size" INTEGER NOT NULL,
+    "checksum" BLOB NOT NULL,
     "voucher_id" INTEGER NOT NULL,
     FOREIGN KEY ("voucher_id")
         REFERENCES "voucher" ("voucher_id")
