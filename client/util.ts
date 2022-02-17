@@ -1,5 +1,5 @@
 import * as t from './types'
-import {Account} from "./types";
+import {AccountBalance, AccountPlan} from "./types";
 
 type DateFormatter = {
     (date: Date): string
@@ -25,8 +25,11 @@ export function ellipsis(value: string, length: number): string {
     return value;
 }
 
-export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, carries: t.AccountBalanceMap = {}): t.AccountBalanceMap {
-    const result: t.AccountBalanceMap = {...carries};
+export function calculateAccountBalances(vouchers: ReadonlyArray<t.Voucher>, carries: ReadonlyArray<t.AccountBalance> = []): t.AccountBalanceMap {
+    const result: t.AccountBalanceMap = carries.reduce((carry, item) => {
+        carry[item.account] = item.balance;
+        return carry;
+    }, {} as t.AccountBalanceMap);
     for (const voucher of vouchers) {
         for (const t of voucher.transactions) {
             const num = t.account
@@ -182,11 +185,11 @@ export function findIdOfMostRecentlyEditedWorkbook(workbooks: ReadonlyArray<t.Wo
     return mostRecentId;
 }
 
-export function findNextUnusedAccountNumber(accounts: ReadonlyArray<Account>, balances: t.AccountBalanceMap): number | undefined {
+export function findNextUnusedAccountNumber(accounts: AccountPlan, balances: ReadonlyArray<AccountBalance>): number | undefined {
     const largestAccountNumber = Math.max(
-        ...Object.keys(balances).map(k => tryParseInt(k, 0))
+        ...balances.map(b => tryParseInt(b.account, 0))
     )
-    const accountNumbers = accounts.map(a => a.number);
+    const accountNumbers = Object.keys(accounts);
     const indexOfLargestAccountNumber = accountNumbers.indexOf(largestAccountNumber.toFixed(0));
     const nextAccountNumber = accountNumbers[indexOfLargestAccountNumber + 1];
 

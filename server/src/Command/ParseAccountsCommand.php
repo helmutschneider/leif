@@ -36,10 +36,7 @@ final class ParseAccountsCommand extends Command
             if (!$account) {
                 continue;
             }
-            $out[] = [
-                'name' => $parts[6] ?: $parts[3],
-                'number' => (int) $account,
-            ];
+            $out[$account] = $parts[6] ?: $parts[3];
         }
 
         fclose($handle);

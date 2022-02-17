@@ -76,12 +76,12 @@ final class ImportCsvCommand extends Command
                 if (preg_match('/^(\d+)$/', $row[6], $matches)) {
                     $amount = $this->parseAmount($row[9]);
                     if ($amount !== 0) {
-                        $this->db->execute('INSERT INTO balance_carry (account, balance, workbook_id) VALUES (?, ?, ?)', [
+                        $this->db->execute('INSERT INTO account_carry (account, balance, workbook_id) VALUES (?, ?, ?)', [
                             $matches[1],
                             $amount,
                             $workbookId,
                         ]);
-                        $output->writeln("OK: Balance carry $matches[1] $amount.");
+                        $output->writeln("OK: Account carry $matches[1] $amount.");
                     }
                 }
 

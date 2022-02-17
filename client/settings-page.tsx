@@ -1,12 +1,12 @@
 import * as React from 'react'
 import {MoneyInput} from "./money-input";
-import {Currency, Workbook, AccountBalanceMap, Account, AccountBalance} from "./types";
+import {Currency, Workbook, AccountBalance, AccountPlan} from "./types";
 import {findNextUnusedAccountNumber, tryParseInt} from "./util";
 import {HttpBackend} from "./http";
 import {Autocomplete} from "./autocomplete";
 
 type Props = {
-    accounts: ReadonlyArray<Account>
+    accounts: AccountPlan
     currency: Currency
     http: HttpBackend
     onChange: (next: Workbook) => unknown
@@ -14,18 +14,13 @@ type Props = {
 }
 
 type State = {
-    balances: ReadonlyArray<AccountBalance>
+    carries: ReadonlyArray<AccountBalance>
     workbook: Workbook
 }
 
 export const SettingsPage: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
-        balances: Object.entries(props.workbook.balance_carry).map(item => {
-            return {
-                account: tryParseInt(item[0], 0),
-                balance: tryParseInt(item[1], 0),
-            };
-        }),
+        carries: props.workbook.account_carries.slice(),
         workbook: {
             ...props.workbook,
         },
@@ -44,7 +39,7 @@ export const SettingsPage: React.FC<Props> = props => {
                             className="form-control"
                             onChange={event => {
                                 setState({
-                                    balances: state.balances,
+                                    carries: state.carries,
                                     workbook: {
                                         ...workbook,
                                         name: event.target.value,
@@ -62,7 +57,7 @@ export const SettingsPage: React.FC<Props> = props => {
                             className="form-control"
                             onChange={event => {
                                 setState({
-                                    balances: state.balances,
+                                    carries: state.carries,
                                     workbook: {
                                         ...workbook,
                                         year: tryParseInt(event.target.value, 0),
@@ -79,39 +74,39 @@ export const SettingsPage: React.FC<Props> = props => {
 
                         <table className="table table-sm align-middle">
                             <tbody>
-                            {state.balances.map((balance, index) => {
+                            {state.carries.map((balance, index) => {
                                 return (
                                     <tr key={index}>
                                         <td className="col-6">
                                             <Autocomplete
-                                                data={props.accounts}
+                                                data={Object.entries(props.accounts)}
                                                 itemMatches={(item, query) => {
                                                     return JSON.stringify(item).includes(query);
                                                 }}
                                                 onChange={event => {
-                                                    const next = state.balances.slice()
+                                                    const next = state.carries.slice()
                                                     next[index] = {
                                                         ...balance,
-                                                        account: tryParseInt(event.target.value, 0),
+                                                        account: event.target.value,
                                                     };
                                                     setState({
-                                                        balances: next,
+                                                        carries: next,
                                                         workbook: state.workbook,
                                                     });
                                                 }}
                                                 onItemSelected={item => {
-                                                    const next = state.balances.slice();
+                                                    const next = state.carries.slice();
                                                     next[index] = {
                                                         ...balance,
-                                                        account: tryParseInt(item.number, 0),
+                                                        account: item[0],
                                                     };
                                                     setState({
-                                                        balances: next,
+                                                        carries: next,
                                                         workbook: state.workbook,
                                                     });
                                                 }}
                                                 renderItem={item => {
-                                                    return `${item.number}: ${item.name}`;
+                                                    return `${item[0]}: ${item[1]}`;
                                                 }}
                                                 value={String(balance.account)}
                                             />
@@ -120,7 +115,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                             <MoneyInput
                                                 currency={props.currency}
                                                 onChange={value => {
-                                                    const next = state.balances.slice()
+                                                    const next = state.carries.slice()
                                                     next[index] = {
                                                         account: balance.account,
                                                         balance: value,
@@ -128,7 +123,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                                                     setState({
                                                         ...state,
-                                                        balances: next,
+                                                        carries: next,
                                                     });
                                                 }}
                                                 value={balance.balance}
@@ -140,11 +135,11 @@ export const SettingsPage: React.FC<Props> = props => {
                                                 onClick={event => {
                                                     event.preventDefault();
                                                     event.stopPropagation();
-                                                    const next = state.balances.slice()
+                                                    const next = state.carries.slice()
                                                     next.splice(index, 1);
 
                                                     setState({
-                                                        balances: next,
+                                                        carries: next,
                                                         workbook: workbook,
                                                     });
                                                 }}
@@ -163,14 +158,14 @@ export const SettingsPage: React.FC<Props> = props => {
                                     event.preventDefault()
                                     event.stopPropagation()
 
-                                    const nextAccountNumber = findNextUnusedAccountNumber(props.accounts, workbook.balance_carry);
+                                    const nextAccountNumber = findNextUnusedAccountNumber(props.accounts, workbook.account_carries);
 
                                     if (!nextAccountNumber) {
                                         return;
                                     }
 
                                     setState({
-                                        balances: state.balances.concat({
+                                        carries: state.carries.concat({
                                             account: nextAccountNumber,
                                             balance: 0,
                                         }),
@@ -192,10 +187,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                     const next: Workbook = {
                         ...workbook,
-                        balance_carry: state.balances.reduce((carry, item) => {
-                            carry[item.account] = item.balance;
-                            return carry;
-                        }, {} as AccountBalanceMap),
+                        account_carries: state.carries,
                     };
 
                     props.http.send({

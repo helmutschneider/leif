@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Account, Attachment, Currency, Voucher} from './types'
+import {AccountPlan, Attachment, Currency, Voucher} from './types'
 import {
     areDebitsAndCreditsBalanced,
     arrayBufferToBase64,
@@ -11,7 +11,7 @@ import {MoneyInput} from "./money-input";
 import {Autocomplete} from "./autocomplete";
 
 type Props = {
-    accounts: ReadonlyArray<Account>
+    accounts: AccountPlan
     currency: Currency
     onChange: (next: Voucher) => unknown
     onOK: () => unknown
@@ -72,7 +72,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                 <tr key={idx}>
                                     <td>
                                         <Autocomplete
-                                            data={props.accounts}
+                                            data={Object.entries(props.accounts)}
                                             itemMatches={(item, query) => {
                                                 return JSON.stringify(item).includes(query);
                                             }}
@@ -91,7 +91,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                                 const transactions = props.voucher.transactions.slice()
                                                 transactions[idx] = {
                                                     ...t,
-                                                    account: item.number,
+                                                    account: item[0],
                                                 };
                                                 props.onChange({
                                                     ...props.voucher,
@@ -99,7 +99,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                                 });
                                             }}
                                             renderItem={item => {
-                                                return `${item.number}: ${item.name}`;
+                                                return `${item[0]}: ${item[1]}`;
                                             }}
                                             value={String(t.account)}
                                         />

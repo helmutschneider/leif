@@ -36,14 +36,14 @@ final class UpdateWorkbookAction
                 ':id' => $id,
             ]);
 
-            $this->db->execute('DELETE FROM balance_carry WHERE workbook_id = :id', [
+            $this->db->execute('DELETE FROM account_carry WHERE workbook_id = :id', [
                 ':id' => $id,
             ]);
 
-            foreach ($body['balance_carry'] ?? [] as $accountNumber => $value) {
-                $this->db->execute('INSERT INTO balance_carry (account, balance, workbook_id) VALUES (?, ?, ?)', [
-                    $accountNumber,
-                    $value,
+            foreach ($body['account_carries'] ?? [] as $item) {
+                $this->db->execute('INSERT INTO account_carry (account, balance, workbook_id) VALUES (?, ?, ?)', [
+                    $item['account'],
+                    $item['balance'],
                     $id,
                 ]);
             }

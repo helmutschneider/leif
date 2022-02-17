@@ -66,8 +66,8 @@ CREATE TABLE "attachment" (
         ON DELETE CASCADE
 );
 
-CREATE TABLE "balance_carry" (
-    "balance_carry_id" INTEGER PRIMARY KEY NOT NULL,
+CREATE TABLE "account_carry" (
+    "account_carry_id" INTEGER PRIMARY KEY NOT NULL,
     "account" INTEGER NOT NULL,
     "balance" INTEGER NOT NULL,
     "workbook_id" INTEGER NOT NULL,

@@ -33,11 +33,11 @@ SELECT v.*
           v.created_at DESC
 SQL;
 
-    const SQL_GET_BALANCE_CARRIES = <<<SQL
-SELECT bc.*
-  FROM balance_carry AS bc
+    const SQL_GET_ACCOUNT_CARRIES = <<<SQL
+SELECT ac.*
+  FROM account_carry AS ac
  INNER JOIN workbook AS w
-    ON bc.workbook_id = w.workbook_id
+    ON ac.workbook_id = w.workbook_id
  WHERE w.user_id = :user_id
 SQL;
 
@@ -69,23 +69,28 @@ SQL;
             ':id' => $user->getId(),
         ]);
 
-        $balanceCarries = $this->db->selectAll(static::SQL_GET_BALANCE_CARRIES, [
+        $accountCarries = $this->db->selectAll(static::SQL_GET_ACCOUNT_CARRIES, [
             ':user_id' => $user->getId(),
         ]);
 
         $vouchersByWorkbookId = $this->findVouchersKeyedByWorkbookId($user->getId(), false);
         $templatesByWorkbookId = $this->findVouchersKeyedByWorkbookId($user->getId(), true);
+        $accountCarriesByWorkbookId = [];
+
+        foreach ($accountCarries as $item) {
+            $workbookId = $item['workbook_id'];
+            if (!isset($accountCarriesByWorkbookId[$workbookId])) {
+                $accountCarriesByWorkbookId[$workbookId] = [];
+            }
+            $accountCarriesByWorkbookId[$workbookId][] = $item;
+        }
+
         $result = [];
         foreach ($workbooks as $wb) {
-            $wb['vouchers'] = $vouchersByWorkbookId[$wb['workbook_id']] ?? [];
-            $wb['templates'] = $templatesByWorkbookId[$wb['workbook_id']] ?? [];
-            $wb['balance_carry'] = [];
-
-            foreach ($balanceCarries as $item) {
-                if ($item['workbook_id'] === $wb['workbook_id']) {
-                    $wb['balance_carry'][$item['account']] = $item['balance'];
-                }
-            }
+            $workbookId = $wb['workbook_id'];
+            $wb['vouchers'] = $vouchersByWorkbookId[$workbookId] ?? [];
+            $wb['templates'] = $templatesByWorkbookId[$workbookId] ?? [];
+            $wb['account_carries'] = $accountCarriesByWorkbookId[$workbookId] ?? [];
 
             $result[] = $wb;
         }

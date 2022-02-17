@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom'
 import {
     findIdOfMostRecentlyEditedWorkbook, tryParseInt,
 } from './util';
-import {Account, currencies, Currency, User, Workbook} from "./types";
+import {AccountPlan, currencies, Currency, User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
 import {FetchBackend, HttpBackend} from "./http";
 import {SettingsPage} from "./settings-page";
@@ -18,7 +18,7 @@ type Page =
     | 'settings'
 
 type State = {
-    accounts: ReadonlyArray<Account>
+    accounts: AccountPlan
     activeWorkbookId: number | undefined
     page: Page
     search: string
@@ -51,7 +51,7 @@ const CONTAINER_CLASS = 'container-xxl';
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
-        accounts: [],
+        accounts: {},
         activeWorkbookId: undefined,
         search: '',
         selectWorkbookDropdownOpen: false,
@@ -72,7 +72,7 @@ const App: React.FC<Props> = props => {
                 url: '/api/workbook',
             });
 
-            const accountsPromise = props.http.send<ReadonlyArray<Account>>({
+            const accountsPromise = props.http.send<AccountPlan>({
                 method: 'GET',
                 url: '/api/account-plan/1',
             });

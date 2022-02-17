@@ -32,8 +32,11 @@ final class UpdateWorkbookActionTest extends WebTestCase
 
         $body = json_encode([
             'name' => 'Bruh!',
-            'balance_carry' => [
-                1910 => 500,
+            'account_carries' => [
+                [
+                    'account' => 1910,
+                    'balance' => 500,
+                ],
             ],
         ]);
 
@@ -42,5 +45,11 @@ final class UpdateWorkbookActionTest extends WebTestCase
         ], $body);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        $carries = $db->selectAll('SELECT * FROM account_carry');
+
+        $this->assertCount(1, $carries);
+        $this->assertEquals(1910, $carries[0]['account']);
+        $this->assertEquals(500, $carries[0]['balance']);
     }
 }

@@ -11,7 +11,7 @@ import {HttpBackend} from "./http";
 import * as t from "./types";
 
 type Props = {
-    accounts: ReadonlyArray<t.Account>
+    accounts: t.AccountPlan
     currency: t.Currency
     http: HttpBackend
     onChange: (next: t.Workbook) => unknown
@@ -32,7 +32,7 @@ export const VouchersPage: React.FC<Props> = props => {
     });
 
     const workbook = props.workbook
-    const balances = calculateAccountBalances(workbook.vouchers, workbook.balance_carry);
+    const balances = calculateAccountBalances(workbook.vouchers, workbook.account_carries);
     const filteredVouchers: ReadonlyArray<t.Voucher> = props.search === ''
         ? workbook.vouchers
         : workbook.vouchers.filter(voucher => {
@@ -42,10 +42,6 @@ export const VouchersPage: React.FC<Props> = props => {
 
     const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
     const editingVoucherId = tryParseInt(state.voucher.voucher_id, undefined);
-    const accountNameMap = props.accounts.reduce((carry, item) => {
-        carry[item.number] = item.name;
-        return carry;
-    }, {} as {[key: number | string]: string});
 
     return (
         <div className="row">
@@ -305,7 +301,7 @@ export const VouchersPage: React.FC<Props> = props => {
                 <table className="table table-sm">
                     <tbody>
                     {Object.entries(balances).map((e, idx) => {
-                        const accountName = accountNameMap[e[0]] ?? '';
+                        const accountName = props.accounts[e[0]] ?? '';
                         return (
                             <tr key={idx}>
                                 <td>{e[0]}</td>

@@ -1,7 +1,4 @@
 export type AccountNumber = string | number;
-export type AccountBalanceMap = {
-    [key: AccountNumber]: number | string
-};
 export type Transaction = {
     account: AccountNumber
     amount: number | string
@@ -25,7 +22,7 @@ export type Voucher = {
     workbook_id?: number | string
 }
 export type Workbook = {
-    balance_carry: AccountBalanceMap
+    account_carries: ReadonlyArray<AccountBalance>
     name: string
     vouchers: ReadonlyArray<Voucher>
     year: number
@@ -56,12 +53,8 @@ export const currencies: {[P in CurrencyCode]: Currency} = {
         thousandsSeparator: ' ',
     },
 }
-export type Account = {
-    name: string
-    number: number | string
-}
 export type AccountBalance = {
-    account: number
+    account: AccountNumber
     balance: number
 }
 export enum KeyCode {
@@ -69,4 +62,10 @@ export enum KeyCode {
     ArrowUp = 38,
     Enter = 13,
     Escape = 27,
+}
+export type AccountBalanceMap = {
+    [key: AccountNumber]: number
+}
+export type AccountPlan = {
+    [key: AccountNumber]: string
 }
