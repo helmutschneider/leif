@@ -9,11 +9,11 @@ import {
 } from "./util";
 import {HttpSendFn} from "./http";
 import * as t from "./types";
-import {currencies} from "./types";
+import {currencies, KeyCode} from "./types";
 
 type Props = {
     http: HttpSendFn
-    onChange: (next: t.Workbook) => unknown
+    onWorkbookChanged: () => unknown
     search: string
     user: t.User
     workbook: t.Workbook
@@ -22,12 +22,89 @@ type Props = {
 
 type State = {
     openVoucherIds: ReadonlyArray<number>
+    selectedVoucherId: number | undefined
     voucher: t.Voucher
+}
+
+function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyArray<t.Voucher>, state: State): State | undefined {
+    if (typeof state.selectedVoucherId === 'undefined') {
+        return undefined;
+    }
+
+    switch (event.keyCode) {
+        case KeyCode.ArrowDown: {
+            event.preventDefault();
+            event.stopPropagation();
+            const voucherIndex = vouchers.findIndex(v => {
+                return v.voucher_id === state.selectedVoucherId;
+            });
+            if (voucherIndex !== -1) {
+                const nextIndex = (voucherIndex + 1) % vouchers.length;
+                const nextId = vouchers[nextIndex]?.voucher_id;
+                if (nextId) {
+                    return {
+                        ...state,
+                        selectedVoucherId: nextId,
+                    };
+                }
+            }
+            return undefined;
+        }
+        case KeyCode.ArrowLeft: {
+            event.preventDefault()
+            event.stopPropagation();
+            const next = state.openVoucherIds.slice();
+            const index = next.indexOf(state.selectedVoucherId);
+            if (index !== -1) {
+                next.splice(index, 1);
+                return {
+                    ...state,
+                    openVoucherIds: next,
+                };
+            }
+            return undefined;
+        }
+        case KeyCode.ArrowRight: {
+            event.preventDefault()
+            event.stopPropagation();
+            const next = state.openVoucherIds.slice();
+            if (!next.includes(state.selectedVoucherId)) {
+                return {
+                    ...state,
+                    openVoucherIds: next.concat(state.selectedVoucherId),
+                };
+            }
+            return undefined;
+        }
+        case KeyCode.ArrowUp: {
+            event.preventDefault()
+            event.stopPropagation();
+            const voucherIndex = vouchers.findIndex(v => {
+                return v.voucher_id === state.selectedVoucherId;
+            });
+            if (voucherIndex !== -1) {
+                const nextIndex = voucherIndex === 0
+                    ? (vouchers.length - 1)
+                    : (voucherIndex - 1);
+                const nextId = vouchers[nextIndex]?.voucher_id;
+                if (nextId) {
+                    return {
+                        ...state,
+                        selectedVoucherId: nextId,
+                    };
+                }
+            }
+            return undefined;
+        }
+    }
+
+    return undefined;
 }
 
 export const VouchersPage: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
         openVoucherIds: [],
+        selectedVoucherId: undefined,
         voucher: emptyVoucher(),
     });
 
@@ -48,6 +125,39 @@ export const VouchersPage: React.FC<Props> = props => {
     const editingVoucherId = state.voucher.voucher_id;
     const currency = currencies[props.workbook.currency];
 
+    React.useEffect(() => {
+        const documentClickListener = (event: MouseEvent) => {
+            setState(prev => {
+                return {
+                    ...prev,
+                    selectedVoucherId: undefined,
+                };
+            });
+        };
+        const documentKeyDownListener = (event: KeyboardEvent) => {
+            const next = getNextStateFromKeydownEvent(event, filteredVouchers, state);
+            if (typeof next !== 'undefined') {
+                setState(next);
+            }
+        };
+        document.addEventListener('click', documentClickListener);
+        document.addEventListener('keydown', documentKeyDownListener);
+        return () => {
+            document.removeEventListener('click', documentClickListener);
+            document.removeEventListener('keydown', documentKeyDownListener);
+        };
+    }, [state.openVoucherIds, state.selectedVoucherId]);
+
+    React.useEffect(() => {
+        setState(prev => {
+            return {
+                ...prev,
+                openVoucherIds: [],
+                selectedVoucherId: undefined,
+            };
+        })
+    }, [props.search]);
+
     return (
         <div className="row">
             <div className="col-lg-8">
@@ -59,7 +169,7 @@ export const VouchersPage: React.FC<Props> = props => {
                             : ''
                     }
                 </h5>
-                <table className="table table-sm table-hover">
+                <table className="table table-sm">
                     <tbody>
                     {filteredVouchers.map((voucher, idx) => {
                         const isVoucherOpen = state.openVoucherIds.find(item => {
@@ -98,27 +208,53 @@ export const VouchersPage: React.FC<Props> = props => {
                         return (
                             <React.Fragment key={idx}>
                                 <tr
+                                    className={
+                                        state.selectedVoucherId === voucher.voucher_id
+                                            ? 'table-primary'
+                                            : undefined
+                                    }
+                                    onMouseDown={event => {
+                                        // prevent selection by double click. various places online
+                                        // suggest invoking "preventDefault()" unconditionally which
+                                        // of course breaks selection by dragging. the detail-property
+                                        // seems to indicate how many times the element was clicked.
+                                        //
+                                        // https://stackoverflow.com/a/43321596
+                                        if (event.detail > 1) {
+                                            event.preventDefault();
+                                        }
+                                    }}
                                     onClick={event => {
-                                        event.preventDefault()
-                                        event.stopPropagation()
+                                        event.preventDefault();
+                                        event.stopPropagation();
 
-                                        const parsedId = voucher.voucher_id;
+                                        setState({
+                                            ...state,
+                                            selectedVoucherId: voucher.voucher_id,
+                                        });
+                                    }}
+                                    onDoubleClick={event => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
 
-                                        if (typeof parsedId === 'undefined') {
+                                        const voucherId = voucher.voucher_id;
+
+                                        if (typeof voucherId === 'undefined') {
                                             return;
                                         }
 
-                                        const indexOfId = state.openVoucherIds.indexOf(parsedId);
-                                        const next = state.openVoucherIds.slice()
+                                        const indexOfId = state.openVoucherIds.indexOf(voucherId);
+                                        const next = state.openVoucherIds.slice();
 
                                         if (indexOfId === -1) {
-                                            next.push(parsedId);
+                                            next.push(voucherId);
                                         } else {
                                             next.splice(indexOfId, 1);
                                         }
 
                                         setState({
                                             openVoucherIds: next,
+                                            selectedVoucherId: voucherId,
                                             voucher: state.voucher,
                                         });
                                     }}
@@ -162,11 +298,13 @@ export const VouchersPage: React.FC<Props> = props => {
                                                     // stop editing instead.
                                                     setState({
                                                         openVoucherIds: state.openVoucherIds,
+                                                        selectedVoucherId: undefined,
                                                         voucher: emptyVoucher(),
                                                     })
                                                 } else {
                                                     setState({
                                                         openVoucherIds: state.openVoucherIds,
+                                                        selectedVoucherId: undefined,
                                                         voucher: voucher,
                                                     })
                                                 }
@@ -188,14 +326,10 @@ export const VouchersPage: React.FC<Props> = props => {
                                                     method: 'DELETE',
                                                     url: `/api/voucher/${voucher.voucher_id}`,
                                                 }).then(res => {
-                                                    const next = workbook.vouchers.slice()
-                                                    next.splice(idx, 1);
-                                                    props.onChange({
-                                                        ...workbook,
-                                                        vouchers: next,
-                                                    });
+                                                    props.onWorkbookChanged();
                                                     setState({
                                                         openVoucherIds: state.openVoucherIds,
+                                                        selectedVoucherId: undefined,
 
                                                         // if we had accidentally clicked the "edit" button
                                                         // before deleting the voucher it would still be in
@@ -234,6 +368,7 @@ export const VouchersPage: React.FC<Props> = props => {
 
                                     setState({
                                         openVoucherIds: state.openVoucherIds,
+                                        selectedVoucherId: undefined,
                                         voucher: emptyVoucher(),
                                     });
                                 }}
@@ -250,6 +385,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         onChange={next => {
                             setState({
                                 openVoucherIds: state.openVoucherIds,
+                                selectedVoucherId: undefined,
                                 voucher: next,
                             });
                         }}
@@ -268,26 +404,10 @@ export const VouchersPage: React.FC<Props> = props => {
                                     : '/api/voucher',
                                 body: body,
                             }).then(res => {
-                                const next = workbook.vouchers.slice()
-
-                                if (isEditingVoucher) {
-                                    const idx = next.findIndex(item => {
-                                        return typeof editingVoucherId !== 'undefined'
-                                            && editingVoucherId === item.voucher_id;
-                                    })
-                                    if (idx !== -1) {
-                                        next[idx] = res;
-                                    }
-                                } else {
-                                    next.push(res)
-                                }
-
-                                props.onChange({
-                                    ...workbook,
-                                    vouchers: next,
-                                });
+                                props.onWorkbookChanged();
                                 setState({
                                     openVoucherIds: state.openVoucherIds,
+                                    selectedVoucherId: undefined,
                                     voucher: emptyVoucher(),
                                 });
                             })

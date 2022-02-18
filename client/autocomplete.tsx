@@ -16,7 +16,7 @@ type Props<T> = {
 const dropdownStyle: React.CSSProperties = {
     maxHeight: '500px',
     minWidth: '300px',
-    overflowY: 'scroll',
+    overflowY: 'auto',
     position: 'absolute',
     width: '100%',
     zIndex: 10,
@@ -47,7 +47,9 @@ export function Autocomplete<T>(props: Props<T>): JSX.Element {
     function closeSoonish() {
         window.clearTimeout(state.closingTimeout);
         setState({
-            activeItemIndex: 0,
+            // changing this index during close looks weird.
+            // better to do it when we open the thing.
+            activeItemIndex: state.activeItemIndex,
             closingTimeout: window.setTimeout(() => {
                 setState({
                     activeItemIndex: 0,
@@ -87,8 +89,9 @@ export function Autocomplete<T>(props: Props<T>): JSX.Element {
                     if (!state.open) {
                         setState({
                             ...state,
+                            activeItemIndex: 0,
                             open: true,
-                        })
+                        });
                     }
 
                     switch (event.keyCode) {

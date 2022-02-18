@@ -70,6 +70,8 @@ export type AccountBalance = {
 }
 export enum KeyCode {
     ArrowDown = 40,
+    ArrowLeft = 37,
+    ArrowRight = 39,
     ArrowUp = 38,
     Enter = 13,
     Escape = 27,

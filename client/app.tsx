@@ -87,19 +87,31 @@ const App: React.FC<Props> = props => {
         });
     }
 
+    function reloadWorkbook() {
+        http<Workbook>({
+            method: 'GET',
+            url: '/api/workbook',
+        }).then(res => {
+            const maybeYear = findYearOfMostRecentlyEditedVoucher(res);
+
+            setState({
+                ...state,
+                workbook: res,
+
+                // if the user had moved to another year we want to
+                // preserve the state so we don't make them angry.
+                year: maybeYear !== state.year
+                    ? state.year
+                    : maybeYear,
+            });
+        });
+    }
+
     React.useEffect(() => {
         if (state.user) {
             window.sessionStorage.setItem(SESSION_STORAGE_USER_KEY, JSON.stringify(state.user));
-            http<Workbook>({
-                method: 'GET',
-                url: '/api/workbook',
-            }).then(res => {
-                setState({
-                    ...state,
-                    workbook: res,
-                    year: findYearOfMostRecentlyEditedVoucher(res) ?? state.year,
-                });
-            });
+            reloadWorkbook();
+
         } else {
             window.sessionStorage.removeItem(SESSION_STORAGE_USER_KEY);
         }
@@ -146,12 +158,7 @@ const App: React.FC<Props> = props => {
             viewStuff = (
                 <VouchersPage
                     http={http}
-                    onChange={next => {
-                        setState({
-                            ...state,
-                            workbook: next,
-                        })
-                    }}
+                    onWorkbookChanged={reloadWorkbook}
                     search={state.search}
                     user={state.user}
                     workbook={workbook}
@@ -163,12 +170,7 @@ const App: React.FC<Props> = props => {
             viewStuff = (
                 <SettingsPage
                     http={http}
-                    onChange={next => {
-                        setState({
-                            ...state,
-                            workbook: next,
-                        })
-                    }}
+                    onWorkbookChanged={reloadWorkbook}
                     user={state.user}
                     workbook={workbook}
                 />

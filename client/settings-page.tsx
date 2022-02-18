@@ -6,7 +6,7 @@ import {VoucherForm} from "./voucher-form";
 
 type Props = {
     http: HttpSendFn
-    onChange: (next: Workbook) => unknown
+    onWorkbookChanged: () => unknown
     workbook: Workbook
     user: User
 }
@@ -119,10 +119,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                         username: state.username,
                                     },
                                 }).then(res => {
-                                    props.onChange({
-                                        ...props.workbook,
-                                        carry_accounts: state.carryAccounts,
-                                    });
+                                    props.onWorkbookChanged();
                                     setState({
                                         ...state,
                                         confirmPassword: '',
@@ -177,12 +174,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                                     method: 'DELETE',
                                                     url: `/api/voucher/${template.voucher_id}`,
                                                 }).then(res => {
-                                                    const next = props.workbook.templates.slice()
-                                                    next.splice(index, 1);
-                                                    props.onChange({
-                                                        ...props.workbook,
-                                                        templates: next,
-                                                    });
+                                                    props.onWorkbookChanged();
                                                     setState({
                                                         ...state,
                                                         template: emptyTemplate(),
@@ -247,28 +239,11 @@ export const SettingsPage: React.FC<Props> = props => {
                                     transactions: state.template.transactions.filter(t => t.amount !== 0),
                                 },
                             }).then(res => {
-                                const next = props.workbook.templates.slice()
-
-                                if (isEditingTemplate) {
-                                    const voucherId = state.template.voucher_id;
-                                    const index = props.workbook.templates.findIndex(t => {
-                                        return typeof voucherId !== 'undefined'
-                                            && voucherId === t.voucher_id;
-                                    });
-                                    if (index !== -1) {
-                                        next[index] = res;
-                                    }
-                                } else {
-                                    next.push(res);
-                                }
                                 setState({
                                     ...state,
                                     template: emptyTemplate(),
                                 });
-                                props.onChange({
-                                    ...props.workbook,
-                                    templates: next,
-                                });
+                                props.onWorkbookChanged();
                             })
                         }}
                         voucher={state.template}
