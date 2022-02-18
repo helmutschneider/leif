@@ -143,6 +143,7 @@ export function Autocomplete<T>(props: Props<T>): JSX.Element {
 
                                     return (
                                         <button
+                                            key={i}
                                             className={`list-group-item list-group-item-action ${isActiveClazz}`}
                                             onClick={event => {
                                                 event.preventDefault()
@@ -154,7 +155,7 @@ export function Autocomplete<T>(props: Props<T>): JSX.Element {
                                                 }
                                                 closeImmediate();
                                             }}
-                                            key={i}
+                                            tabIndex={-1}
                                         >
                                             {props.renderItem(item)}
                                         </button>
