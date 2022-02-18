@@ -125,27 +125,29 @@ export function tryParseInt<D>(value: string | number | undefined, defaultValue:
     return result
 }
 
+export function sumOfTransactions(transactions: ReadonlyArray<t.Transaction>): number {
+    let sum = 0;
+    for (const t of transactions) {
+        switch (t.kind) {
+            case 'debit':
+                sum += t.amount;
+                break;
+            case 'credit':
+                sum -= t.amount;
+                break;
+            default:
+                throw new Error(`Invalid transaction kind '${t.kind}'.`);
+        }
+    }
+    return sum;
+}
+
 export function areDebitsAndCreditsBalanced(voucher: t.Voucher): boolean {
     if (voucher.transactions.length < 2) {
         return false
     }
 
-    let sum = 0
-
-    for (const t of voucher.transactions) {
-        const amount = t.amount;
-
-        switch (t.kind) {
-            case 'debit':
-                sum += amount;
-                break;
-            case 'credit':
-                sum -= amount;
-                break;
-        }
-    }
-
-    return sum === 0
+    return sumOfTransactions(voucher.transactions) === 0;
 }
 
 export function emptyVoucher(): t.Voucher {

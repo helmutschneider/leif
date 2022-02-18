@@ -4,7 +4,7 @@ import {
     calculateAccountBalancesForYear,
     ellipsis,
     emptyVoucher,
-    formatIntegerAsMoneyWithSeparatorsAndSymbol, objectContains,
+    formatIntegerAsMoneyWithSeparatorsAndSymbol, objectContains, sumOfTransactions,
     tryParseInt
 } from "./util";
 import {HttpSendFn} from "./http";
@@ -101,6 +101,10 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
     return undefined;
 }
 
+function findTransactionsWhereAccountMatches(transactions: ReadonlyArray<t.Transaction>, pattern: RegExp): ReadonlyArray<t.Transaction> {
+    return transactions.filter(tr => pattern.test(String(tr.account)));
+}
+
 export const VouchersPage: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
         openVoucherIds: [],
@@ -172,7 +176,7 @@ export const VouchersPage: React.FC<Props> = props => {
                 <table className="table table-sm">
                     <tbody>
                     {filteredVouchers.map((voucher, idx) => {
-                        const isVoucherOpen = state.openVoucherIds.find(item => {
+                        const isVoucherOpen = state.openVoucherIds.some(item => {
                             return item === voucher.voucher_id;
                         });
                         const isVoucherOpenIconClass = isVoucherOpen
@@ -183,7 +187,7 @@ export const VouchersPage: React.FC<Props> = props => {
                             ? (
                                 <tr>
                                     <td/>
-                                    <td>
+                                    <td colSpan={2}>
                                         {voucher.transactions.map((item, k) => {
                                             return (
                                                 <div className="row" key={k}>
@@ -204,6 +208,11 @@ export const VouchersPage: React.FC<Props> = props => {
                                 </tr>
                             )
                             : null
+
+                        const transactionsFromCheckingAccounts = findTransactionsWhereAccountMatches(
+                            voucher.transactions, /^191/
+                        );
+                        const sumOfCheckingAccounts = sumOfTransactions(transactionsFromCheckingAccounts);
 
                         return (
                             <React.Fragment key={idx}>
@@ -266,7 +275,14 @@ export const VouchersPage: React.FC<Props> = props => {
                                         />
                                         {voucher.date}
                                     </td>
-                                    <td className="col-8">{voucher.name}</td>
+                                    <td className="col-6">{voucher.name}</td>
+                                    <td className="col-2 text-end">
+                                        {
+                                            sumOfCheckingAccounts !== 0 && !isVoucherOpen
+                                                ? formatIntegerAsMoneyWithSeparatorsAndSymbol(sumOfCheckingAccounts, currency)
+                                                : undefined
+                                        }
+                                    </td>
                                     <td className="col-2 text-end">
                                         {voucher.attachments.map((attachment, idx) => {
                                             return (
