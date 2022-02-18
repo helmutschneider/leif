@@ -59,6 +59,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                 onItemSelected={template => {
                                     props.onChange({
                                         ...template,
+                                        date: formatDate(new Date(), 'yyyy-MM-dd'),
                                         is_template: false,
                                         voucher_id: undefined,
                                     });
