@@ -16,7 +16,7 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getId(): int
     {
-        return (int) $this->row['user_id'];
+        return $this->row['user_id'];
     }
 
     public function getUserIdentifier(): string

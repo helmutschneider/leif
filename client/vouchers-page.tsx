@@ -45,7 +45,7 @@ export const VouchersPage: React.FC<Props> = props => {
     });
 
     const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
-    const editingVoucherId = tryParseInt(state.voucher.voucher_id, undefined);
+    const editingVoucherId = state.voucher.voucher_id;
     const currency = currencies[props.workbook.currency];
 
     return (
@@ -63,7 +63,7 @@ export const VouchersPage: React.FC<Props> = props => {
                     <tbody>
                     {filteredVouchers.map((voucher, idx) => {
                         const isVoucherOpen = state.openVoucherIds.find(item => {
-                            return item === tryParseInt(voucher.voucher_id, undefined);
+                            return item === voucher.voucher_id;
                         });
                         const isVoucherOpenIconClass = isVoucherOpen
                             ? 'bi-caret-down-fill'
@@ -102,7 +102,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                         event.preventDefault()
                                         event.stopPropagation()
 
-                                        const parsedId = tryParseInt(voucher.voucher_id, undefined);
+                                        const parsedId = voucher.voucher_id;
 
                                         if (typeof parsedId === 'undefined') {
                                             return;
@@ -157,7 +157,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                                 event.preventDefault();
                                                 event.stopPropagation();
 
-                                                if (isEditingVoucher && editingVoucherId === tryParseInt(voucher.voucher_id, undefined)) {
+                                                if (isEditingVoucher && editingVoucherId === voucher.voucher_id) {
                                                     // we were already editing this exact voucher.
                                                     // stop editing instead.
                                                     setState({
@@ -279,7 +279,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                 if (isEditingVoucher) {
                                     const idx = next.findIndex(item => {
                                         return typeof editingVoucherId !== 'undefined'
-                                            && editingVoucherId === tryParseInt(item.voucher_id, undefined);
+                                            && editingVoucherId === item.voucher_id;
                                     })
                                     if (idx !== -1) {
                                         next[idx] = res;

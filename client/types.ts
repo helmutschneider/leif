@@ -1,12 +1,21 @@
-export type AccountNumber = string | number;
+export type AccountNumber = number
+
+// monetary values are expressed as integers in the subunit
+// of the currency. for example, the subunit of USD is the
+// cent so $1.00 would be expressed as the integer 100.
+//
+// not all currencies have subunits however; 100 JPY would
+// simply be expressed as 100.
+type Money = number
+type CommaSeparatedString = string
 export type Transaction = {
     account: AccountNumber
-    amount: number | string
+    amount: Money
     kind: 'credit' | 'debit'
 }
 type Base64String = string
 export type Attachment = {
-    attachment_id?: number | string
+    attachment_id?: number
     name: string
     mime: string
     data: Base64String
@@ -21,17 +30,17 @@ export type Voucher = {
     notes: string
     transactions: ReadonlyArray<Transaction>
     updated_at: string
-    voucher_id?: number | string
+    voucher_id?: number
 }
 export type Workbook = {
     accounts: AccountPlan
-    carry_accounts: string
+    carry_accounts: CommaSeparatedString
     currency: CurrencyCode
     templates: ReadonlyArray<Voucher>
     vouchers: ReadonlyArray<Voucher>
 }
 export type User = {
-    user_id?: string | number
+    user_id?: number
     username: string
     token: string
 }
@@ -57,7 +66,7 @@ export const currencies: {[P in CurrencyCode]: Currency} = {
 }
 export type AccountBalance = {
     account: AccountNumber
-    balance: number
+    balance: Money
 }
 export enum KeyCode {
     ArrowDown = 40,
@@ -66,8 +75,8 @@ export enum KeyCode {
     Escape = 27,
 }
 export type AccountBalanceMap = {
-    [key: AccountNumber]: number
+    [key: AccountNumber | string]: number
 }
 export type AccountPlan = {
-    [key: AccountNumber]: string
+    [key: AccountNumber | string]: string
 }

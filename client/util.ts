@@ -1,5 +1,5 @@
 import * as t from './types'
-import {AccountBalance, AccountNumber, AccountPlan} from "./types";
+import {AccountNumber} from "./types";
 
 type DateFormatter = {
     (date: Date): string
@@ -27,22 +27,21 @@ export function ellipsis(value: string, length: number): string {
 
 export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, year: number, carryAccounts: ReadonlyArray<AccountNumber>): t.AccountBalanceMap {
     const result: t.AccountBalanceMap = {}
-    const parsedCarryAccounts = carryAccounts.map(num => tryParseInt(num, undefined));
 
     for (const voucher of vouchers) {
         const dt = new Date(voucher.date);
         const voucherYear = dt.getFullYear();
 
         for (const transaction of voucher.transactions) {
-            const account = tryParseInt(transaction.account, undefined);
+            const account = transaction.account;
 
             if (typeof account === 'undefined') {
                 continue;
             }
 
-            if (year === voucherYear || (voucherYear <= year && parsedCarryAccounts.includes(account))) {
-                const prev = tryParseInt(result[account], 0);
-                const amount = tryParseInt(transaction.amount, 0);
+            if (year === voucherYear || (voucherYear <= year && carryAccounts.includes(account))) {
+                const prev = result[account] ?? 0;
+                const amount = transaction.amount;
                 result[account] = prev + (transaction.kind === 'debit' ? amount : (-amount));
             }
         }
@@ -134,7 +133,7 @@ export function areDebitsAndCreditsBalanced(voucher: t.Voucher): boolean {
     let sum = 0
 
     for (const t of voucher.transactions) {
-        const amount = tryParseInt(t.amount, 0)
+        const amount = t.amount;
 
         switch (t.kind) {
             case 'debit':
@@ -194,17 +193,6 @@ export function findYearOfMostRecentlyEditedVoucher(workbook: t.Workbook): numbe
     }
 
     return mostRecentlyEditedYear;
-}
-
-export function findNextUnusedAccountNumber(accounts: AccountPlan, balances: ReadonlyArray<AccountBalance>): number | undefined {
-    const largestAccountNumber = Math.max(
-        ...balances.map(b => tryParseInt(b.account, 0))
-    )
-    const accountNumbers = Object.keys(accounts);
-    const indexOfLargestAccountNumber = accountNumbers.indexOf(largestAccountNumber.toFixed(0));
-    const nextAccountNumber = accountNumbers[indexOfLargestAccountNumber + 1];
-
-    return tryParseInt(nextAccountNumber, undefined)
 }
 
 export function objectContains<T>(value: T, search: string) {

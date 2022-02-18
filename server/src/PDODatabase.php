@@ -20,11 +20,14 @@ final class PDODatabase implements Database
         $stmt = $this->db->prepare($query);
         static::bindValues($stmt, $parameters);
         $stmt->execute();
+        $schema = static::getColumnSchema($stmt);
+
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
         }
-        return $row;
+
+        return static::castToNativeTypes($schema, [$row])[0];
     }
 
     public function selectAll(string $query, array $parameters = []): array
@@ -32,7 +35,9 @@ final class PDODatabase implements Database
         $stmt = $this->db->prepare($query);
         static::bindValues($stmt, $parameters);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $schema = static::getColumnSchema($stmt);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return static::castToNativeTypes($schema, $rows);
     }
 
     public function execute(string $query, array $parameters = []): void
@@ -87,5 +92,52 @@ final class PDODatabase implements Database
 
             ++$paramIndex;
         }
+    }
+
+    private static function getColumnSchema(PDOStatement $stmt): array
+    {
+        // the PDO driver for SQLite returns everything as strings, at
+        // least on PHP 7.4. this logic inspects the return table schema
+        // and maps the columns to native PHP types if possible.
+        //
+        // this method must be executed immediately after PDOStatement::execute().
+        // if you start fetching rows it seems the database forgets the
+        // data types and just says "null" for everything.
+        $schema = [];
+
+        for ($i = 0; $i < $stmt->columnCount(); ++$i) {
+            $meta = $stmt->getColumnMeta($i);
+            $columnName = $meta['name'];
+            $schema[$columnName] = $meta['native_type'];
+        }
+
+        return $schema;
+    }
+
+    private static function castToNativeTypes(array $schema, array $rows): array
+    {
+        $out = [];
+
+        foreach ($rows as $row) {
+            foreach ($schema as $columnName => $type) {
+                if ($row[$columnName] === null) {
+                    continue;
+                }
+                switch ($type) {
+                    case 'integer':
+                        $row[$columnName] = (int) $row[$columnName];
+                        break;
+                    case 'double':
+                        $row[$columnName] = (float) $row[$columnName];
+                        break;
+                    case 'string':
+                        $row[$columnName] = (string) $row[$columnName];
+                        break;
+                }
+            }
+            $out[] = $row;
+        }
+
+        return $out;
     }
 }

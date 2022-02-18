@@ -20,21 +20,23 @@ final class PDODatabaseTest extends TestCase
 CREATE TABLE car (
     car_id INTEGER PRIMARY KEY NOT NULL,
     make TEXT NOT NULL,
-    model TEXT NOT NULL
+    model TEXT NOT NULL,
+    weight REAL NOT NULL DEFAULT 0.0
 );
 SQL
 );
     }
 
-    public function testSelectOne()
+    public function testSelectOneAndCastsValues()
     {
-        $this->otherDb->execute('INSERT INTO car (make, model) VALUES (?, ?)', ['Volvo', 'V70']);
+        $this->otherDb->execute('INSERT INTO car (make, model, weight) VALUES (?, ?, ?)', ['Volvo', 'V70', 3.5]);
 
         $row = $this->otherDb->selectOne('SELECT * FROM car');
 
-        $this->assertSame('1', $row['car_id']);
+        $this->assertSame(1, $row['car_id']);
         $this->assertSame('Volvo', $row['make']);
         $this->assertSame('V70', $row['model']);
+        $this->assertSame(3.5, $row['weight']);
     }
 
     public function testSelectAll()
@@ -46,10 +48,10 @@ SQL
 
         $this->assertCount(2, $rows);
 
-        $this->assertSame('1', $rows[0]['car_id']);
+        $this->assertSame(1, $rows[0]['car_id']);
         $this->assertSame('Volvo', $rows[0]['make']);
         $this->assertSame('V70', $rows[0]['model']);
-        $this->assertSame('2', $rows[1]['car_id']);
+        $this->assertSame(2, $rows[1]['car_id']);
         $this->assertSame('Toyota', $rows[1]['make']);
         $this->assertSame('Prius', $rows[1]['model']);
     }

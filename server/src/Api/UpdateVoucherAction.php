@@ -106,7 +106,7 @@ SQL;
             // anything that is still left in this list should be deleted from
             // the database.
             $previousAttachmentIds = array_map(
-                fn (array $row) => (int)$row['attachment_id'],
+                fn (array $row) => $row['attachment_id'],
                 $this->db->selectAll(static::SQL_GET_ATTACHMENT_IDS, [':voucher_id' => $id])
             );
 
@@ -118,7 +118,7 @@ SQL;
                     $body['attachments'][$index]['attachment_id'] = $attachmentId;
                     unset($body['attachments'][$index]['data']);
                 } else {
-                    $indexOfPreviousAttachmentId = array_search((int)$attachmentId, $previousAttachmentIds, true);
+                    $indexOfPreviousAttachmentId = array_search($attachmentId, $previousAttachmentIds, true);
 
                     if ($indexOfPreviousAttachmentId === false) {
                         throw new InvalidArgumentException(

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Workbook, Voucher, currencies, User} from "./types";
-import {emptyVoucher, tryParseInt} from "./util";
+import {emptyVoucher} from "./util";
 import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
 
@@ -212,10 +212,10 @@ export const SettingsPage: React.FC<Props> = props => {
                                 const next = props.workbook.templates.slice()
 
                                 if (isEditingTemplate) {
-                                    const voucherId = tryParseInt(state.template.voucher_id, undefined);
+                                    const voucherId = state.template.voucher_id;
                                     const index = props.workbook.templates.findIndex(t => {
                                         return typeof voucherId !== 'undefined'
-                                            && voucherId === tryParseInt(t.voucher_id, undefined);
+                                            && voucherId === t.voucher_id;
                                     });
                                     if (index !== -1) {
                                         next[index] = res;
