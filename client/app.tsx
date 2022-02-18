@@ -183,6 +183,9 @@ const App: React.FC<Props> = props => {
             return carry;
         }, {} as {[key: number]: boolean});
 
+    // always include the current year.
+    yearsAsMap[(new Date().getFullYear())] = true;
+
     const years = Object.keys(yearsAsMap).map(year => tryParseInt(year, 0));
     years.sort((a, b) => {
         if (a === b) {
