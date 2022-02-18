@@ -155,8 +155,10 @@ export const SettingsPage: React.FC<Props> = props => {
 
                                                 setState({
                                                     ...state,
-                                                    template: template,
-                                                })
+                                                    template: state.template.voucher_id === template.voucher_id
+                                                        ? emptyTemplate()
+                                                        : template,
+                                                });
                                             }}
                                             title="Redigera"
                                             role="button"
@@ -206,25 +208,20 @@ export const SettingsPage: React.FC<Props> = props => {
                             </h5>
                         </div>
                         <div className="col-md-auto">
-                            {
-                                state.template.voucher_id
-                                    ? (
-                                        <i
-                                            className="bi bi-x-circle-fill"
-                                            onClick={event => {
-                                                event.preventDefault();
-                                                event.stopPropagation();
+                            <i
+                                className="bi bi-x-circle-fill"
+                                onClick={event => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
 
-                                                setState({
-                                                    ...state,
-                                                    template: emptyTemplate(),
-                                                });
-                                            }}
-                                            role="button"
-                                        />
-                                    )
-                                    : null
-                            }
+                                    setState({
+                                        ...state,
+                                        template: emptyTemplate(),
+                                    });
+                                }}
+                                role="button"
+                                title="Avbryt"
+                            />
                         </div>
                     </div>
 

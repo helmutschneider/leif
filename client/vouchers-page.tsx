@@ -72,7 +72,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         const maybeOpenVoucherStuff = isVoucherOpen
                             ? (
                                 <tr>
-                                    <td />
+                                    <td/>
                                     <td>
                                         {voucher.transactions.map((item, k) => {
                                             return (
@@ -90,7 +90,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                             )
                                         })}
                                     </td>
-                                    <td />
+                                    <td/>
                                 </tr>
                             )
                             : null
@@ -226,26 +226,20 @@ export const VouchersPage: React.FC<Props> = props => {
                         </div>
                         <div className="col-md-auto">
                         <span>
-                            {
-                                isEditingVoucher
-                                    ? (
-                                        <i
-                                            className="bi bi-x-circle-fill"
-                                            onClick={event => {
-                                                event.preventDefault();
-                                                event.stopPropagation();
+                            <i
+                                className="bi bi-x-circle-fill"
+                                onClick={event => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
 
-                                                setState({
-                                                    openVoucherIds: state.openVoucherIds,
-                                                    voucher: emptyVoucher(),
-                                                })
-                                            }}
-                                            title="Avbryt redigering"
-                                            role="button"
-                                        />
-                                    )
-                                    : null
-                            }
+                                    setState({
+                                        openVoucherIds: state.openVoucherIds,
+                                        voucher: emptyVoucher(),
+                                    });
+                                }}
+                                title="Avbryt"
+                                role="button"
+                            />
                         </span>
                         </div>
                     </div>
