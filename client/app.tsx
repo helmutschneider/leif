@@ -63,6 +63,7 @@ const App: React.FC<Props> = props => {
     function logout() {
         setState({
             ...state,
+            page: 'vouchers',
             user: undefined,
             workbook: undefined,
         });

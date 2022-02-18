@@ -13,7 +13,9 @@ type Props = {
 
 type State = {
     carryAccounts: string
+    confirmPassword: string
     template: Voucher
+    password: string
     username: string
 }
 
@@ -27,7 +29,9 @@ export const SettingsPage: React.FC<Props> = props => {
 
     const [state, setState] = React.useState<State>({
         carryAccounts: props.workbook.carry_accounts,
+        confirmPassword: '',
         template: emptyTemplate(),
+        password: '',
         username: props.user.username,
     });
 
@@ -54,6 +58,36 @@ export const SettingsPage: React.FC<Props> = props => {
                     </div>
 
                     <div className="mb-3">
+                        <label className="form-label">Lösenord</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                setState({
+                                    ...state,
+                                    password: event.target.value,
+                                });
+                            }}
+                            type="password"
+                            value={state.password}
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label">Bekräfta lösenord</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                setState({
+                                    ...state,
+                                    confirmPassword: event.target.value,
+                                });
+                            }}
+                            type="password"
+                            value={state.confirmPassword}
+                        />
+                    </div>
+
+                    <div className="mb-3">
                         <label className="form-label">Nolla ej konton</label>
                         <textarea
                             className="form-control"
@@ -71,6 +105,7 @@ export const SettingsPage: React.FC<Props> = props => {
                     <div className="d-grid">
                         <button
                             className="btn btn-success"
+                            disabled={!!state.password && state.password !== state.confirmPassword}
                             onClick={event => {
                                 event.preventDefault()
                                 event.stopPropagation()
@@ -79,13 +114,19 @@ export const SettingsPage: React.FC<Props> = props => {
                                     method: 'PUT',
                                     url: `/api/user/${props.user.user_id}`,
                                     body: {
-                                        username: state.username,
                                         carry_accounts: state.carryAccounts,
+                                        password: state.password,
+                                        username: state.username,
                                     },
                                 }).then(res => {
                                     props.onChange({
                                         ...props.workbook,
                                         carry_accounts: state.carryAccounts,
+                                    });
+                                    setState({
+                                        ...state,
+                                        confirmPassword: '',
+                                        password: '',
                                     });
                                 })
                             }}

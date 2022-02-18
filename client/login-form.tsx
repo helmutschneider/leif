@@ -14,6 +14,8 @@ export const LoginForm: React.FC<Props> = props => {
         isInProgress: false,
     })
 
+    const usernameInputRef = React.useRef<HTMLInputElement>(null);
+
     function attemptLogin(): void {
         setState({
             ...state,
@@ -31,6 +33,10 @@ export const LoginForm: React.FC<Props> = props => {
             setState({ ...state, isInProgress: false });
         })
     }
+
+    React.useEffect(() => {
+        usernameInputRef.current?.focus();
+    }, []);
 
     return (
         <div
@@ -55,6 +61,7 @@ export const LoginForm: React.FC<Props> = props => {
                             isInProgress: false,
                         })
                     }}
+                    ref={usernameInputRef}
                     type="text"
                 />
             </div>
