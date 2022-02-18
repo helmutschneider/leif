@@ -14,6 +14,118 @@ final class InstallAction
 {
     const ERR_MISSING_USERNAME = 0;
     const ERR_MISSING_PASSWORD = 1;
+    const SAMPLE_TEMPLATES = [
+        [
+            'name' => 'Faktura mot kund 25% moms',
+            'transactions' => [
+                [
+                    'account' => 1510,
+                    'kind' => 'debit',
+                    'amount' => 1250_00,
+                ],
+                [
+                    'account' => 2610,
+                    'kind' => 'credit',
+                    'amount' => 250_00,
+                ],
+                [
+                    'account' => 3001,
+                    'kind' => 'credit',
+                    'amount' => 1000_00,
+                ],
+            ],
+        ],
+        [
+            'name' => 'Leverantörsfaktura',
+            'transactions' => [
+                [
+                    'account' => 2440,
+                    'kind' => 'credit',
+                    'amount' => 3000_00,
+                ],
+                [
+                    'account' => 2640,
+                    'kind' => 'debit',
+                    'amount' => 600_00,
+                ],
+                [
+                    'account' => 6110,
+                    'kind' => 'debit',
+                    'amount' => 2400_00,
+                ],
+            ],
+        ],
+        [
+            'name' => 'Kontorsmaterial inköp bankkort',
+            'transactions' => [
+                [
+                    'account' => 1910,
+                    'kind' => 'credit',
+                    'amount' => 500_00,
+                ],
+                [
+                    'account' => 2640,
+                    'kind' => 'debit',
+                    'amount' => 100_00,
+                ],
+                [
+                    'account' => 6110,
+                    'kind' => 'debit',
+                    'amount' => 400_00,
+                ],
+            ],
+        ],
+        [
+            'name' => 'Lön 30 000 kr (Skattetabell 30, 2022)',
+            'transactions' => [
+                [
+                    'account' => 1910,
+                    'kind' => 'credit',
+                    'amount' => 23760_00,
+                ],
+                [
+                    'account' => 2710,
+                    'kind' => 'credit',
+                    'amount' => 6240_00,
+                ],
+                [
+                    'account' => 2730,
+                    'kind' => 'credit',
+                    'amount' => 9426_00,
+                ],
+                [
+                    'account' => 7210,
+                    'kind' => 'debit',
+                    'amount' => 30000_00,
+                ],
+                [
+                    'account' => 7510,
+                    'kind' => 'debit',
+                    'amount' => 9426_00,
+                ],
+            ],
+        ],
+        [
+            'name' => 'Sociala avgifter betalning (lön 30 000kr)',
+            'transactions' => [
+                [
+                    'account' => 1910,
+                    'kind' => 'credit',
+                    'amount' => 15666_00,
+                ],
+                [
+                    'account' => 2710,
+                    'kind' => 'debit',
+                    'amount' => 6240_00,
+                ],
+                [
+                    'account' => 2730,
+                    'kind' => 'debit',
+                    'amount' => 9426_00,
+                ],
+            ],
+        ],
+    ];
 
     private Database $db;
     private PasswordHasherInterface $passwordHasher;
@@ -53,6 +165,29 @@ final class InstallAction
                         $username,
                         $this->passwordHasher->hash($password),
                     ]);
+
+                    $userId = $this->db->getLastInsertId();
+
+                    foreach (static::SAMPLE_TEMPLATES as $voucher) {
+                        $this->db->execute('INSERT INTO voucher (name, date, user_id, is_template) VALUES (?, ?, ?, ?)', [
+                            $voucher['name'],
+                            date('Y-m-d'),
+                            $userId,
+                            1,
+                        ]);
+
+                        $voucherId = $this->db->getLastInsertId();
+                        $sum = 0;
+
+                        foreach ($voucher['transactions'] as $transaction) {
+                            CreateVoucherAction::insertTransaction($this->db, $transaction, $voucherId);
+                            $sum += ($transaction['kind'] === 'debit')
+                                ? $transaction['amount']
+                                : (-$transaction['amount']);
+                        }
+
+                        assert($sum === 0);
+                    }
                 });
                 return new RedirectResponse('/');
             }
