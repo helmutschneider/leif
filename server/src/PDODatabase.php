@@ -20,13 +20,12 @@ final class PDODatabase implements Database
         $stmt = $this->db->prepare($query);
         static::bindValues($stmt, $parameters);
         $stmt->execute();
-        $schema = static::getColumnSchema($stmt);
-
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
         }
 
+        $schema = static::getColumnSchema($stmt);
         return static::castToNativeTypes($schema, [$row])[0];
     }
 
@@ -35,8 +34,22 @@ final class PDODatabase implements Database
         $stmt = $this->db->prepare($query);
         static::bindValues($stmt, $parameters);
         $stmt->execute();
-        $schema = static::getColumnSchema($stmt);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $schema = [];
+        $rows = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            // workaround for https://bugs.php.net/bug.php?id=79664.
+            // this should probably be done directly after the call
+            // to "execute()" but we can't do that atm.
+            //
+            // this seems to be fixed on later 7.4 versions but not
+            // on 7.4.3 which is on ubuntu mainline.
+            if ($schema === []) {
+                $schema = static::getColumnSchema($stmt);
+            }
+            $rows[] = $row;
+        }
+
         return static::castToNativeTypes($schema, $rows);
     }
 
