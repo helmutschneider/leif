@@ -25,6 +25,7 @@ final class CreateVoucherActionTest extends WebTestCase
         $client->request('POST', '/api/voucher', [], [], ['HTTP_AUTHORIZATION' => '1234'], json_encode([
             'date' => '2022-02-14',
             'name' => 'Test voucher',
+            'is_template' => false,
             'transactions' => [
                 [
                     'account' => 1910,

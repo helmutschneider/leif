@@ -12,6 +12,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class CreateVoucherAction
 {
+    use ValidationTrait;
+
     const ERR_NOT_BALANCED = [
         'message' => 'Credits and debits are not balanced.',
     ];
@@ -24,6 +26,22 @@ final class CreateVoucherAction
         'credit' => self::VOUCHER_KIND_CREDIT,
         'debit' => self::VOUCHER_KIND_DEBIT,
     ];
+    const RULES = [
+        'name' => 'required|string',
+        'notes' => 'string',
+        'date' => 'required|date_format:Y-m-d',
+        'is_template' => 'required|boolean',
+
+        'attachments' => 'array',
+        'attachments.*.data' => 'required|string',
+        'attachments.*.mime' => 'required|string',
+        'attachments.*.name' => 'required|string',
+
+        'transactions' => 'required|array',
+        'transactions.*.account' => 'required|integer',
+        'transactions.*.amount' => 'required|integer',
+        'transactions.*.kind' => 'required|string',
+    ];
 
     private Database $db;
 
@@ -34,6 +52,10 @@ final class CreateVoucherAction
 
     public function __invoke(Request $request, UserInterface $user): Response
     {
+        if ($err = $this->validate($request, static::RULES)) {
+            return $err;
+        }
+
         $body = $request->toArray();
 
         if (empty($body['transactions'])) {

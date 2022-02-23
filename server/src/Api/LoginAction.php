@@ -13,11 +13,14 @@ use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 final class LoginAction
 {
-    const ERR_MISSING_CREDENTIALS = [
-        'message' => '\'username\' and \'password\' are required.',
-    ];
+    use ValidationTrait;
+
     const ERR_BAD_CREDENTIALS = [
         'message' => 'Invalid username or password.',
+    ];
+    const RULES = [
+        'password' => 'required|string',
+        'username' => 'required|string',
     ];
 
     private Database $db;
@@ -35,12 +38,11 @@ final class LoginAction
 
     public function __invoke(Request $request): Response
     {
-        $body = $request->toArray();
-
-        if (!isset($body['username'], $body['password'])) {
-            return new JsonResponse(static::ERR_MISSING_CREDENTIALS, Response::HTTP_UNPROCESSABLE_ENTITY);
+        if ($err = $this->validate($request, static::RULES)) {
+            return $err;
         }
 
+        $body = $request->toArray();
         $username = (string) ($body['username'] ?: '');
         $password = (string) ($body['password'] ?: '');
 

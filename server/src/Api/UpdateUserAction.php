@@ -11,6 +11,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class UpdateUserAction
 {
+    use ValidationTrait;
+
+    const RULES = [
+        'carry_accounts' => 'string',
+        'password' => 'string',
+        'username' => 'string',
+    ];
+
     private Database $db;
     private PasswordHasherInterface $passwordHasher;
 
@@ -20,8 +28,12 @@ final class UpdateUserAction
         $this->passwordHasher = $passwordHasher;
     }
 
-    public function __invoke(Request $request, UserInterface $user, int $id): JsonResponse
+    public function __invoke(Request $request, UserInterface $user, int $id): Response
     {
+        if ($err = $this->validate($request, static::RULES)) {
+            return $err;
+        }
+
         $body = $request->toArray();
         $userId = $user->getId();
 

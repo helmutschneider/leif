@@ -12,6 +12,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class UpdateVoucherAction
 {
+    use ValidationTrait;
+
     const SQL_GET_VOUCHER = <<<SQL
 SELECT v.*
   FROM voucher AS v
@@ -50,7 +52,21 @@ UPDATE voucher
        updated_at = :updated_at
  WHERE voucher_id = :voucher_id
 SQL;
+    const RULES = [
+        'name' => 'string',
+        'notes' => 'string',
+        'date' => 'date_format:Y-m-d',
 
+        'attachments' => 'array',
+        'attachments.*.data' => 'string',
+        'attachments.*.mime' => 'string',
+        'attachments.*.name' => 'string',
+
+        'transactions' => 'array',
+        'transactions.*.account' => 'required|integer',
+        'transactions.*.amount' => 'required|integer',
+        'transactions.*.kind' => 'required|string',
+    ];
 
     private Database $db;
 
@@ -61,6 +77,10 @@ SQL;
 
     public function __invoke(Request $request, UserInterface $user, int $id)
     {
+        if ($err = $this->validate($request, static::RULES)) {
+            return $err;
+        }
+
         $voucher = $this->db->selectOne(static::SQL_GET_VOUCHER, [
             ':voucher_id' => $id,
             ':user_id' => $user->getId(),
