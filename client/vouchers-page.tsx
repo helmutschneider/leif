@@ -31,77 +31,115 @@ type State = {
     voucher: t.Voucher
 }
 
-function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyArray<t.Voucher>, state: State): State | undefined {
-    const selection = state.selection;
-
-    if (selection.kind !== 'voucher') {
-        return undefined;
+function getNextIndexFromKeyboardEvent<T>(event: KeyboardEvent, values: ReadonlyArray<T>, current: T | undefined): number | undefined {
+    if (typeof current === 'undefined') {
+        return values.length ? 0 : undefined
     }
 
     switch (event.keyCode) {
         case KeyCode.ArrowDown: {
-            event.preventDefault();
-            event.stopPropagation();
-            const voucherIndex = vouchers.findIndex(v => {
-                return v.voucher_id === selection.voucherId;
-            });
-            if (voucherIndex !== -1) {
-                const nextIndex = (voucherIndex + 1) % vouchers.length;
-                const nextId = vouchers[nextIndex]?.voucher_id;
-                if (nextId) {
-                    return {
-                        ...state,
-                        selection: { kind: 'voucher', voucherId: nextId },
-                    };
-                }
-            }
-            return undefined;
-        }
-        case KeyCode.ArrowLeft: {
-            event.preventDefault()
-            event.stopPropagation();
-            const next = state.openVoucherIds.slice();
-            const index = next.indexOf(selection.voucherId);
-            if (index !== -1) {
-                next.splice(index, 1);
-                return {
-                    ...state,
-                    openVoucherIds: next,
-                };
-            }
-            return undefined;
-        }
-        case KeyCode.ArrowRight: {
-            event.preventDefault()
-            event.stopPropagation();
-            const next = state.openVoucherIds.slice();
-            if (!next.includes(selection.voucherId)) {
-                return {
-                    ...state,
-                    openVoucherIds: next.concat(selection.voucherId),
-                };
+            const indexOfCurrentValue = values.indexOf(current);
+            if (indexOfCurrentValue !== -1) {
+                return (indexOfCurrentValue + 1) % values.length;
             }
             return undefined;
         }
         case KeyCode.ArrowUp: {
-            event.preventDefault()
-            event.stopPropagation();
-            const voucherIndex = vouchers.findIndex(v => {
-                return v.voucher_id === selection.voucherId;
-            });
-            if (voucherIndex !== -1) {
-                const nextIndex = voucherIndex === 0
-                    ? (vouchers.length - 1)
-                    : (voucherIndex - 1);
-                const nextId = vouchers[nextIndex]?.voucher_id;
-                if (nextId) {
-                    return {
-                        ...state,
-                        selection: { kind: 'voucher', voucherId: nextId },
-                    };
-                }
+            const indexOfCurrentValue = values.indexOf(current);
+            if (indexOfCurrentValue !== -1) {
+                return indexOfCurrentValue === 0
+                    ? (values.length - 1)
+                    : (indexOfCurrentValue - 1);
             }
             return undefined;
+        }
+    }
+
+    return undefined;
+}
+
+function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyArray<t.Voucher>, balances: t.AccountBalanceMap, state: State): State | undefined {
+    const selection = state.selection;
+
+    if (selection.kind === 'none') {
+        return undefined;
+    }
+
+    switch (selection.kind) {
+        case 'account': {
+            switch (event.keyCode) {
+                case KeyCode.ArrowUp:
+                case KeyCode.ArrowDown:
+                    const accountNumbers = Object.keys(balances).map(item => tryParseInt(item, 0));
+                    const nextIndex = getNextIndexFromKeyboardEvent(event, accountNumbers, selection.accountNumber);
+
+                    if (typeof nextIndex !== 'undefined') {
+                        const nextAccountNumber = accountNumbers[nextIndex];
+
+                        return {
+                            ...state,
+                            selection: {
+                                kind: 'account',
+                                accountNumber: nextAccountNumber!,
+                            },
+                        };
+                    }
+
+                    break;
+            }
+            return undefined;
+        }
+        case 'voucher': {
+            switch (event.keyCode) {
+                case KeyCode.ArrowUp:
+                case KeyCode.ArrowDown: {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const selectedVoucher = vouchers.find(v => v.voucher_id === selection.voucherId);
+                    const nextIndex = getNextIndexFromKeyboardEvent(event, vouchers, selectedVoucher);
+
+                    if (typeof nextIndex !== 'undefined') {
+                        const voucher = vouchers[nextIndex];
+
+                        return {
+                            ...state,
+                            selection: {
+                                kind: 'voucher',
+                                voucherId: voucher?.voucher_id!,
+                            },
+                        };
+                    }
+
+                    return undefined;
+                }
+                case KeyCode.ArrowLeft: {
+                    event.preventDefault()
+                    event.stopPropagation();
+                    const next = state.openVoucherIds.slice();
+                    const index = next.indexOf(selection.voucherId);
+                    if (index !== -1) {
+                        next.splice(index, 1);
+                        return {
+                            ...state,
+                            openVoucherIds: next,
+                        };
+                    }
+                    return undefined;
+                }
+                case KeyCode.ArrowRight: {
+                    event.preventDefault()
+                    event.stopPropagation();
+                    const next = state.openVoucherIds.slice();
+                    if (!next.includes(selection.voucherId)) {
+                        return {
+                            ...state,
+                            openVoucherIds: next.concat(selection.voucherId),
+                        };
+                    }
+                    return undefined;
+                }
+            }
         }
     }
 
@@ -146,7 +184,7 @@ export const VouchersPage: React.FC<Props> = props => {
             });
         };
         const documentKeyDownListener = (event: KeyboardEvent) => {
-            const next = getNextStateFromKeydownEvent(event, filteredVouchers, state);
+            const next = getNextStateFromKeydownEvent(event, filteredVouchers, balances, state);
             if (typeof next !== 'undefined') {
                 setState(next);
             }
