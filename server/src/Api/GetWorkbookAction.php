@@ -24,9 +24,18 @@ SQL;
 SELECT v.*
   FROM voucher AS v
  WHERE v.user_id = :user_id
-   AND v.is_template = :is_template
+   AND v.is_template = 0
  ORDER BY v.date DESC,
           v.created_at DESC
+SQL;
+
+    const SQL_GET_TEMPLATES = <<<SQL
+SELECT v.*
+  FROM voucher AS v
+ WHERE v.user_id = :user_id
+   AND v.is_template = 1
+ ORDER BY v.name ASC,
+          v.created_at ASC
 SQL;
 
     const SQL_GET_ATTACHMENTS = <<<SQL
@@ -70,10 +79,12 @@ SQL;
 
     protected function findVouchers(int $userId, bool $isTemplate): array
     {
-        $vouchers = $this->db->selectAll(static::SQL_GET_VOUCHERS, [
-            ':user_id' => $userId,
-            ':is_template' => (int) $isTemplate,
-        ]);
+        $vouchers = $this->db->selectAll(
+            $isTemplate
+                ? static::SQL_GET_TEMPLATES
+                : static::SQL_GET_VOUCHERS,
+            [':user_id' => $userId]
+        );
         $transactions = $this->db->selectAll(static::SQL_GET_TRANSACTIONS, [
             ':user_id' => $userId,
             ':is_template' => (int) $isTemplate,
