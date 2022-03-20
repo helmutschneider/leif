@@ -9,7 +9,10 @@ const dateFormatters: { [pattern: string]: DateFormatter } = {
     "yyyy": (date) => date.getFullYear().toString().padStart(4, '0'),
     "MM": (date) => (date.getMonth() + 1).toString().padStart(2, '0'),
     "dd": (date) => date.getDate().toString().padStart(2, '0'),
-}
+    "HH": (date) => date.getHours().toString().padStart(2, '0'),
+    "mm": (date) => date.getMinutes().toString().padStart(2, '0'),
+    "ss": (date) => date.getSeconds().toString().padStart(2, '0'),
+};
 
 export function formatDate(date: Date, pattern: string): string {
     const regex = new RegExp(Object.keys(dateFormatters).join('|'), 'g');

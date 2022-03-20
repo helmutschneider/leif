@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Workbook, Voucher, currencies, User} from "./types";
-import {emptyVoucher} from "./util";
+import {emptyVoucher, formatDate} from "./util";
 import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
 
@@ -158,6 +158,35 @@ export const SettingsPage: React.FC<Props> = props => {
                                                 });
                                             }}
                                             title="Redigera"
+                                            role="button"
+                                        />
+                                        <i
+                                            className="bi bi-layers-fill me-1"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                const dt = new Date();
+                                                const copied: Voucher = {
+                                                    attachments: [],
+                                                    created_at: '',
+                                                    date: formatDate(dt, 'yyyy-MM-dd'),
+                                                    is_template: true,
+                                                    name: `${template.name} (kopia ${formatDate(dt, 'yyyy-MM-dd HH:mm:ss')})`,
+                                                    notes: template.notes,
+                                                    transactions: template.transactions,
+                                                    updated_at: '',
+                                                };
+
+                                                props.http({
+                                                    method: 'POST',
+                                                    url: '/api/voucher',
+                                                    body: copied,
+                                                }).then(res => {
+                                                    props.onWorkbookChanged();
+                                                });
+                                            }}
+                                            title="Kopiera"
                                             role="button"
                                         />
                                         <i
