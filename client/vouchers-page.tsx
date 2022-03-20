@@ -11,6 +11,11 @@ import {HttpSendFn} from "./http";
 import * as t from "./types";
 import {currencies, KeyCode} from "./types";
 
+type Selection =
+    | { kind: 'none' }
+    | { kind: 'account', accountNumber: number }
+    | { kind: 'voucher', voucherId: number }
+
 type Props = {
     http: HttpSendFn
     onWorkbookChanged: () => unknown
@@ -22,12 +27,14 @@ type Props = {
 
 type State = {
     openVoucherIds: ReadonlyArray<number>
-    selectedVoucherId: number | undefined
+    selection: Selection
     voucher: t.Voucher
 }
 
 function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyArray<t.Voucher>, state: State): State | undefined {
-    if (typeof state.selectedVoucherId === 'undefined') {
+    const selection = state.selection;
+
+    if (selection.kind !== 'voucher') {
         return undefined;
     }
 
@@ -36,7 +43,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
             event.preventDefault();
             event.stopPropagation();
             const voucherIndex = vouchers.findIndex(v => {
-                return v.voucher_id === state.selectedVoucherId;
+                return v.voucher_id === selection.voucherId;
             });
             if (voucherIndex !== -1) {
                 const nextIndex = (voucherIndex + 1) % vouchers.length;
@@ -44,7 +51,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
                 if (nextId) {
                     return {
                         ...state,
-                        selectedVoucherId: nextId,
+                        selection: { kind: 'voucher', voucherId: nextId },
                     };
                 }
             }
@@ -54,7 +61,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
             event.preventDefault()
             event.stopPropagation();
             const next = state.openVoucherIds.slice();
-            const index = next.indexOf(state.selectedVoucherId);
+            const index = next.indexOf(selection.voucherId);
             if (index !== -1) {
                 next.splice(index, 1);
                 return {
@@ -68,10 +75,10 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
             event.preventDefault()
             event.stopPropagation();
             const next = state.openVoucherIds.slice();
-            if (!next.includes(state.selectedVoucherId)) {
+            if (!next.includes(selection.voucherId)) {
                 return {
                     ...state,
-                    openVoucherIds: next.concat(state.selectedVoucherId),
+                    openVoucherIds: next.concat(selection.voucherId),
                 };
             }
             return undefined;
@@ -80,7 +87,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
             event.preventDefault()
             event.stopPropagation();
             const voucherIndex = vouchers.findIndex(v => {
-                return v.voucher_id === state.selectedVoucherId;
+                return v.voucher_id === selection.voucherId;
             });
             if (voucherIndex !== -1) {
                 const nextIndex = voucherIndex === 0
@@ -90,7 +97,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
                 if (nextId) {
                     return {
                         ...state,
-                        selectedVoucherId: nextId,
+                        selection: { kind: 'voucher', voucherId: nextId },
                     };
                 }
             }
@@ -108,7 +115,7 @@ function findTransactionsWhereAccountMatches(transactions: ReadonlyArray<t.Trans
 export const VouchersPage: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
         openVoucherIds: [],
-        selectedVoucherId: undefined,
+        selection: { kind: 'none' },
         voucher: emptyVoucher(),
     });
 
@@ -134,7 +141,7 @@ export const VouchersPage: React.FC<Props> = props => {
             setState(prev => {
                 return {
                     ...prev,
-                    selectedVoucherId: undefined,
+                    selection: { kind: 'none' },
                 };
             });
         };
@@ -150,14 +157,14 @@ export const VouchersPage: React.FC<Props> = props => {
             document.removeEventListener('click', documentClickListener);
             document.removeEventListener('keydown', documentKeyDownListener);
         };
-    }, [state.openVoucherIds, state.selectedVoucherId]);
+    }, [state.openVoucherIds, state.selection]);
 
     React.useEffect(() => {
         setState(prev => {
             return {
                 ...prev,
                 openVoucherIds: [],
-                selectedVoucherId: undefined,
+                selection: { kind: 'none' },
             };
         })
     }, [props.search]);
@@ -214,14 +221,19 @@ export const VouchersPage: React.FC<Props> = props => {
                         );
                         const sumOfCheckingAccounts = sumOfTransactions(transactionsFromCheckingAccounts);
 
+                        const selection = state.selection
+                        let rowClassName = '';
+
+                        if (selection.kind === 'voucher' && selection.voucherId === voucher.voucher_id) {
+                            rowClassName = 'table-primary';
+                        } else if (selection.kind === 'account' && voucher.transactions.some(t => t.account === selection.accountNumber)) {
+                            rowClassName = 'table-secondary';
+                        }
+
                         return (
                             <React.Fragment key={idx}>
                                 <tr
-                                    className={
-                                        state.selectedVoucherId === voucher.voucher_id
-                                            ? 'table-primary'
-                                            : undefined
-                                    }
+                                    className={rowClassName}
                                     onMouseDown={event => {
                                         // prevent selection by double click. various places online
                                         // suggest invoking "preventDefault()" unconditionally which
@@ -239,7 +251,10 @@ export const VouchersPage: React.FC<Props> = props => {
 
                                         setState({
                                             ...state,
-                                            selectedVoucherId: voucher.voucher_id,
+                                            selection: {
+                                                kind: 'voucher',
+                                                voucherId: voucher.voucher_id!,
+                                            },
                                         });
                                     }}
                                     onDoubleClick={event => {
@@ -263,7 +278,10 @@ export const VouchersPage: React.FC<Props> = props => {
 
                                         setState({
                                             openVoucherIds: next,
-                                            selectedVoucherId: voucherId,
+                                            selection: {
+                                                kind: 'voucher',
+                                                voucherId: voucher.voucher_id!,
+                                            },
                                             voucher: state.voucher,
                                         });
                                     }}
@@ -314,13 +332,13 @@ export const VouchersPage: React.FC<Props> = props => {
                                                     // stop editing instead.
                                                     setState({
                                                         openVoucherIds: state.openVoucherIds,
-                                                        selectedVoucherId: undefined,
+                                                        selection: { kind: 'none' },
                                                         voucher: emptyVoucher(),
                                                     })
                                                 } else {
                                                     setState({
                                                         openVoucherIds: state.openVoucherIds,
-                                                        selectedVoucherId: undefined,
+                                                        selection: { kind: 'none' },
                                                         voucher: voucher,
                                                     })
                                                 }
@@ -345,8 +363,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                                     props.onWorkbookChanged();
                                                     setState({
                                                         openVoucherIds: state.openVoucherIds,
-                                                        selectedVoucherId: undefined,
-
+                                                        selection: { kind: 'none' },
                                                         // if we had accidentally clicked the "edit" button
                                                         // before deleting the voucher it would still be in
                                                         // state, which is kinda weird.
@@ -384,7 +401,7 @@ export const VouchersPage: React.FC<Props> = props => {
 
                                     setState({
                                         openVoucherIds: state.openVoucherIds,
-                                        selectedVoucherId: undefined,
+                                        selection: { kind: 'none' },
                                         voucher: emptyVoucher(),
                                     });
                                 }}
@@ -401,7 +418,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         onChange={next => {
                             setState({
                                 openVoucherIds: state.openVoucherIds,
-                                selectedVoucherId: undefined,
+                                selection: { kind: 'none' },
                                 voucher: next,
                             });
                         }}
@@ -423,7 +440,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                 props.onWorkbookChanged();
                                 setState({
                                     openVoucherIds: state.openVoucherIds,
-                                    selectedVoucherId: undefined,
+                                    selection: { kind: 'none' },
                                     voucher: emptyVoucher(),
                                 });
                             })
@@ -436,9 +453,32 @@ export const VouchersPage: React.FC<Props> = props => {
                 <table className="table table-sm">
                     <tbody>
                     {Object.entries(balances).map((e, idx) => {
-                        const accountName = props.workbook.accounts[e[0]] ?? '';
+                        const accountNumber = tryParseInt(e[0], 0);
+                        const accountName = props.workbook.accounts[accountNumber] ?? '';
+
                         return (
-                            <tr key={idx}>
+                            <tr
+                                className={
+                                    state.selection.kind === 'account'
+                                        && state.selection.accountNumber === accountNumber
+                                        ? 'table-primary'
+                                        : undefined
+                                }
+                                key={idx}
+                                onClick={event => {
+                                    event.preventDefault()
+                                    event.stopPropagation()
+
+                                    setState({
+                                        ...state,
+                                        selection: {
+                                            kind: 'account',
+                                            accountNumber: accountNumber,
+                                        },
+                                    });
+                                }}
+                                role="button"
+                            >
                                 <td>{e[0]}</td>
                                 <td>
                                     <span title={accountName}>
