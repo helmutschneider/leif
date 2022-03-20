@@ -70,6 +70,9 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
             switch (event.keyCode) {
                 case KeyCode.ArrowUp:
                 case KeyCode.ArrowDown:
+                    event.preventDefault();
+                    event.stopPropagation();
+
                     const accountNumbers = Object.keys(balances).map(item => tryParseInt(item, 0));
                     const nextIndex = getNextIndexFromKeyboardEvent(event, accountNumbers, selection.accountNumber);
 
