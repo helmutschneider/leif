@@ -153,6 +153,21 @@ function findTransactionsWhereAccountMatches(transactions: ReadonlyArray<t.Trans
     return transactions.filter(tr => pattern.test(String(tr.account)));
 }
 
+function maybeMakeAmountRed(amount: string | number): React.ReactNode {
+    const str = String(amount);
+
+    // Unicode Character 'MINUS SIGN' (U+2212)
+    // https://www.fileformat.info/info/unicode/char/2212/index.htm
+    //
+    // Intl.NumberFormat likes to give us this character.
+    if (/^[-\u2212]/.test(str)) {
+        return (
+            <span className="text-danger">{str}</span>
+        )
+    }
+    return str;
+}
+
 export const VouchersPage: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
         openVoucherIds: [],
@@ -237,16 +252,17 @@ export const VouchersPage: React.FC<Props> = props => {
                                     <td/>
                                     <td colSpan={2}>
                                         {voucher.transactions.map((item, k) => {
+                                            const formattedAmount = formatIntegerAsMoneyWithSeparatorsAndSymbol(
+                                                item.kind === 'credit'
+                                                    ? ('-' + item.amount)
+                                                    : item.amount,
+                                                currency
+                                            );
                                             return (
                                                 <div className="row" key={k}>
                                                     <div className="col-6">{item.account}</div>
                                                     <div className="col-6 text-end">
-                                                        {formatIntegerAsMoneyWithSeparatorsAndSymbol(
-                                                            item.kind === 'credit'
-                                                                ? ('-' + item.amount)
-                                                                : item.amount,
-                                                            currency
-                                                        )}
+                                                        {maybeMakeAmountRed(formattedAmount)}
                                                     </div>
                                                 </div>
                                             )
@@ -338,7 +354,9 @@ export const VouchersPage: React.FC<Props> = props => {
                                     <td className="col-2 text-end">
                                         {
                                             sumOfCheckingAccounts !== 0 && !isVoucherOpen
-                                                ? formatIntegerAsMoneyWithSeparatorsAndSymbol(sumOfCheckingAccounts, currency)
+                                                ? maybeMakeAmountRed(
+                                                    formatIntegerAsMoneyWithSeparatorsAndSymbol(sumOfCheckingAccounts, currency)
+                                                )
                                                 : undefined
                                         }
                                     </td>
