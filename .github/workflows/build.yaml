@@ -3,7 +3,7 @@ on:
   - push
 env:
   COMPOSER_HOME: ~/.composer
-  PHP_VERSION: 7.4
+  PHP_VERSION: 8.1
 jobs:
   build:
     runs-on: ubuntu-20.04

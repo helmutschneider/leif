@@ -11,40 +11,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
-use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
-use Symfony\Component\DependencyInjection\Loader\IniFileLoader;
-use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\HttpKernel\Config\FileLocator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 final class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-
-    /**
-     * Returns a loader for the container.
-     *
-     * @return DelegatingLoader
-     */
-    protected function getContainerLoader(ContainerInterface $container)
-    {
-        $env = $this->getEnvironment();
-        $locator = new FileLocator($this);
-        $resolver = new LoaderResolver([
-            new XmlFileLoader($container, $locator, $env),
-            new IniFileLoader($container, $locator, $env),
-            new PhpFileLoader($container, $locator, $env, class_exists(ConfigBuilderGenerator::class) ? new ConfigBuilderGenerator($this->getBuildDir()) : null),
-            new GlobFileLoader($container, $locator, $env),
-            new DirectoryLoader($container, $locator, $env),
-            new ClosureLoader($container, $env),
-        ]);
-
-        return new DelegatingLoader($resolver);
-    }
 
     private function getConfigDir(): string
     {

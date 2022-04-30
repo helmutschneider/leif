@@ -17,7 +17,8 @@ abstract class TestCase extends KernelTestCase
         parent::setUp();
 
         static::bootKernel([
-            'debug' => false,
+            'environment' => 'test',
+            'debug' => true,
         ]);
 
         $this->db = static::getContainer()->get(Database::class);
