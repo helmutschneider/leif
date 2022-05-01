@@ -21,7 +21,7 @@ only supports the Swedish language at the moment but that may change in the futu
 
 ## Requirements
 - NodeJS 14+
-- PHP 7.4+
+- PHP 8.1+
 - SQLite3
 
 ## Running
