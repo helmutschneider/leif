@@ -83,4 +83,42 @@ return static function (ContainerConfigurator $container) {
         ->args([
             '$ttl' => '%leif.token_ttl%',
         ]);
+
+    $descriptors = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w'],
+    ];
+    $proc = proc_open('git -C "${APP_PATH}" rev-parse --short HEAD', $descriptors, $pipes, null, [
+        'APP_PATH' => __DIR__,
+    ]);
+    $version = 'dev-master';
+
+    if ($proc !== false) {
+        $version = stream_get_contents($pipes[1]);
+        $err = stream_get_contents($pipes[2]);
+
+        if ($err) {
+            throw new RuntimeException($err);
+        }
+
+        foreach ($pipes as $pipe) {
+            fclose($pipe);
+        }
+
+        proc_close($proc);
+    }
+
+    $services
+        ->set(\Leif\ResponseListener::class)
+        ->tag('kernel.event_listener', [
+            'event' => \Symfony\Component\HttpKernel\KernelEvents::RESPONSE,
+        ])
+        ->args([
+            [
+                'Build-Date' => date('c'),
+                'Build-Environment' => $container->env(),
+                'Build-Version' => trim($version),
+            ],
+        ]);
 };
