@@ -21,14 +21,23 @@ return function (RoutingConfigurator $routes) {
 
     $routes->add('delete_voucher', '/api/voucher/{id}')
         ->methods(['DELETE'])
+        ->requirements([
+            'id' => '\d+',
+        ])
         ->controller(\Leif\Api\DeleteVoucherAction::class);
 
     $routes->add('update_voucher', '/api/voucher/{id}')
         ->methods(['PUT'])
+        ->requirements([
+            'id' => '\d+',
+        ])
         ->controller(\Leif\Api\UpdateVoucherAction::class);
 
     $routes->add('get_attachment', '/api/attachment/{id}')
         ->methods(['GET'])
+        ->requirements([
+            'id' => '\d+',
+        ])
         ->controller(\Leif\Api\GetAttachmentAction::class);
 
     $routes->add('install', '/install')
@@ -37,5 +46,8 @@ return function (RoutingConfigurator $routes) {
 
     $routes->add('update_user', '/api/user/{id}')
         ->methods(['PUT'])
+        ->requirements([
+            'id' => '\d+',
+        ])
         ->controller(\Leif\Api\UpdateUserAction::class);
 };
