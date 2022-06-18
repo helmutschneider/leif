@@ -64,7 +64,9 @@ return static function (ContainerConfigurator $container) {
             \Symfony\Component\PasswordHasher\Hasher\NativePasswordHasher::class
         )
         ->args([
-            '$cost' => 15,
+            '$cost' => $container->env() === 'test'
+                ? 4
+                : 15,
         ]);
 
     $services->set(

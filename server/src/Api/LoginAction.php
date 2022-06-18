@@ -49,12 +49,22 @@ final class LoginAction
         $row = $this->db->selectOne('SELECT * FROM user WHERE username = :name', [
             ':name' => $username,
         ]);
+
         if (!$row) {
             return new JsonResponse(static::ERR_BAD_CREDENTIALS, Response::HTTP_UNAUTHORIZED);
         }
+
         if (!$this->passwordHasher->verify($row['password_hash'], $password)) {
             return new JsonResponse(static::ERR_BAD_CREDENTIALS, Response::HTTP_UNAUTHORIZED);
         }
+
+        if ($this->passwordHasher->needsRehash($row['password_hash'])) {
+            $this->db->execute('UPDATE user SET password_hash = ? WHERE user_id = ?', [
+                $this->passwordHasher->hash($password),
+                $row['user_id'],
+            ]);
+        }
+
         $token = random_bytes(32);
         $now = new DateTimeImmutable('now');
 
