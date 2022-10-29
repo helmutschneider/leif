@@ -82,3 +82,6 @@ export type AccountBalanceMap = {
 export type AccountPlan = {
     [key: AccountNumber | string]: string
 }
+export type BackendError = {
+    message: string
+}

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {KeyCode, User} from "./types";
+import {BackendError, KeyCode, User} from "./types";
 import {HttpSendFn} from "./http";
 
 type Props = {
@@ -7,19 +7,41 @@ type Props = {
     onLogin: (user: User) => unknown
 }
 
+type State = {
+    username: string;
+    password: string;
+    isLoading: boolean;
+    error: string | undefined;
+}
+
+type AlertKind = 'primary' | 'success' | 'danger';
+
+const Alert: React.FC<{ kind: AlertKind, message: string }> = props => {
+    if (!props.message) {
+        return null;
+    }
+    return (
+        <div className={`alert alert-${props.kind}`}>
+            {props.message}
+        </div>
+    )
+}
+
 export const LoginForm: React.FC<Props> = props => {
-    const [state, setState] = React.useState({
+    const [state, setState] = React.useState<State>({
         username: '',
         password: '',
-        isInProgress: false,
-    })
+        isLoading: false,
+        error: undefined,
+    });
 
     const usernameInputRef = React.useRef<HTMLInputElement>(null);
 
     function attemptLogin(): void {
         setState({
             ...state,
-            isInProgress: true,
+            isLoading: true,
+            error: undefined,
         })
 
         props.http<User>({
@@ -27,10 +49,14 @@ export const LoginForm: React.FC<Props> = props => {
             url: '/api/login',
             body: state,
         }).then(user => {
-            setState({ ...state, isInProgress: false });
+            setState({ ...state, isLoading: false });
             props.onLogin(user);
-        }, err => {
-            setState({ ...state, isInProgress: false });
+        }, (err: BackendError) => {
+            setState({
+                ...state,
+                isLoading: false,
+                error: err.message,
+            });
         })
     }
 
@@ -58,7 +84,8 @@ export const LoginForm: React.FC<Props> = props => {
                         setState({
                             username: event.target.value,
                             password: state.password,
-                            isInProgress: false,
+                            isLoading: false,
+                            error: undefined,
                         })
                     }}
                     ref={usernameInputRef}
@@ -74,16 +101,17 @@ export const LoginForm: React.FC<Props> = props => {
                         setState({
                             username: state.username,
                             password: event.target.value,
-                            isInProgress: false,
+                            isLoading: false,
+                            error: undefined,
                         })
                     }}
                     type="password"
                 />
             </div>
-            <div className="d-grid">
+            <div className="d-grid mb-3">
                 <button
                     className="btn btn-primary btn-lg"
-                    disabled={state.isInProgress}
+                    disabled={state.isLoading}
                     onClick={event => {
                         event.preventDefault()
                         event.stopPropagation()
@@ -91,7 +119,7 @@ export const LoginForm: React.FC<Props> = props => {
                         attemptLogin()
                     }}
                 >
-                    {state.isInProgress
+                    {state.isLoading
                         ? (
                             <span
                                 className="spinner-border spinner-border-sm"
@@ -102,6 +130,9 @@ export const LoginForm: React.FC<Props> = props => {
                         : 'OK'
                     }
                 </button>
+            </div>
+            <div className="mb-3">
+                <Alert kind="danger" message={state.error || ''} />
             </div>
         </div>
     )

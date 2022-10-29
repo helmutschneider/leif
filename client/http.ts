@@ -29,14 +29,16 @@ export class FetchBackend implements HttpBackend {
             },
             body: JSON.stringify(request.body),
         }).then(res => {
-            if (res.status > 299) {
-                return Promise.reject(res)
-            }
             const contentType = res.headers.get('Content-Type');
-            if (contentType?.includes(JSON_CONTENT_TYPE)) {
-                return res.json()
+            const message = contentType?.includes(JSON_CONTENT_TYPE)
+                ? res.json()
+                : res.text();
+
+            if (res.status > 299) {
+                return message.then(d => Promise.reject(d));
             }
-            return res.text()
+
+            return message;
         }, err => Promise.reject(err))
     }
 }
