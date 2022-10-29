@@ -2,10 +2,13 @@ import * as t from './types'
 import {AccountNumber} from "./types";
 
 type DateFormatter = {
-    (date: Date): string
+    (date: Date): string;
+};
+type DateParser = {
+    (date: Date, chunk: string): Date | undefined;
 };
 
-const dateFormatters: { [pattern: string]: DateFormatter } = {
+const DATE_FORMATTERS: { [pattern: string]: DateFormatter } = {
     "yyyy": (date) => date.getFullYear().toString().padStart(4, '0'),
     "MM": (date) => (date.getMonth() + 1).toString().padStart(2, '0'),
     "dd": (date) => date.getDate().toString().padStart(2, '0'),
@@ -14,11 +17,58 @@ const dateFormatters: { [pattern: string]: DateFormatter } = {
     "ss": (date) => date.getSeconds().toString().padStart(2, '0'),
 };
 
+const DATE_PARSERS: { [pattern: string]: DateParser} = {
+    "yyyy": (date, chunk) => {
+        if (!/^\d{4}$/.test(chunk)) {
+            return undefined;
+        }
+        const asInt = tryParseInt(chunk, 0);
+        date.setFullYear(asInt);
+        return date;
+    },
+    "MM": (date, chunk) => {
+        if (!/^\d{2}$/.test(chunk)) {
+            return undefined;
+        }
+        const asInt = tryParseInt(chunk, 0);
+        date.setMonth(asInt - 1);
+        return date;
+    },
+    "dd": (date, chunk) => {
+        if (!/^\d{2}$/.test(chunk)) {
+            return undefined;
+        }
+        const asInt = tryParseInt(chunk, 0);
+        date.setDate(asInt);
+        return date;
+    },
+};
+
 export function formatDate(date: Date, pattern: string): string {
-    const regex = new RegExp(Object.keys(dateFormatters).join('|'), 'g');
+    const regex = new RegExp(Object.keys(DATE_FORMATTERS).join('|'), 'g');
     return pattern.replace(regex, (match) => {
-        return dateFormatters[match]?.call(undefined, date) ?? ''
+        return DATE_FORMATTERS[match]?.call(undefined, date) ?? ''
     });
+}
+
+export function parseDate(value: string, pattern: string): Date | undefined {
+    const regex = new RegExp(Object.keys(DATE_PARSERS).join('|'), 'g');
+    let dt = new Date();
+    let match: RegExpMatchArray | null;
+    while ((match = regex.exec(pattern)) !== null) {
+        const matchedPatternChunk = match[0]!;
+        const length = matchedPatternChunk.length;
+        const index = match.index!;
+        const chunk = value.slice(index, index + length);
+        const parser = DATE_PARSERS[matchedPatternChunk];
+        const res = parser?.call(undefined, dt, chunk);
+
+        if (typeof res === 'undefined') {
+            console.log(`Failed to parse date chunk '${chunk}' as '${matchedPatternChunk}'.`);
+            return undefined;
+        }
+    }
+    return dt;
 }
 
 export function ellipsis(value: string, length: number): string {
@@ -28,12 +78,35 @@ export function ellipsis(value: string, length: number): string {
     return value;
 }
 
-export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, year: number, carryAccounts: ReadonlyArray<AccountNumber>): t.AccountBalanceMap {
-    const result: t.AccountBalanceMap = {}
+export function hashDate(dt: Date): number {
+    const year = dt.getFullYear();
+    const month = dt.getMonth() + 1;
+    const date = dt.getDate();
+
+    return (year << 16)
+        | (month << 8)
+        | date;
+}
+
+export function isFuture(date: Date, origin: Date): boolean {
+    const a = hashDate(date);
+    const b = hashDate(origin);
+
+    return a > b;
+}
+
+export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, year: number, today: string, carryAccounts: ReadonlyArray<AccountNumber>): t.AccountBalanceMap {
+    const result: t.AccountBalanceMap = {};
+    const todayAsDate = parseDate(today, 'yyyy-MM-dd')!;
 
     for (const voucher of vouchers) {
-        const dt = new Date(voucher.date);
-        const voucherYear = dt.getFullYear();
+        const voucherDate = parseDate(voucher.date, 'yyyy-MM-dd')!;
+
+        if (isFuture(voucherDate, todayAsDate)) {
+            continue;
+        }
+
+        const voucherYear = voucherDate!.getFullYear();
 
         for (const transaction of voucher.transactions) {
             const account = transaction.account;

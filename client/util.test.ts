@@ -1,8 +1,8 @@
 import {
     calculateAccountBalancesForYear,
     findYearOfMostRecentlyEditedVoucher,
-    formatDate, formatIntegerAsMoneyDecimal, monetaryAmountToInteger,
-    objectContains,
+    formatDate, formatIntegerAsMoneyDecimal, isFuture, monetaryAmountToInteger,
+    objectContains, parseDate,
     tryParseInt
 } from "./util";
 import {currencies, Voucher} from "./types";
@@ -82,6 +82,35 @@ describe('formatDate tests', () => {
     });
 });
 
+describe('parseDate tests', () => {
+    it('should parse correct date', () => {
+        const result = parseDate('2019-03-15', 'yyyy-MM-dd');
+        expect(result?.getFullYear()).toBe(2019);
+        expect(result?.getMonth()).toBe(2);
+        expect(result?.getDate()).toBe(15);
+    });
+
+    it('should fail to parse garbage', () => {
+        const res = parseDate('2019-03-bruh', 'yyyy-MM-dd');
+        expect(res).toBeUndefined();
+    });
+});
+
+describe('isFuture tests', () => {
+    const cases: ReadonlyArray<[string, string, boolean]> = [
+        ['2022-01-01', '2022-01-01', false],
+        ['2019-05-20', '2022-01-01', false],
+        ['2022-01-02', '2022-01-01', true],
+    ];
+
+    it.each(cases)('should do the thing', (a, b, expected) => {
+        const parsedA = parseDate(a, 'yyyy-MM-dd')!;
+        const parsedB = parseDate(b, 'yyyy-MM-dd')!;
+        const res = isFuture(parsedA, parsedB);
+        expect(res).toBe(expected);
+    });
+});
+
 describe('calculateAccountBalancesForYear tests', () => {
     const vouchers: ReadonlyArray<Voucher> = [
         {
@@ -150,7 +179,7 @@ describe('calculateAccountBalancesForYear tests', () => {
     ];
 
     it('should handle simple case without carry', () => {
-        const result = calculateAccountBalancesForYear(vouchers, 2022, []);
+        const result = calculateAccountBalancesForYear(vouchers, 2022, '2026-01-01', []);
         expect(result).toEqual({
             1510: -100,
             1910: 100,
@@ -158,10 +187,18 @@ describe('calculateAccountBalancesForYear tests', () => {
     });
 
     it('should include previous years when carrying', () => {
-        const result = calculateAccountBalancesForYear(vouchers, 2023, [1510, 1910]);
+        const result = calculateAccountBalancesForYear(vouchers, 2023, '2026-01-01', [1510, 1910]);
         expect(result).toEqual({
             1510: -350,
             1910: 350,
+        });
+    });
+
+    it('should exclude vouchers in the future', () => {
+        const result = calculateAccountBalancesForYear(vouchers, 2023, '2023-01-01', [1510, 1910]);
+        expect(result).toEqual({
+            1510: -100,
+            1910: 100,
         });
     });
 });

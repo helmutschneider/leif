@@ -1,8 +1,9 @@
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import * as ReactDOM from 'react-dom/client'
 import {
     findYearOfMostRecentlyEditedVoucher,
     tryParseInt,
+    formatDate,
 } from './util';
 import {User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
@@ -21,6 +22,7 @@ type State = {
     page: Page
     search: string
     selectYearDropdownOpen: boolean
+    today: string
     user: User | undefined
     workbook: Workbook | undefined
     year: number
@@ -52,9 +54,10 @@ const AUTHORIZATION_HEADER = 'Authorization';
 
 const App: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
+        page: 'vouchers',
         search: '',
         selectYearDropdownOpen: false,
-        page: 'vouchers',
+        today: formatDate(new Date(), 'yyyy-MM-dd'),
         user: tryGetUserFromSessionStorage(),
         workbook: undefined,
         year: (new Date()).getFullYear(),
@@ -160,6 +163,7 @@ const App: React.FC<Props> = props => {
                     http={http}
                     onWorkbookChanged={reloadWorkbook}
                     search={state.search}
+                    today={state.today}
                     user={state.user}
                     workbook={workbook}
                     year={state.year}
@@ -219,7 +223,7 @@ const App: React.FC<Props> = props => {
                     </div>
                     <div className="navbar-collapse">
                         <input
-                            className="form-control form-control-lg"
+                            className="form-control me-2"
                             onChange={event => {
                                 setState({
                                     ...state,
@@ -231,6 +235,24 @@ const App: React.FC<Props> = props => {
                             value={state.search}
                         />
                         <ul className="navbar-nav me-auto mb-lg-0">
+                            <li className="nav-item">
+                                <input
+                                    className="form-control"
+                                    onChange={event => {
+                                        const dt = event.target.valueAsDate;
+                                        if (!dt) {
+                                            return;
+                                        }
+                                        setState({
+                                            ...state,
+                                            today: formatDate(dt, 'yyyy-MM-dd'),
+                                        });
+                                    }}
+                                    value={state.today}
+                                    title="Dagens datum"
+                                    type="date"
+                                />
+                            </li>
                             <li className="nav-item">
                                 <a
                                     className="nav-link text-nowrap"
@@ -337,8 +359,9 @@ const App: React.FC<Props> = props => {
     )
 }
 
-const root = document.getElementById('app');
-ReactDOM.render(
-    <App httpBackend={new FetchBackend()} />,
-    root
+const el = document.getElementById('app');
+const root = ReactDOM.createRoot(el!);
+
+root.render(
+    <App httpBackend={new FetchBackend()} />
 );

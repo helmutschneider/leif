@@ -4,7 +4,7 @@ import {
     calculateAccountBalancesForYear,
     ellipsis,
     emptyVoucher,
-    formatIntegerAsMoneyWithSeparatorsAndSymbol, objectContains, sumOfTransactions,
+    formatIntegerAsMoneyWithSeparatorsAndSymbol, isFuture, objectContains, parseDate, sumOfTransactions,
     tryParseInt
 } from "./util";
 import {HttpSendFn} from "./http";
@@ -20,6 +20,7 @@ type Props = {
     http: HttpSendFn
     onWorkbookChanged: () => unknown
     search: string
+    today: string
     user: t.User
     workbook: t.Workbook
     year: number
@@ -181,7 +182,7 @@ export const VouchersPage: React.FC<Props> = props => {
         .map(num => tryParseInt(num, 0));
     const workbook = props.workbook
     const balances = calculateAccountBalancesForYear(
-        workbook.vouchers, props.year, carryAccounts
+        workbook.vouchers, props.year, props.today, carryAccounts
     )
     const filteredVouchers: ReadonlyArray<t.Voucher> = workbook.vouchers.filter(voucher => {
         return (new Date(voucher.date)).getFullYear() === props.year
@@ -191,6 +192,7 @@ export const VouchersPage: React.FC<Props> = props => {
     const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
     const editingVoucherId = state.voucher.voucher_id;
     const currency = currencies[props.workbook.currency];
+    const todayAsDate = parseDate(props.today, 'yyyy-MM-dd')!;
 
     React.useEffect(() => {
         const documentClickListener = (event: MouseEvent) => {
@@ -287,6 +289,18 @@ export const VouchersPage: React.FC<Props> = props => {
                             rowClassName = 'table-secondary';
                         }
 
+                        const next = filteredVouchers?.[idx + 1];
+                        const isLastVoucherInTheFuture = typeof next !== 'undefined'
+                            && isFuture(parseDate(voucher.date, 'yyyy-MM-dd')!, todayAsDate)
+                            && !isFuture(parseDate(next.date, 'yyyy-MM-dd')!, todayAsDate);
+
+                        const style: React.CSSProperties = {};
+
+                        if (isLastVoucherInTheFuture) {
+                            rowClassName += ' border-dark';
+                            style.borderBottom = '3px solid';
+                        }
+
                         return (
                             <React.Fragment key={idx}>
                                 <tr
@@ -343,6 +357,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                         });
                                     }}
                                     role="button"
+                                    style={style}
                                 >
                                     <td className="col-2">
                                         <i
@@ -508,7 +523,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         voucher={state.voucher}
                     />
                 </div>
-                <h5>Kontobalans</h5>
+                <h5>Kontobalans ({props.today})</h5>
                 <table className="table table-sm">
                     <tbody>
                     {Object.entries(balances).map((e, idx) => {
