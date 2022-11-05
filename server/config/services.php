@@ -86,29 +86,35 @@ return static function (ContainerConfigurator $container) {
             '$ttl' => '%leif.token_ttl%',
         ]);
 
-    $descriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w'],
-    ];
-    $proc = proc_open('git -C "${APP_PATH}" rev-parse --short HEAD', $descriptors, $pipes, null, [
-        'APP_PATH' => __DIR__,
-    ]);
     $version = 'dev-master';
+    $revisionFile = __DIR__ . '/../../REVISION';
 
-    if ($proc !== false) {
-        $version = stream_get_contents($pipes[1]);
-        $err = stream_get_contents($pipes[2]);
+    if (file_exists($revisionFile)) {
+        $version = trim(file_get_contents($revisionFile));
+    } else {
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+        $proc = proc_open('git -C "${APP_PATH}" rev-parse --short HEAD', $descriptors, $pipes, null, [
+            'APP_PATH' => __DIR__,
+        ]);
 
-        if ($err) {
-            throw new RuntimeException($err);
+        if ($proc !== false) {
+            $version = stream_get_contents($pipes[1]);
+            $err = stream_get_contents($pipes[2]);
+
+            if ($err) {
+                throw new RuntimeException("Could not read version from 'REVISION' or git.\n{$err}");
+            }
+
+            foreach ($pipes as $pipe) {
+                fclose($pipe);
+            }
+
+            proc_close($proc);
         }
-
-        foreach ($pipes as $pipe) {
-            fclose($pipe);
-        }
-
-        proc_close($proc);
     }
 
     $services
