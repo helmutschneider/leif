@@ -90,7 +90,7 @@ return static function (ContainerConfigurator $container) {
     $revisionFile = __DIR__ . '/../../REVISION';
 
     if (file_exists($revisionFile)) {
-        $version = trim(file_get_contents($revisionFile));
+        $version = mb_substr(trim(file_get_contents($revisionFile)), 0, 7, 'utf-8');
     } else {
         $descriptors = [
             0 => ['pipe', 'r'],
