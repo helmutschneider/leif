@@ -289,16 +289,16 @@ export const VouchersPage: React.FC<Props> = props => {
                             rowClassName = 'table-secondary';
                         }
 
-                        const next = filteredVouchers?.[idx + 1];
-                        const isLastVoucherInTheFuture = typeof next !== 'undefined'
-                            && isFuture(parseDate(voucher.date, 'yyyy-MM-dd')!, todayAsDate)
-                            && !isFuture(parseDate(next.date, 'yyyy-MM-dd')!, todayAsDate);
+                        const previous = filteredVouchers?.[idx - 1];
+                        const isFirstVoucherInThePresent = typeof previous !== 'undefined'
+                            && isFuture(parseDate(previous.date, 'yyyy-MM-dd')!, todayAsDate)
+                            && !isFuture(parseDate(voucher.date, 'yyyy-MM-dd')!, todayAsDate);
 
                         const style: React.CSSProperties = {};
 
-                        if (isLastVoucherInTheFuture) {
-                            rowClassName += ' border-dark';
-                            style.borderBottom = '3px solid';
+                        if (isFirstVoucherInThePresent) {
+                            style.borderTop = '3px solid';
+                            style.borderTopColor = 'rgba(var(--bs-dark-rgb),var(--bs-border-opacity))';
                         }
 
                         return (
