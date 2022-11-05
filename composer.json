@@ -17,6 +17,7 @@
         "symfony/security-bundle": "5.4.*"
     },
     "require-dev": {
+        "deployer/deployer": "^7.0",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "5.4.*",
         "symfony/css-selector": "5.4.*",
@@ -57,6 +58,7 @@
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
+        "deploy": "@php vendor/bin/dep deploy stage=production",
         "post-install-cmd": [
             "@auto-scripts"
         ],
