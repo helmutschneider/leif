@@ -53,10 +53,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                     if (query === '' && !template.is_template) {
                                         return false;
                                     }
-
-                                    return template.name
-                                        .toLowerCase()
-                                        .includes(query.toLowerCase());
+                                    return objectContains(template.name, query);
                                 }}
                                 maxMatchCount={50}
                                 onChange={event => {
