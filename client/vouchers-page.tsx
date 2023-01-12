@@ -3,7 +3,7 @@ import {VoucherForm} from "./voucher-form";
 import {
     calculateAccountBalancesForYear,
     ellipsis,
-    emptyVoucher,
+    emptyVoucher, formatDate,
     formatIntegerAsMoneyWithSeparatorsAndSymbol, isFuture, objectContains, parseDate, sumOfTransactions,
     tryParseInt
 } from "./util";
@@ -20,10 +20,9 @@ type Props = {
     http: HttpSendFn
     onWorkbookChanged: () => unknown
     search: string
-    today: string
+    today: Date
     user: t.User
     workbook: t.Workbook
-    year: number
 }
 
 type State = {
@@ -182,17 +181,16 @@ export const VouchersPage: React.FC<Props> = props => {
         .map(num => tryParseInt(num, 0));
     const workbook = props.workbook
     const balances = calculateAccountBalancesForYear(
-        workbook.vouchers, props.year, props.today, carryAccounts
+        workbook.vouchers, props.today, carryAccounts
     )
     const filteredVouchers: ReadonlyArray<t.Voucher> = workbook.vouchers.filter(voucher => {
-        return (new Date(voucher.date)).getFullYear() === props.year
+        return (new Date(voucher.date)).getFullYear() === props.today.getFullYear()
             && (props.search === '' || objectContains(voucher, props.search));
     });
 
     const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
     const editingVoucherId = state.voucher.voucher_id;
     const currency = currencies[props.workbook.currency];
-    const todayAsDate = parseDate(props.today, 'yyyy-MM-dd')!;
 
     React.useEffect(() => {
         const documentClickListener = (event: MouseEvent) => {
@@ -291,8 +289,8 @@ export const VouchersPage: React.FC<Props> = props => {
 
                         const previous = filteredVouchers?.[idx - 1];
                         const isFirstVoucherInThePresent = typeof previous !== 'undefined'
-                            && isFuture(parseDate(previous.date, 'yyyy-MM-dd')!, todayAsDate)
-                            && !isFuture(parseDate(voucher.date, 'yyyy-MM-dd')!, todayAsDate);
+                            && isFuture(parseDate(previous.date, 'yyyy-MM-dd')!, props.today)
+                            && !isFuture(parseDate(voucher.date, 'yyyy-MM-dd')!, props.today);
 
                         const style: React.CSSProperties = {};
 
@@ -523,7 +521,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         voucher={state.voucher}
                     />
                 </div>
-                <h5>Kontobalans ({props.today})</h5>
+                <h5>Kontobalans ({formatDate(props.today, 'yyyy-MM-dd')})</h5>
                 <table className="table table-sm">
                     <tbody>
                     {Object.entries(balances).map((e, idx) => {

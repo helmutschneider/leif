@@ -1,9 +1,8 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 import {
-    findYearOfMostRecentlyEditedVoucher,
     tryParseInt,
-    formatDate,
+    formatDate, findDateOfMostRecentlyEditedVoucher,
 } from './util';
 import {User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
@@ -22,10 +21,9 @@ type State = {
     page: Page
     search: string
     selectYearDropdownOpen: boolean
-    today: string
+    today: Date
     user: User | undefined
     workbook: Workbook | undefined
-    year: number
 }
 
 const colorsForTheNavBar = [
@@ -57,10 +55,9 @@ function createEmptyState(): State {
         page: 'vouchers',
         search: '',
         selectYearDropdownOpen: false,
-        today: formatDate(new Date(), 'yyyy-MM-dd'),
+        today: new Date(),
         user: undefined,
         workbook: undefined,
-        year: (new Date()).getFullYear(),
     };
 }
 
@@ -97,7 +94,7 @@ const App: React.FC<Props> = props => {
             method: 'GET',
             url: '/api/workbook',
         }).then(res => {
-            const maybeYear = findYearOfMostRecentlyEditedVoucher(res);
+            const maybeDate = findDateOfMostRecentlyEditedVoucher(res);
 
             setState({
                 ...state,
@@ -105,9 +102,9 @@ const App: React.FC<Props> = props => {
 
                 // if the user had moved to another year we want to
                 // preserve the state so we don't make them angry.
-                year: maybeYear !== state.year
-                    ? state.year
-                    : maybeYear,
+                today: maybeDate?.getFullYear() !== state.today.getFullYear()
+                    ? state.today
+                    : maybeDate,
             });
         });
     }
@@ -168,7 +165,6 @@ const App: React.FC<Props> = props => {
                     today={state.today}
                     user={state.user}
                     workbook={workbook}
-                    year={state.year}
                 />
             )
             break;
@@ -202,7 +198,7 @@ const App: React.FC<Props> = props => {
         return b > a ? 1 : -1
     })
 
-    const colorIndex = state.year % colorsForTheNavBar.length;
+    const colorIndex = state.today.getFullYear() % colorsForTheNavBar.length;
 
     return (
         <div>
@@ -221,7 +217,7 @@ const App: React.FC<Props> = props => {
                             height={40}
                             title="Leif"
                         />
-                        {state.year}
+                        {state.today.getFullYear()}
                     </div>
                     <div className="navbar-collapse">
                         <input
@@ -247,10 +243,10 @@ const App: React.FC<Props> = props => {
                                         }
                                         setState({
                                             ...state,
-                                            today: formatDate(dt, 'yyyy-MM-dd'),
+                                            today: dt,
                                         });
                                     }}
-                                    value={state.today}
+                                    value={formatDate(state.today, 'yyyy-MM-dd')}
                                     title="Dagens datum"
                                     type="date"
                                 />
@@ -313,10 +309,28 @@ const App: React.FC<Props> = props => {
                                     style={{ display: state.selectYearDropdownOpen ? 'block' : 'none' }}
                                 >
                                     {years.map((year, index) => {
+                                        const lastDateOfYear = new Date();
+
+                                        if ((new Date()).getFullYear() !== year) {
+                                            // we want the last date of the year. this is always December 31st
+                                            // but be annoying and move backwards from January 1st of the next
+                                            // year instead.
+                                            //
+                                            // the month is zero-indexed in javascript and passing 0 as the date
+                                            // will cause the object to underflow, causing us to move backwards in time.
+                                            lastDateOfYear.setFullYear(year + 1, 0, 0);
+                                        }
+
+                                        let clazz = 'dropdown-item';
+
+                                        if (state.today.getFullYear() === year) {
+                                            clazz += ' active';
+                                        }
+
                                         return (
                                             <li key={index}>
                                                 <a
-                                                    className="dropdown-item"
+                                                    className={clazz}
                                                     onClick={event => {
                                                         event.preventDefault()
                                                         event.stopPropagation()
@@ -325,7 +339,7 @@ const App: React.FC<Props> = props => {
                                                             ...state,
                                                             page: 'vouchers',
                                                             selectYearDropdownOpen: false,
-                                                            year: year,
+                                                            today: lastDateOfYear,
                                                         })
                                                     }}
                                                     href="#">

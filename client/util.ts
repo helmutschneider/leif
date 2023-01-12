@@ -95,14 +95,14 @@ export function isFuture(date: Date, origin: Date): boolean {
     return a > b;
 }
 
-export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, year: number, today: string, carryAccounts: ReadonlyArray<AccountNumber>): t.AccountBalanceMap {
+export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, today: Date, carryAccounts: ReadonlyArray<AccountNumber>): t.AccountBalanceMap {
     const result: t.AccountBalanceMap = {};
-    const todayAsDate = parseDate(today, 'yyyy-MM-dd')!;
+    const year = today.getFullYear();
 
     for (const voucher of vouchers) {
         const voucherDate = parseDate(voucher.date, 'yyyy-MM-dd')!;
 
-        if (isFuture(voucherDate, todayAsDate)) {
+        if (isFuture(voucherDate, today)) {
             continue;
         }
 
@@ -255,8 +255,8 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
     return window.btoa(binary);
 }
 
-export function findYearOfMostRecentlyEditedVoucher(workbook: t.Workbook): number | undefined {
-    let mostRecentlyEditedYear: number | undefined
+export function findDateOfMostRecentlyEditedVoucher(workbook: t.Workbook): Date | undefined {
+    let mostRecentlyEditedDate: Date | undefined
     let max = -1;
 
     const stuff = workbook.vouchers.concat(workbook.templates);
@@ -265,12 +265,12 @@ export function findYearOfMostRecentlyEditedVoucher(workbook: t.Workbook): numbe
         const ts = Date.parse(voucher.updated_at);
 
         if (ts > max) {
-            mostRecentlyEditedYear = (new Date(voucher.date)).getFullYear();
+            mostRecentlyEditedDate = new Date(voucher.date);
             max = ts;
         }
     }
 
-    return mostRecentlyEditedYear;
+    return mostRecentlyEditedDate;
 }
 
 export function objectContains<T>(value: T, search: string) {
