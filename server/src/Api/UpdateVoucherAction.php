@@ -18,7 +18,7 @@ final class UpdateVoucherAction
 SELECT v.*
   FROM voucher AS v
  WHERE v.voucher_id = :voucher_id
-   AND v.user_id = :user_id
+   AND v.organization_id = :organization_id
 SQL;
 
     const SQL_DELETE_TRANSACTIONS = <<<SQL
@@ -83,7 +83,7 @@ SQL;
 
         $voucher = $this->db->selectOne(static::SQL_GET_VOUCHER, [
             ':voucher_id' => $id,
-            ':user_id' => $user->getId(),
+            ':organization_id' => $user->getOrganizationId(),
         ]);
 
         if ($voucher === null) {

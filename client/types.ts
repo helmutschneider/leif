@@ -39,10 +39,16 @@ export type Workbook = {
     templates: ReadonlyArray<Voucher>
     vouchers: ReadonlyArray<Voucher>
 }
+export type Organization = {
+    organization_id?: number
+    name: string
+}
 export type User = {
     user_id?: number
     username: string
+    role: string
     token: string
+    organization: Organization
 }
 export type CurrencyCode =
     | 'SEK'

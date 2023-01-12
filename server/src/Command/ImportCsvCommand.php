@@ -37,12 +37,12 @@ final class ImportCsvCommand extends Command
         $helper = $this->getHelper('question');
         assert($helper instanceof QuestionHelper);
 
-        $userId = $helper->ask($input, $output, new Question('User ID: '));
+        $organizationId = $helper->ask($input, $output, new Question('Organization ID: '));
 
         $path = $input->getArgument('csv_path');
         $handle = fopen($path, 'rb');
 
-        $this->db->transaction(function () use ($handle, $userId, $output) {
+        $this->db->transaction(function () use ($handle, $organizationId, $output) {
             $buffer = [];
 
             while ($row = fgetcsv($handle)) {
@@ -79,10 +79,10 @@ final class ImportCsvCommand extends Command
 
                     $output->writeln("OK: $date $name");
 
-                    $this->db->execute('INSERT INTO voucher (date, name, user_id) VALUES (?, ?, ?)', [
+                    $this->db->execute('INSERT INTO voucher (date, name, organization_id) VALUES (?, ?, ?)', [
                         $buffer[0]['date'],
                         $buffer[0]['name'],
-                        $userId,
+                        $organizationId,
                     ]);
                     $voucherId = $this->db->getLastInsertId();
 

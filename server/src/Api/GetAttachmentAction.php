@@ -15,7 +15,7 @@ SELECT a.*
  INNER JOIN voucher AS v
     ON v.voucher_id = a.voucher_id
  WHERE a.attachment_id = :id
-   AND v.user_id = :user_id
+   AND v.organization_id = :organization_id
 SQL;
 
     private Database $db;
@@ -29,7 +29,7 @@ SQL;
     {
         $row = $this->db->selectOne(static::SQL_GET_ATTACHMENT, [
             ':id' => $id,
-            ':user_id' => $user->getId(),
+            ':organization_id' => $user->getOrganizationId(),
         ]);
 
         if (!$row) {

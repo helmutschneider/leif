@@ -19,6 +19,11 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->row['user_id'];
     }
 
+    public function getOrganizationId(): int
+    {
+        return $this->row['organization_id'];
+    }
+
     public function getUserIdentifier(): string
     {
         return $this->row['username'];
@@ -26,8 +31,11 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
+        $roles = explode(',', $this->row['role']);
+
         return [
             'ROLE_USER',
+            ...$roles,
         ];
     }
 

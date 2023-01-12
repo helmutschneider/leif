@@ -46,12 +46,16 @@ final class UpdateUserAction
             ':user_id' => $userId,
         ]);
 
-        $this->db->execute('UPDATE user SET carry_accounts = :accounts, password_hash = :password_hash WHERE user_id = :user_id', [
-            ':accounts' => $body['carry_accounts'] ?? $found['carry_accounts'],
+        $this->db->execute('UPDATE user SET password_hash = :password_hash WHERE user_id = :user_id', [
             ':password_hash' => empty($body['password'])
                 ? $found['password_hash']
                 : $this->passwordHasher->hash($body['password']),
             ':user_id' => $userId,
+        ]);
+
+        $this->db->execute('UPDATE organization SET carry_accounts = :carry_accounts WHERE organization_id = :id', [
+            ':carry_accounts' => $body['carry_accounts'],
+            ':id' => $user->getOrganizationId(),
         ]);
 
         return new JsonResponse($body, Response::HTTP_OK);

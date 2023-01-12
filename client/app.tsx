@@ -201,7 +201,6 @@ const App: React.FC<Props> = props => {
                 <div className={CONTAINER_CLASS}>
                     <div className="navbar-brand d-flex align-items-center">
                         <img
-                            className="me-3"
                             src="/leif.jpg"
                             style={{
                                 borderRadius: 20,
@@ -209,7 +208,6 @@ const App: React.FC<Props> = props => {
                             height={40}
                             title="Leif"
                         />
-                        {state.today.getFullYear()}
                     </div>
                     <div className="navbar-collapse">
                         <input
@@ -220,7 +218,7 @@ const App: React.FC<Props> = props => {
                                     search: event.target.value,
                                 })
                             }}
-                            placeholder="Sök"
+                            placeholder={`Sök i ${state.user.organization.name}`}
                             type="text"
                             value={state.search}
                         />
@@ -243,42 +241,6 @@ const App: React.FC<Props> = props => {
                                     type="date"
                                 />
                             </li>
-                            <li className="nav-item">
-                                <a
-                                    className="nav-link text-nowrap"
-                                    onClick={event => {
-                                        event.preventDefault()
-                                        event.stopPropagation()
-
-                                        setState({
-                                            ...state,
-                                            page: 'vouchers',
-                                            selectYearDropdownOpen: false,
-                                        })
-                                    }}
-                                    href="#"
-                                >
-                                    Verifikat
-                                </a>
-                            </li>
-                            <li className="nav-item">
-                                <a
-                                    className="nav-link text-nowrap"
-                                    onClick={event => {
-                                        event.preventDefault()
-                                        event.stopPropagation()
-
-                                        setState({
-                                            ...state,
-                                            page: 'settings',
-                                            selectYearDropdownOpen: false,
-                                        })
-                                    }}
-                                    href="#"
-                                >
-                                    Inställningar
-                                </a>
-                            </li>
                             <li className="nav-item dropdown">
                                 <a
                                     className="nav-link dropdown-toggle"
@@ -294,7 +256,7 @@ const App: React.FC<Props> = props => {
                                     href="#"
                                     role="button"
                                 >
-                                    Välj år
+                                    {state.today.getFullYear()}
                                 </a>
                                 <ul
                                     className="dropdown-menu"
@@ -341,6 +303,42 @@ const App: React.FC<Props> = props => {
                                         )
                                     })}
                                 </ul>
+                            </li>
+                            <li className="nav-item">
+                                <a
+                                    className="nav-link text-nowrap"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+
+                                        setState({
+                                            ...state,
+                                            page: 'vouchers',
+                                            selectYearDropdownOpen: false,
+                                        })
+                                    }}
+                                    href="#"
+                                >
+                                    Verifikat
+                                </a>
+                            </li>
+                            <li className="nav-item">
+                                <a
+                                    className="nav-link text-nowrap"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+
+                                        setState({
+                                            ...state,
+                                            page: 'settings',
+                                            selectYearDropdownOpen: false,
+                                        })
+                                    }}
+                                    href="#"
+                                >
+                                    Inställningar
+                                </a>
                             </li>
                             <li className="nav-item">
                                 <a

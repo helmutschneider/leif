@@ -2,6 +2,7 @@
 
 namespace Leif\Command;
 
+use Exception;
 use Leif\Database;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,12 +42,15 @@ final class MigrateCommand extends Command
             $didApplyMigrations = true;
             $output->write("Applying: {$name}... ");
 
+
             try {
-                $migration->apply($this->db);
+                $this->db->transaction(function () use ($migration) {
+                    $migration->apply($this->db);
+                });
                 $this->db->execute('INSERT INTO "migration" ("name") VALUES (:name)', [
                     ':name' => $name,
                 ]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $output->writeln($e);
                 return 1;
             }

@@ -1,9 +1,27 @@
+CREATE TABLE "organization" (
+    "organization_id" INTEGER PRIMARY KEY NOT NULL,
+    "name" TEXT NOT NULL,
+    "created_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "carry_accounts" TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE "migration" (
+    "migration_id" INTEGER PRIMARY KEY NOT NULL,
+    "name" TEXT NOT NULL,
+    "applied_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE "user" (
     "user_id" INTEGER PRIMARY KEY NOT NULL,
     "username" TEXT NOT NULL UNIQUE,
     "password_hash" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT '',
     "created_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "carry_accounts" TEXT NOT NULL DEFAULT ''
+    "organization_id" INTEGER NOT NULL,
+    FOREIGN KEY ("organization_id")
+        REFERENCES "organization" ("organization_id")
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 );
 
 CREATE TABLE "token" (
@@ -24,10 +42,10 @@ CREATE TABLE "voucher" (
     "date" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "notes" TEXT NOT NULL DEFAULT '',
-    "user_id" INTEGER NOT NULL,
+    "organization_id" INTEGER NOT NULL,
     "is_template" INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY ("user_id")
-        REFERENCES "user" ("user_id")
+    FOREIGN KEY ("organization_id")
+        REFERENCES "organization" ("organization_id")
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );

@@ -161,18 +161,22 @@ final class InstallAction
             if ($errors === []) {
                 $this->db->transaction(function () use ($username, $password) {
                     static::loadSchema($this->db);
-                    $this->db->execute('INSERT INTO user (username, password_hash) VALUES  (?, ?)', [
+                    $this->db->execute('INSERT INTO organization (name) VALUES (?)', [
                         $username,
-                        $this->passwordHasher->hash($password),
                     ]);
 
-                    $userId = $this->db->getLastInsertId();
+                    $organizationId = $this->db->getLastInsertId();
+                    $this->db->execute('INSERT INTO user (username, password_hash, organization_id) VALUES  (?, ?, ?)', [
+                        $username,
+                        $this->passwordHasher->hash($password),
+                        $organizationId,
+                    ]);
 
                     foreach (static::SAMPLE_TEMPLATES as $voucher) {
-                        $this->db->execute('INSERT INTO voucher (name, date, user_id, is_template) VALUES (?, ?, ?, ?)', [
+                        $this->db->execute('INSERT INTO voucher (name, date, organization_id, is_template) VALUES (?, ?, ?, ?)', [
                             $voucher['name'],
                             date('Y-m-d'),
-                            $userId,
+                            $organizationId,
                             1,
                         ]);
 

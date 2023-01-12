@@ -10,9 +10,11 @@ trait DatabaseTrait
 {
     public static function createUser(Database $db, string $username, string $plainTextPassword = ''): int
     {
-        $db->execute('INSERT INTO user (username, password_hash) VALUES (?, ?)', [
+        $db->execute('INSERT INTO organization (name) VALUES (?)', [$username]);
+        $db->execute('INSERT INTO user (username, password_hash, organization_id) VALUES (?, ?, ?)', [
             $username,
             password_hash($plainTextPassword, PASSWORD_BCRYPT, ['cost' => 4]),
+            $db->getLastInsertId(),
         ]);
         return $db->getLastInsertId();
     }
@@ -33,10 +35,20 @@ trait DatabaseTrait
 
     public static function createVoucher(Database $db, int $userId): int
     {
-        $db->execute('INSERT INTO voucher (date, name, user_id) VALUES (?, ?, ?)', [
+        $org = $db->selectOne('
+SELECT o.*
+  FROM organization AS o
+ INNER JOIN user AS u
+    ON u.organization_id = o.organization_id
+ WHERE u.user_id = :user_id
+        ', [':user_id' => $userId]);
+
+        assert($org);
+
+        $db->execute('INSERT INTO voucher (date, name, organization_id) VALUES (?, ?, ?)', [
             '2022-02-14',
             'Test voucher',
-            $userId,
+            $org['organization_id'],
         ]);
         return $db->getLastInsertId();
     }

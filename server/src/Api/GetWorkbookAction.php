@@ -15,7 +15,7 @@ SELECT t.*
   FROM "transaction" AS t
  INNER JOIN voucher AS v
     ON v.voucher_id = t.voucher_id
- WHERE v.user_id = :user_id
+ WHERE v.organization_id = :organization_id
    AND v.is_template = :is_template
  ORDER BY t.account ASC
 SQL;
@@ -23,7 +23,7 @@ SQL;
     const SQL_GET_VOUCHERS = <<<SQL
 SELECT v.*
   FROM voucher AS v
- WHERE v.user_id = :user_id
+ WHERE v.organization_id = :organization_id
    AND v.is_template = 0
  ORDER BY v.date DESC,
           v.created_at DESC
@@ -32,7 +32,7 @@ SQL;
     const SQL_GET_TEMPLATES = <<<SQL
 SELECT v.*
   FROM voucher AS v
- WHERE v.user_id = :user_id
+ WHERE v.organization_id = :organization_id
    AND v.is_template = 1
  ORDER BY v.name ASC,
           v.created_at ASC
@@ -48,7 +48,7 @@ SELECT a.attachment_id,
   FROM attachment AS a
  INNER JOIN voucher AS v
     ON v.voucher_id = a.voucher_id
- WHERE v.user_id = :user_id
+ WHERE v.organization_id = :organization_id
 SQL;
 
     private Database $db;
@@ -60,10 +60,10 @@ SQL;
 
     public function __invoke(UserInterface $user): Response
     {
-        $vouchers = $this->findVouchers($user->getId(), false);
-        $templates = $this->findVouchers($user->getId(), true);
+        $vouchers = $this->findVouchers($user->getOrganizationId(), false);
+        $templates = $this->findVouchers($user->getOrganizationId(), true);
         $carriedAccounts = $this->db->selectOne(
-            'SELECT carry_accounts FROM user WHERE user_id = :id', [':id' => $user->getId()]
+            'SELECT carry_accounts FROM organization WHERE organization_id = :id', [':id' => $user->getOrganizationId()]
         );
 
         $result = [
@@ -77,20 +77,20 @@ SQL;
         return new JsonResponse($result, Response::HTTP_OK);
     }
 
-    protected function findVouchers(int $userId, bool $isTemplate): array
+    protected function findVouchers(int $organizationId, bool $isTemplate): array
     {
         $vouchers = $this->db->selectAll(
             $isTemplate
                 ? static::SQL_GET_TEMPLATES
                 : static::SQL_GET_VOUCHERS,
-            [':user_id' => $userId]
+            [':organization_id' => $organizationId]
         );
         $transactions = $this->db->selectAll(static::SQL_GET_TRANSACTIONS, [
-            ':user_id' => $userId,
+            ':organization_id' => $organizationId,
             ':is_template' => (int) $isTemplate,
         ]);
         $attachments = $this->db->selectAll(static::SQL_GET_ATTACHMENTS, [
-            ':user_id' => $userId,
+            ':organization_id' => $organizationId,
         ]);
 
         $transactionsByVoucherId = [];

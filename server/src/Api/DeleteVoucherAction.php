@@ -14,7 +14,7 @@ final class DeleteVoucherAction
 SELECT 1
   FROM voucher AS v
  WHERE v.voucher_id = :id
-   AND v.user_id = :user_id
+   AND v.organization_id = :organization_id
 SQL;
 
     private Database $db;
@@ -27,7 +27,7 @@ SQL;
     public function __invoke(UserInterface $user, int $id)
     {
         $found = $this->db->selectOne(static::SQL_VOUCHER_EXISTS, [
-            ':user_id' => $user->getId(),
+            ':organization_id' => $user->getOrganizationId(),
             ':id' => $id,
         ]);
 

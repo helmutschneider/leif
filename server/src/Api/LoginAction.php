@@ -84,10 +84,16 @@ final class LoginAction
             ':after' => $mustBeSeenAfter,
         ]);
 
+        $organization = $this->db->selectOne('SELECT * FROM organization WHERE organization_id = ?', [
+            $row['organization_id'],
+        ]);
+
         return new JsonResponse([
             'user_id' => $row['user_id'],
             'username' => $row['username'],
+            'role' => $row['role'],
             'token' => bin2hex($token),
+            'organization' => $organization,
         ], Response::HTTP_OK);
     }
 }

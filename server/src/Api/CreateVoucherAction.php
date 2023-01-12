@@ -68,13 +68,13 @@ final class CreateVoucherAction
 
         return $this->db->transaction(function () use ($body, $user) {
             $this->db->execute(
-                'INSERT INTO voucher (name, notes, date, is_template, user_id) VALUES (?, ?, ?, ?, ?)',
+                'INSERT INTO voucher (name, notes, date, is_template, organization_id) VALUES (?, ?, ?, ?, ?)',
                 [
                     $body['name'],
                     ($body['notes'] ?? ''),
                     $body['date'],
                     (int) ($body['is_template'] ?? false),
-                    $user->getId(),
+                    $user->getOrganizationId(),
                 ]
             );
 
