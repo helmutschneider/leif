@@ -53,6 +53,13 @@ return static function (ContainerConfigurator $container) {
         ->tag('console.command');
 
     $services
+        ->set(\Leif\Command\MigrateCommand::class)
+        ->args([
+            '$migrationsPath' => __DIR__ . '/../src/Database',
+            '$migrationsNamespace' => 'Leif\\Database\\',
+        ]);
+
+    $services
         ->set(\Leif\Security\SecretKey::class)
         ->args([
             '%kernel.secret%',

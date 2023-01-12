@@ -46,6 +46,13 @@ task('build_app', function () {
     });
 });
 
+task('run_migrations', function () {
+    within('{{release_path}}', function () {
+        run('bin/console migrate');
+    });
+});
+
 // Display success message on completion
 after('deploy:failed', 'deploy:unlock');
 after('deploy:vendors', 'build_app');
+after('deploy:vendors', 'run_migrations');
