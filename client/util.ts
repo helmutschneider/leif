@@ -255,24 +255,6 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
     return window.btoa(binary);
 }
 
-export function findDateOfMostRecentlyEditedVoucher(workbook: t.Workbook): Date | undefined {
-    let mostRecentlyEditedDate: Date | undefined
-    let max = -1;
-
-    const stuff = workbook.vouchers.concat(workbook.templates);
-
-    for (const voucher of stuff) {
-        const ts = Date.parse(voucher.updated_at);
-
-        if (ts > max) {
-            mostRecentlyEditedDate = new Date(voucher.date);
-            max = ts;
-        }
-    }
-
-    return mostRecentlyEditedDate;
-}
-
 export function objectContains<T>(value: T, search: string) {
     if (typeof value === 'undefined' || value === null) {
         return false;

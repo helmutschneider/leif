@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 import {
     tryParseInt,
-    formatDate, findDateOfMostRecentlyEditedVoucher,
+    formatDate,
 } from './util';
 import {User, Workbook} from "./types";
 import {LoginForm} from "./login-form";
@@ -94,17 +94,9 @@ const App: React.FC<Props> = props => {
             method: 'GET',
             url: '/api/workbook',
         }).then(res => {
-            const maybeDate = findDateOfMostRecentlyEditedVoucher(res);
-
             setState({
                 ...state,
                 workbook: res,
-
-                // if the user had moved to another year we want to
-                // preserve the state so we don't make them angry.
-                today: maybeDate?.getFullYear() !== state.today.getFullYear()
-                    ? state.today
-                    : maybeDate,
             });
         });
     }
