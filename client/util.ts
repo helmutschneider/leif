@@ -97,7 +97,7 @@ export function isFuture(date: Date, origin: Date): boolean {
 export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, today: Date, carryAccountPattern: string): t.AccountBalanceMap {
     const result: t.AccountBalanceMap = {};
     const year = today.getFullYear();
-    const carryRegExp = buildCarryAccountRegExp(carryAccountPattern);
+    const carryRegExp = buildCarryAccountsRegExp(carryAccountPattern);
 
     for (const voucher of vouchers) {
         const voucherDate = parseDate(voucher.date, 'yyyy-MM-dd')!;
@@ -106,7 +106,7 @@ export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Vouche
             continue;
         }
 
-        const voucherYear = voucherDate!.getFullYear();
+        const voucherYear = voucherDate.getFullYear();
 
         for (const transaction of voucher.transactions) {
             const account = transaction.account;
@@ -126,14 +126,14 @@ export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Vouche
     return result;
 }
 
-export function buildCarryAccountRegExp(pattern: string): RegExp {
-    pattern = pattern.replace(/[^\d,*]/, '');
+function buildCarryAccountsRegExp(pattern: string): RegExp {
+    pattern = pattern.replace(/[^\d,*]/g, '');
 
     const thing = escapeRegExp(pattern)
-        .replace(',', '|')
-        .replace('\\*', '.*');
+        .replace(/,/g, '|')
+        .replace(/\\\*/g, '.*');
 
-    return new RegExp(`^${thing}$`);
+    return new RegExp(`^(?:${thing})$`);
 }
 
 export function escapeRegExp(pattern: string): string {

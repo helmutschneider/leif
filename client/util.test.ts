@@ -163,6 +163,14 @@ describe('calculateAccountBalancesForYear tests', () => {
             1910: 350,
         });
     });
+
+    it('should carry accounts with a long list of accounts', () => {
+        const result = calculateAccountBalancesForYear(vouchers, parseDate('2023-12-31', 'yyyy-MM-dd')!, '1000,1001,1002,1510,1910');
+        expect(result).toEqual({
+            1510: -350,
+            1910: 350,
+        });
+    });
 });
 
 describe('objectContains tests', () => {
