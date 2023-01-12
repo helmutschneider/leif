@@ -211,6 +211,9 @@ describe('objectContains tests', () => {
         [['Kanye'], 'ye', true],
         [null, 'nul', false],
         [undefined, 'undef', false],
+        ['hello world!', 'hello', true],
+        ['hello world!', 'hel world', true],
+        ['hello world!', 'hel worlds', false],
     ];
 
     it.each(cases)('should find the thing', (value, search, expected) => {

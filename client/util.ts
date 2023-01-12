@@ -288,7 +288,15 @@ export function objectContains<T>(value: T, search: string) {
         }
         return false;
     }
-    return String(value)
-        .toLowerCase()
-        .includes(search.toLowerCase());
+
+    const queries = search.trim().toLowerCase().split(/\s+/);
+    const valueAsString = String(value).toLowerCase();
+
+    for (const query of queries) {
+        if (!valueAsString.includes(query)) {
+            return false;
+        }
+    }
+
+    return true;
 }
