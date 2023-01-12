@@ -52,24 +52,26 @@ function tryGetUserFromSessionStorage(): User | undefined {
 const CONTAINER_CLASS = 'container-xxl';
 const AUTHORIZATION_HEADER = 'Authorization';
 
-const App: React.FC<Props> = props => {
-    const [state, setState] = React.useState<State>({
+function createEmptyState(): State {
+    return {
         page: 'vouchers',
         search: '',
         selectYearDropdownOpen: false,
         today: formatDate(new Date(), 'yyyy-MM-dd'),
-        user: tryGetUserFromSessionStorage(),
+        user: undefined,
         workbook: undefined,
         year: (new Date()).getFullYear(),
+    };
+}
+
+const App: React.FC<Props> = props => {
+    const [state, setState] = React.useState<State>({
+        ...createEmptyState(),
+        user: tryGetUserFromSessionStorage(),
     });
 
     function logout() {
-        setState({
-            ...state,
-            page: 'vouchers',
-            user: undefined,
-            workbook: undefined,
-        });
+        setState(createEmptyState);
     }
 
     function http<T>(request: LeifRequest): PromiseLike<T> {
