@@ -34,7 +34,6 @@ export type Voucher = {
 }
 export type Workbook = {
     accounts: AccountPlan
-    carry_accounts: CommaSeparatedString
     currency: CurrencyCode
     templates: ReadonlyArray<Voucher>
     vouchers: ReadonlyArray<Voucher>
@@ -42,6 +41,7 @@ export type Workbook = {
 export type Organization = {
     organization_id?: number
     name: string
+    carry_accounts: CommaSeparatedString
 }
 export type User = {
     user_id?: number

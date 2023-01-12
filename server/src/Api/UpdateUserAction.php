@@ -14,9 +14,11 @@ final class UpdateUserAction
     use ValidationTrait;
 
     const RULES = [
-        'carry_accounts' => 'string',
-        'password' => 'string',
         'username' => 'string',
+        'password' => 'string',
+        'organization' => 'array',
+        'organization.carry_accounts' => 'string',
+        'organization.name' => 'string',
     ];
 
     private Database $db;
@@ -53,8 +55,9 @@ final class UpdateUserAction
             ':user_id' => $userId,
         ]);
 
-        $this->db->execute('UPDATE organization SET carry_accounts = :carry_accounts WHERE organization_id = :id', [
-            ':carry_accounts' => $body['carry_accounts'],
+        $this->db->execute('UPDATE organization SET name = :name, carry_accounts = :carry_accounts WHERE organization_id = :id', [
+            ':name' => $body['organization']['name'],
+            ':carry_accounts' => $body['organization']['carry_accounts'],
             ':id' => $user->getOrganizationId(),
         ]);
 

@@ -175,7 +175,7 @@ export const VouchersPage: React.FC<Props> = props => {
         voucher: emptyVoucher(),
     });
 
-    const carryAccounts = props.workbook.carry_accounts;
+    const carryAccounts = props.user.organization.carry_accounts;
     const workbook = props.workbook
     const balances = calculateAccountBalancesForYear(
         workbook.vouchers, props.today, carryAccounts

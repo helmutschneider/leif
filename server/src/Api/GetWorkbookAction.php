@@ -62,13 +62,9 @@ SQL;
     {
         $vouchers = $this->findVouchers($user->getOrganizationId(), false);
         $templates = $this->findVouchers($user->getOrganizationId(), true);
-        $carriedAccounts = $this->db->selectOne(
-            'SELECT carry_accounts FROM organization WHERE organization_id = :id', [':id' => $user->getOrganizationId()]
-        );
 
         $result = [
             'accounts' => require __DIR__ . '/../../../data/accounts-2022.php',
-            'carry_accounts' => $carriedAccounts['carry_accounts'],
             'currency' => 'SEK',
             'templates' => $templates,
             'vouchers' => $vouchers,

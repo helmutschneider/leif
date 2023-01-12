@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Workbook, Voucher, currencies, User} from "./types";
+import {Workbook, Voucher, currencies, User, Organization} from "./types";
 import {emptyVoucher, formatDate} from "./util";
 import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
@@ -12,11 +12,11 @@ type Props = {
 }
 
 type State = {
-    carryAccounts: string
     confirmPassword: string
     template: Voucher
     password: string
     username: string
+    organization: Organization
 }
 
 export const SettingsPage: React.FC<Props> = props => {
@@ -28,11 +28,13 @@ export const SettingsPage: React.FC<Props> = props => {
     }
 
     const [state, setState] = React.useState<State>({
-        carryAccounts: props.workbook.carry_accounts,
         confirmPassword: '',
         template: emptyTemplate(),
         password: '',
         username: props.user.username,
+        organization: {
+            ...props.user.organization,
+        },
     });
 
     return (
@@ -88,17 +90,38 @@ export const SettingsPage: React.FC<Props> = props => {
                     </div>
 
                     <div className="mb-3">
+                        <label className="form-label">Organisationens namn</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                setState({
+                                    ...state,
+                                    organization: {
+                                        ...state.organization,
+                                        name: event.target.value,
+                                    },
+                                });
+                            }}
+                            value={state.organization.name}
+                            type="text"
+                        />
+                    </div>
+
+                    <div className="mb-3">
                         <label className="form-label">Nolla ej konton</label>
                         <textarea
                             className="form-control"
                             onChange={event => {
                                 setState({
                                     ...state,
-                                    carryAccounts: event.target.value,
+                                    organization: {
+                                        ...state.organization,
+                                        carry_accounts: event.target.value,
+                                    },
                                 });
                             }}
                             rows={4}
-                            value={state.carryAccounts}
+                            value={state.organization.carry_accounts}
                         />
                     </div>
 
@@ -114,9 +137,9 @@ export const SettingsPage: React.FC<Props> = props => {
                                     method: 'PUT',
                                     url: `/api/user/${props.user.user_id}`,
                                     body: {
-                                        carry_accounts: state.carryAccounts,
-                                        password: state.password,
                                         username: state.username,
+                                        password: state.password,
+                                        organization: state.organization,
                                     },
                                 }).then(res => {
                                     props.onWorkbookChanged();
