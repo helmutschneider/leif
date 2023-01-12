@@ -5,10 +5,12 @@ type Props<T> = {
     data: ReadonlyArray<T>
     disabled?: boolean
     itemMatches: (item: T, query: string) => boolean
+    maxMatchCount: number
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => unknown
     onItemSelected: (item: T) => unknown
     placeholder?: string
     renderItem: (item: T) => React.ReactNode
+    sortItems?: (items: Array<T>) => void
     tabIndex?: number
     value: string
 }
@@ -26,6 +28,20 @@ type State = {
     activeItemIndex: number
     closingTimeout: number | undefined
     open: boolean
+}
+
+function filterItems<T>(items: ReadonlyArray<T>, fn: (value: T) => boolean, max: number): Array<T> {
+    const found: Array<T> = [];
+    for (const item of items) {
+        if (fn(item)) {
+            found.push(item);
+        }
+
+        if (found.length === max) {
+            break;
+        }
+    }
+    return found;
 }
 
 export function Autocomplete<T>(props: Props<T>): JSX.Element {
@@ -68,8 +84,10 @@ export function Autocomplete<T>(props: Props<T>): JSX.Element {
     }, [])
 
     const items = state.open
-        ? props.data.filter(item => props.itemMatches(item, props.value))
-        : props.data;
+        ? filterItems(props.data, item => props.itemMatches(item, props.value), props.maxMatchCount)
+        : filterItems(props.data, () => true, props.maxMatchCount);
+
+    props.sortItems?.(items);
 
     return (
         <div className="position-relative">

@@ -514,7 +514,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                 });
                             })
                         }}
-                        templates={props.workbook.templates}
+                        templates={props.workbook.templates.concat(props.workbook.vouchers)}
                         voucher={state.voucher}
                     />
                 </div>

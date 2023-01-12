@@ -4,7 +4,7 @@ import {
     areDebitsAndCreditsBalanced,
     arrayBufferToBase64,
     ensureHasEmptyTransaction,
-    formatDate, objectContains,
+    formatDate, objectContains, parseDate,
     toArray,
 } from './util'
 import {MoneyInput} from "./money-input";
@@ -18,6 +18,10 @@ type Props = {
     templates?: ReadonlyArray<Voucher>
     voucher: Voucher
 }
+
+const collator = new Intl.Collator('sv-SE', {
+    numeric: true,
+});
 
 export const VoucherForm: React.FC<Props> = props => {
     const isBalanced = areDebitsAndCreditsBalanced(props.voucher);
@@ -46,10 +50,15 @@ export const VoucherForm: React.FC<Props> = props => {
                             <Autocomplete
                                 data={props.templates ?? []}
                                 itemMatches={(template, query) => {
+                                    if (query === '' && !template.is_template) {
+                                        return false;
+                                    }
+
                                     return template.name
                                         .toLowerCase()
                                         .includes(query.toLowerCase());
                                 }}
+                                maxMatchCount={50}
                                 onChange={event => {
                                     props.onChange({
                                         ...props.voucher,
@@ -65,7 +74,40 @@ export const VoucherForm: React.FC<Props> = props => {
                                     });
                                 }}
                                 placeholder="Namn"
-                                renderItem={template => template.name}
+                                renderItem={template => {
+                                    if (!template.is_template) {
+                                        return (
+                                            <span className="text-muted">
+                                                {template.date}: {template.name}
+                                            </span>
+                                        )
+                                    }
+                                    return template.name;
+                                }}
+                                sortItems={(items) => {
+                                    items.sort((a, b) => {
+                                        if (a.is_template && b.is_template) {
+                                            return collator.compare(a.name, b.name);
+                                        }
+                                        if (a.is_template) {
+                                            return -1;
+                                        }
+                                        if (b.is_template) {
+                                            return 1;
+                                        }
+                                        const dateA = parseDate(a.date, 'yyyy-MM-dd')!.getTime();
+                                        const dateB = parseDate(b.date, 'yyyy-MM-dd')!.getTime();
+
+                                        if (dateA > dateB) {
+                                            return -1;
+                                        }
+                                        if (dateB > dateA) {
+                                            return 1;
+                                        }
+
+                                        return collator.compare(a.name, b.name);
+                                    });
+                                }}
                                 value={props.voucher.name}
                             />
                         )
@@ -126,6 +168,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                         <Autocomplete
                                             data={Object.entries(props.accounts)}
                                             itemMatches={objectContains}
+                                            maxMatchCount={50}
                                             onChange={event => {
                                                 const transactions = props.voucher.transactions.slice()
                                                 transactions[idx] = {
