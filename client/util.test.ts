@@ -133,7 +133,7 @@ describe('calculateAccountBalancesForYear tests', () => {
     ];
 
     it('should handle simple case without carry', () => {
-        const result = calculateAccountBalancesForYear(vouchers, parseDate('2022-12-31', 'yyyy-MM-dd')!, []);
+        const result = calculateAccountBalancesForYear(vouchers, parseDate('2022-12-31', 'yyyy-MM-dd')!, '');
         expect(result).toEqual({
             1510: -100,
             1910: 100,
@@ -141,7 +141,7 @@ describe('calculateAccountBalancesForYear tests', () => {
     });
 
     it('should include previous years when carrying', () => {
-        const result = calculateAccountBalancesForYear(vouchers, parseDate('2023-12-31', 'yyyy-MM-dd')!, [1510, 1910]);
+        const result = calculateAccountBalancesForYear(vouchers, parseDate('2023-12-31', 'yyyy-MM-dd')!, '1510,1910');
         expect(result).toEqual({
             1510: -350,
             1910: 350,
@@ -149,10 +149,18 @@ describe('calculateAccountBalancesForYear tests', () => {
     });
 
     it('should exclude vouchers in the future', () => {
-        const result = calculateAccountBalancesForYear(vouchers, parseDate('2023-01-01', 'yyyy-MM-dd')!, [1510, 1910]);
+        const result = calculateAccountBalancesForYear(vouchers, parseDate('2023-01-01', 'yyyy-MM-dd')!, '1510,1910');
         expect(result).toEqual({
             1510: -100,
             1910: 100,
+        });
+    });
+
+    it('should carry accounts with wildcard', () => {
+        const result = calculateAccountBalancesForYear(vouchers, parseDate('2023-12-31', 'yyyy-MM-dd')!, '1*');
+        expect(result).toEqual({
+            1510: -350,
+            1910: 350,
         });
     });
 });

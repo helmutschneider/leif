@@ -1,5 +1,4 @@
 import * as t from './types'
-import {AccountNumber} from "./types";
 
 type DateFormatter = {
     (date: Date): string;
@@ -95,9 +94,10 @@ export function isFuture(date: Date, origin: Date): boolean {
     return a > b;
 }
 
-export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, today: Date, carryAccounts: ReadonlyArray<AccountNumber>): t.AccountBalanceMap {
+export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, today: Date, carryAccountPattern: string): t.AccountBalanceMap {
     const result: t.AccountBalanceMap = {};
     const year = today.getFullYear();
+    const carryRegExp = buildCarryAccountRegExp(carryAccountPattern);
 
     for (const voucher of vouchers) {
         const voucherDate = parseDate(voucher.date, 'yyyy-MM-dd')!;
@@ -115,7 +115,7 @@ export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Vouche
                 continue;
             }
 
-            if (year === voucherYear || (voucherYear <= year && carryAccounts.includes(account))) {
+            if (year === voucherYear || (voucherYear <= year && carryRegExp.test(String(account)))) {
                 const prev = result[account] ?? 0;
                 const amount = transaction.amount;
                 result[account] = prev + (transaction.kind === 'debit' ? amount : (-amount));
@@ -124,6 +124,22 @@ export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Vouche
     }
 
     return result;
+}
+
+export function buildCarryAccountRegExp(pattern: string): RegExp {
+    pattern = pattern.replace(/[^\d,*]/, '');
+
+    const thing = escapeRegExp(pattern)
+        .replace(',', '|')
+        .replace('\\*', '.*');
+
+    return new RegExp(`^${thing}$`);
+}
+
+export function escapeRegExp(pattern: string): string {
+    // $& means the whole matched string
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+    return pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export function formatIntegerAsMoneyWithSeparatorsAndSymbol(amount: string | number, currency: t.Currency): string {

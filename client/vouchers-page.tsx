@@ -175,10 +175,7 @@ export const VouchersPage: React.FC<Props> = props => {
         voucher: emptyVoucher(),
     });
 
-    const carryAccounts = props.workbook.carry_accounts
-        .replace(/[^\d,]/g, '')
-        .split(',')
-        .map(num => tryParseInt(num, 0));
+    const carryAccounts = props.workbook.carry_accounts;
     const workbook = props.workbook
     const balances = calculateAccountBalancesForYear(
         workbook.vouchers, props.today, carryAccounts
