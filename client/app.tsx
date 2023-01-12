@@ -30,7 +30,7 @@ const colorsForTheNavBar = [
     '#A93F55',
     '#54457F',
     '#226F54',
-    '#EC9F05',
+    '#BB6B00',
 ];
 
 const SESSION_STORAGE_USER_KEY = 'user';
