@@ -34,7 +34,9 @@ export type Voucher = {
 }
 export type Workbook = {
     accounts: AccountPlan
+    account_balances: AccountBalanceMap
     currency: CurrencyCode
+    organization: Organization
     templates: ReadonlyArray<Voucher>
     vouchers: ReadonlyArray<Voucher>
 }
@@ -48,7 +50,6 @@ export type User = {
     username: string
     role: string
     token: string
-    organization: Organization
 }
 export type CurrencyCode =
     | 'SEK'

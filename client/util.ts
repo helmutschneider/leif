@@ -94,54 +94,6 @@ export function isFuture(date: Date, origin: Date): boolean {
     return a > b;
 }
 
-export function calculateAccountBalancesForYear(vouchers: ReadonlyArray<t.Voucher>, today: Date, carryAccountPattern: string): t.AccountBalanceMap {
-    const result: t.AccountBalanceMap = {};
-    const year = today.getFullYear();
-    const carryRegExp = buildCarryAccountsRegExp(carryAccountPattern);
-
-    for (const voucher of vouchers) {
-        const voucherDate = parseDate(voucher.date, 'yyyy-MM-dd')!;
-
-        if (isFuture(voucherDate, today)) {
-            continue;
-        }
-
-        const voucherYear = voucherDate.getFullYear();
-
-        for (const transaction of voucher.transactions) {
-            const account = transaction.account;
-
-            if (typeof account === 'undefined') {
-                continue;
-            }
-
-            if (year === voucherYear || (voucherYear <= year && carryRegExp.test(String(account)))) {
-                const prev = result[account] ?? 0;
-                const amount = transaction.amount;
-                result[account] = prev + (transaction.kind === 'debit' ? amount : (-amount));
-            }
-        }
-    }
-
-    return result;
-}
-
-function buildCarryAccountsRegExp(pattern: string): RegExp {
-    pattern = pattern.replace(/[^\d,*]/g, '');
-
-    const thing = escapeRegExp(pattern)
-        .replace(/,/g, '|')
-        .replace(/\\\*/g, '.*');
-
-    return new RegExp(`^(?:${thing})$`);
-}
-
-export function escapeRegExp(pattern: string): string {
-    // $& means the whole matched string
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
-    return pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 export function formatIntegerAsMoneyWithSeparatorsAndSymbol(amount: string | number, currency: t.Currency): string {
     const intFmt = new Intl.NumberFormat(currency.locale, {
         style: 'decimal',

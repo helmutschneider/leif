@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {VoucherForm} from "./voucher-form";
 import {
-    calculateAccountBalancesForYear,
     ellipsis,
     emptyVoucher, formatDate,
     formatIntegerAsMoneyWithSeparatorsAndSymbol, isFuture, objectContains, parseDate, sumOfTransactions,
@@ -175,11 +174,7 @@ export const VouchersPage: React.FC<Props> = props => {
         voucher: emptyVoucher(),
     });
 
-    const carryAccounts = props.user.organization.carry_accounts;
     const workbook = props.workbook
-    const balances = calculateAccountBalancesForYear(
-        workbook.vouchers, props.today, carryAccounts
-    )
     const filteredVouchers: ReadonlyArray<t.Voucher> = workbook.vouchers.filter(voucher => {
         return (new Date(voucher.date)).getFullYear() === props.today.getFullYear()
             && (props.search === '' || objectContains(voucher, props.search));
@@ -199,7 +194,7 @@ export const VouchersPage: React.FC<Props> = props => {
             });
         };
         const documentKeyDownListener = (event: KeyboardEvent) => {
-            const next = getNextStateFromKeydownEvent(event, filteredVouchers, balances, state);
+            const next = getNextStateFromKeydownEvent(event, filteredVouchers, props.workbook.account_balances, state);
             if (typeof next !== 'undefined') {
                 setState(next);
             }
@@ -521,7 +516,7 @@ export const VouchersPage: React.FC<Props> = props => {
                 <h5>Kontobalans ({formatDate(props.today, 'yyyy-MM-dd')})</h5>
                 <table className="table table-sm">
                     <tbody>
-                    {Object.entries(balances).map((e, idx) => {
+                    {Object.entries(props.workbook.account_balances).map((e, idx) => {
                         const accountNumber = tryParseInt(e[0], 0);
                         const accountName = props.workbook.accounts[accountNumber] ?? '';
 

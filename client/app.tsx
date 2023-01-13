@@ -93,6 +93,9 @@ const App: React.FC<Props> = props => {
         http<Workbook>({
             method: 'GET',
             url: '/api/workbook',
+            query: {
+                today: formatDate(state.today, 'yyyy-MM-dd'),
+            },
         }).then(res => {
             setState({
                 ...state,
@@ -104,12 +107,16 @@ const App: React.FC<Props> = props => {
     React.useEffect(() => {
         if (state.user) {
             window.sessionStorage.setItem(SESSION_STORAGE_USER_KEY, JSON.stringify(state.user));
-            reloadWorkbook();
-
         } else {
             window.sessionStorage.removeItem(SESSION_STORAGE_USER_KEY);
         }
     }, [state.user]);
+
+    React.useEffect(() => {
+        if (state.user) {
+            reloadWorkbook();
+        }
+    }, [state.user, state.today]);
 
     if (!state.user) {
         return (
@@ -218,7 +225,7 @@ const App: React.FC<Props> = props => {
                                     search: event.target.value,
                                 })
                             }}
-                            placeholder={`Sök i ${state.user.organization.name}`}
+                            placeholder={`Sök i ${state.workbook?.organization.name}`}
                             type="text"
                             value={state.search}
                         />

@@ -93,7 +93,6 @@ final class LoginAction
             'username' => $row['username'],
             'role' => $row['role'],
             'token' => bin2hex($token),
-            'organization' => $organization,
         ], Response::HTTP_OK);
     }
 }

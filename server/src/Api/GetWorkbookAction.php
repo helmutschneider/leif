@@ -3,8 +3,11 @@
 namespace Leif\Api;
 
 use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
 use Leif\Database;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -58,14 +61,23 @@ SQL;
         $this->db = $db;
     }
 
-    public function __invoke(UserInterface $user): Response
+    public function __invoke(Request $request, UserInterface $user): Response
     {
         $vouchers = $this->findVouchers($user->getOrganizationId(), false);
         $templates = $this->findVouchers($user->getOrganizationId(), true);
+        $organization = $this->db->selectOne(
+            'SELECT * FROM organization WHERE organization_id = ?',
+            [$user->getOrganizationId()]
+        );
+
+        $tz = new DateTimeZone('Europe/Stockholm');
+        $today = DateTimeImmutable::createFromFormat('Y-m-d', $request->get('today', date('Y-m-d')), $tz);
 
         $result = [
             'accounts' => require __DIR__ . '/../../../data/accounts-2022.php',
+            'account_balances' => static::createAccountBalanceMap($vouchers, $today, $organization['carry_accounts']),
             'currency' => 'SEK',
+            'organization' => $organization,
             'templates' => $templates,
             'vouchers' => $vouchers,
         ];
@@ -134,5 +146,55 @@ SQL;
         }
 
         return $out;
+    }
+
+    /**
+     * @param array $vouchers
+     * @param DateTimeInterface $today
+     * @param string $carryAccountsPattern
+     * @return array<int, int>
+     */
+    public static function createAccountBalanceMap(array $vouchers, DateTimeInterface $today, string $carryAccountsPattern): array
+    {
+        $result = [];
+        $year = (int)$today->format('Y');
+        $carryRegExp = static::buildCarryAccountsRegExp($carryAccountsPattern);
+        $tz = $today->getTimezone();
+
+        foreach ($vouchers as $voucher) {
+            $dt = DateTimeImmutable::createFromFormat('Y-m-d', $voucher['date'], $tz);
+
+            if ($dt > $today) {
+                continue;
+            }
+
+            $voucherYear = (int)$dt->format('Y');
+
+            foreach ($voucher['transactions'] as $transaction) {
+                $account = $transaction['account'];
+
+                if ($voucherYear === $year || ($voucherYear < $year && preg_match($carryRegExp, (string)$account))) {
+                    $prev = $result[$account] ?? 0;
+                    $amount = $transaction['amount'];
+                    $result[$account] = $prev + ($transaction['kind'] === 'debit' ? $amount : (-$amount));
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    static function buildCarryAccountsRegExp(string $pattern): string
+    {
+        // keep numbers, commas and wildcards.
+        $pattern = preg_replace('/[^\d,*]/', '', $pattern);
+
+        // escape regex characters.
+        $pattern = preg_replace('/[.*+?^${}()|\[\]\\\\]/', '\\\\$0', $pattern);
+
+        $pattern = preg_replace('/,/', '|', $pattern);
+        $pattern = preg_replace('/\\\\\*/', '.*', $pattern);
+
+        return "/^(?:{$pattern})$/";
     }
 }

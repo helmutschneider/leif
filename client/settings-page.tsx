@@ -33,7 +33,7 @@ export const SettingsPage: React.FC<Props> = props => {
         password: '',
         username: props.user.username,
         organization: {
-            ...props.user.organization,
+            ...props.workbook.organization,
         },
     });
 

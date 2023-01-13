@@ -2,6 +2,7 @@ export type LeifRequest = {
     body?: unknown
     headers?: {[name: string]: string}
     method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+    query?: {[name: string]: string}
     url: string
 }
 
@@ -19,9 +20,25 @@ const DEFAULT_HEADERS = {
     'Content-Type': JSON_CONTENT_TYPE,
 };
 
+function isRelativeURL(value: string): boolean {
+    return !/^https?:\/\//i.test(value);
+}
+
 export class FetchBackend implements HttpBackend {
     public send<T>(request: LeifRequest): PromiseLike<T> {
-        return fetch(request.url, {
+        let base: string | undefined;
+
+        if (isRelativeURL(request.url)) {
+            base = window.location.origin;
+        }
+
+        const url = new URL(request.url, base);
+
+        for (const [key, value] of Object.entries(request.query ?? {})) {
+            url.searchParams.append(key, value);
+        }
+
+        return fetch(url, {
             method: request.method,
             headers: {
                 ...DEFAULT_HEADERS,
