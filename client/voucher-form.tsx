@@ -23,6 +23,29 @@ const collator = new Intl.Collator('sv-SE', {
     numeric: true,
 });
 
+function compareVouchers(a: Voucher, b: Voucher): number {
+    if (a.is_template && b.is_template) {
+        return collator.compare(a.name, b.name);
+    }
+    if (a.is_template) {
+        return -1;
+    }
+    if (b.is_template) {
+        return 1;
+    }
+    const dateA = parseDate(a.date, 'yyyy-MM-dd')!.getTime();
+    const dateB = parseDate(b.date, 'yyyy-MM-dd')!.getTime();
+
+    if (dateA > dateB) {
+        return -1;
+    }
+    if (dateB > dateA) {
+        return 1;
+    }
+
+    return collator.compare(a.name, b.name);
+}
+
 export const VoucherForm: React.FC<Props> = props => {
     const isBalanced = areDebitsAndCreditsBalanced(props.voucher);
 
@@ -65,6 +88,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                 onItemSelected={template => {
                                     props.onChange({
                                         ...template,
+                                        attachments: [],
                                         date: formatDate(new Date(), 'yyyy-MM-dd'),
                                         is_template: false,
                                         voucher_id: undefined,
@@ -82,28 +106,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                     return template.name;
                                 }}
                                 sortItems={(items) => {
-                                    items.sort((a, b) => {
-                                        if (a.is_template && b.is_template) {
-                                            return collator.compare(a.name, b.name);
-                                        }
-                                        if (a.is_template) {
-                                            return -1;
-                                        }
-                                        if (b.is_template) {
-                                            return 1;
-                                        }
-                                        const dateA = parseDate(a.date, 'yyyy-MM-dd')!.getTime();
-                                        const dateB = parseDate(b.date, 'yyyy-MM-dd')!.getTime();
-
-                                        if (dateA > dateB) {
-                                            return -1;
-                                        }
-                                        if (dateB > dateA) {
-                                            return 1;
-                                        }
-
-                                        return collator.compare(a.name, b.name);
-                                    });
+                                    items.sort(compareVouchers);
                                 }}
                                 value={props.voucher.name}
                             />
