@@ -60,6 +60,12 @@ return static function (ContainerConfigurator $container) {
         ]);
 
     $services
+        ->set(\Leif\Command\CreateMigrationCommand::class)
+        ->args([
+            '$migrationsPath' => __DIR__ . '/../src/Database',
+        ]);
+
+    $services
         ->set(\Leif\Security\SecretKey::class)
         ->args([
             '%kernel.secret%',
