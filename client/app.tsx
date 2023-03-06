@@ -28,13 +28,6 @@ type State = {
     workbook: Workbook | undefined
 }
 
-const colorsForTheNavBar = [
-    '#A93F55',
-    '#54457F',
-    '#226F54',
-    '#BB6B00',
-];
-
 const SESSION_STORAGE_USER_KEY = 'user';
 
 function tryGetUserFromSessionStorage(): User | undefined {
@@ -206,8 +199,6 @@ const App: React.FC<Props> = props => {
         }
         return b > a ? 1 : -1
     })
-
-    const colorIndex = state.today.getFullYear() % colorsForTheNavBar.length;
 
     return (
         <div>

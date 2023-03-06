@@ -1,26 +1,31 @@
 import * as React from 'react'
-import {Workbook, Voucher, currencies, User, Organization} from "./types";
+import * as t from "./types";
 import {emptyVoucher, formatDate} from "./util";
 import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
+import {Modal} from "./modal";
 
 type Props = {
     http: HttpSendFn
     onWorkbookChanged: () => unknown
-    workbook: Workbook
-    user: User
+    workbook: t.Workbook
+    user: t.User
 }
+
+type Editing =
+    | { kind: 'none' }
+    | { kind: 'voucher', voucher: t.Voucher }
 
 type State = {
     confirmPassword: string
-    template: Voucher
+    editing: Editing
     password: string
     username: string
-    organization: Organization
+    organization: t.Organization
 }
 
 export const SettingsPage: React.FC<Props> = props => {
-    function emptyTemplate(): Voucher {
+    function emptyTemplate(): t.Voucher {
         return {
             ...emptyVoucher(),
             is_template: true,
@@ -29,7 +34,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
     const [state, setState] = React.useState<State>({
         confirmPassword: '',
-        template: emptyTemplate(),
+        editing: { kind: 'none' },
         password: '',
         username: props.user.username,
         organization: {
@@ -37,10 +42,17 @@ export const SettingsPage: React.FC<Props> = props => {
         },
     });
 
+    function closeModal() {
+        setState({
+            ...state,
+            editing: { kind: 'none' },
+        });
+    }
+
     return (
         <div>
             <div className="row">
-                <div className="col-4">
+                <div className="col-6">
                     <h5>Generellt</h5>
 
                     <div className="mb-3">
@@ -156,8 +168,24 @@ export const SettingsPage: React.FC<Props> = props => {
                     </div>
                 </div>
 
-                <div className="col-4">
-                    <h5>Mallar</h5>
+                <div className="col-6">
+                    <div className="d-flex">
+                        <h5 className="flex-grow-1">Mallar</h5>
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                setState({
+                                    ...state,
+                                    editing: { kind: 'voucher', voucher: emptyTemplate() },
+                                });
+                            }}>
+                            Skapa mall
+                        </button>
+                    </div>
+
                     <table className="table table-sm">
                         <tbody>
                         {props.workbook.templates.map((template, index) => {
@@ -175,9 +203,10 @@ export const SettingsPage: React.FC<Props> = props => {
 
                                                 setState({
                                                     ...state,
-                                                    template: state.template.voucher_id === template.voucher_id
-                                                        ? emptyTemplate()
-                                                        : template,
+                                                    editing: {
+                                                        kind: 'voucher',
+                                                        voucher: template,
+                                                    },
                                                 });
                                             }}
                                             title="Redigera"
@@ -190,7 +219,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                                 event.stopPropagation();
 
                                                 const dt = new Date();
-                                                const copied: Voucher = {
+                                                const copied: t.Voucher = {
                                                     attachments: [],
                                                     created_at: '',
                                                     date: formatDate(dt, 'yyyy-MM-dd'),
@@ -229,7 +258,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                                     props.onWorkbookChanged();
                                                     setState({
                                                         ...state,
-                                                        template: emptyTemplate(),
+                                                        editing: { kind: 'none' },
                                                     });
                                                 })
                                             }}
@@ -243,65 +272,54 @@ export const SettingsPage: React.FC<Props> = props => {
                         </tbody>
                     </table>
                 </div>
-
-                <div className="col-4">
-                    <div className="row">
-                        <div className="col">
-                            <h5>
-                                {state.template.voucher_id ? 'Redigera mall' : 'Lägg till mall'}
-                            </h5>
-                        </div>
-                        <div className="col-md-auto">
-                            <i
-                                className="bi bi-x-circle-fill"
-                                onClick={event => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-
-                                    setState({
-                                        ...state,
-                                        template: emptyTemplate(),
-                                    });
-                                }}
-                                role="button"
-                                title="Avbryt"
-                            />
-                        </div>
-                    </div>
-
+            </div>
+            
+            <Modal
+                close={closeModal}
+                show={state.editing.kind === 'voucher'}
+                title={state.editing.kind === 'voucher' && typeof state.editing.voucher.voucher_id !== 'undefined'
+                    ? (state.editing.voucher.name || 'Redigera mall')
+                    : 'Skapa mall'}
+            >
+                {state.editing.kind === 'voucher' ? (
                     <VoucherForm
                         accounts={props.workbook.accounts}
-                        currency={currencies[props.workbook.currency]}
+                        currency={t.currencies[props.workbook.currency]}
                         onChange={next => {
                             setState({
                                 ...state,
-                                template: next,
+                                editing: { kind: 'voucher', voucher: next },
                             });
                         }}
                         onOK={() => {
-                            const isEditingTemplate = typeof state.template.voucher_id !== 'undefined';
+                            if (state.editing.kind !== 'voucher') {
+                                return;
+                            }
 
-                            props.http<Voucher>({
+                            const voucher = state.editing.voucher;
+                            const isEditingTemplate = typeof voucher.voucher_id !== 'undefined';
+
+                            props.http<t.Voucher>({
                                 method: isEditingTemplate ? 'PUT' : 'POST',
                                 url: isEditingTemplate
-                                    ? `/api/voucher/${state.template.voucher_id}`
+                                    ? `/api/voucher/${voucher.voucher_id}`
                                     : '/api/voucher',
                                 body: {
-                                    ...state.template,
-                                    transactions: state.template.transactions.filter(t => t.amount !== 0),
+                                    ...voucher,
+                                    transactions: voucher.transactions.filter(t => t.amount !== 0),
                                 },
                             }).then(res => {
                                 setState({
                                     ...state,
-                                    template: emptyTemplate(),
+                                    editing: { kind: 'none' },
                                 });
                                 props.onWorkbookChanged();
                             })
                         }}
-                        voucher={state.template}
+                        voucher={state.editing.voucher}
                     />
-                </div>
-            </div>
+                ) : undefined}
+            </Modal>
         </div>
 
     )

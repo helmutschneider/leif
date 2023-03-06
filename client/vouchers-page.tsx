@@ -245,7 +245,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                     voucher: emptyVoucher(),
                                 })
                             }}
-                        >Lägg till verifikat</button>
+                        >Skapa verifikat</button>
                     </div>
                 </div>
 
