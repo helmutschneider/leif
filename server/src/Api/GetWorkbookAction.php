@@ -58,7 +58,7 @@ SQL;
     const SQL_GET_INVOICE_TEMPLATES = <<<SQL
 SELECT i.invoice_template_id,
        i.name,
-       i.data
+       i.body
   FROM invoice_template AS i
  WHERE i.organization_id = :organization_id
 SQL;

@@ -255,6 +255,6 @@ export function objectContains<T>(value: T, search: string) {
 export function emptyInvoiceTemplate(): InvoiceTemplate {
     return {
         name: '',
-        data: '',
+        body: '',
     }
 }

@@ -94,13 +94,13 @@ export type AccountPlan = {
 export type BackendError = {
     message: string
 }
-export type InvoiceDataset = {
-    invoice_dataset_id?: number
-    name: string
-    data: string
-}
 export type InvoiceTemplate = {
     invoice_template_id?: number
     name: string
-    data: string
+    body: string
+}
+export type InvoiceDataset = {
+    invoice_dataset_id?: number
+    name: string
+    // TODO: more stuff here
 }

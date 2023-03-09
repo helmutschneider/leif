@@ -15,7 +15,7 @@ final class CreateInvoiceTemplateAction
 
     const RULES = [
         'name' => 'required|string|min:1',
-        'data' => 'required|string|min:1',
+        'body' => 'required|string|min:1',
     ];
 
     readonly Database $db;
@@ -35,9 +35,9 @@ final class CreateInvoiceTemplateAction
 
         $body = $request->toArray();
 
-        $this->db->execute('INSERT INTO "invoice_template" ("name", "data", "organization_id") VALUES (?, ?, ?)', [
+        $this->db->execute('INSERT INTO "invoice_template" ("name", "body", "organization_id") VALUES (?, ?, ?)', [
             $body['name'],
-            $body['data'],
+            $body['body'],
             $user->getOrganizationId(),
         ]);
 

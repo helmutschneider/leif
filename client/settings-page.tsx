@@ -55,12 +55,12 @@ const InvoiceTemplateForm: React.FC<InvoiceTemplateFormProps> = props => {
                     onChange={event => {
                         props.onChange({
                             ...props.template,
-                            data: event.target.value,
+                            body: event.target.value,
                         });
                     }}
-                    placeholder="Data"
+                    placeholder="HTML..."
                     rows={32}
-                    value={props.template.data}
+                    value={props.template.body}
                 />
             </div>
         </React.Fragment>

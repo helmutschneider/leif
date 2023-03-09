@@ -2,6 +2,8 @@
 
 namespace Leif\Api;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use Leif\Database;
 use Leif\Security\User;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +18,7 @@ final class UpdateInvoiceTemplateAction
 
     const RULES = [
         'name' => 'string|min:1',
-        'data' => 'string|min:1',
+        'body' => 'string|min:1',
     ];
     const SQL_FIND_TEMPLATE = <<<SQL
 SELECT i.*
@@ -27,7 +29,8 @@ SQL;
     const SQL_UPDATE_TEMPLATE = <<<SQL
 UPDATE "invoice_template"
    SET "name" = :name,
-       "data" = :data
+       "body" = :body,
+       "updated_at" = :updated_at
  WHERE "invoice_template_id" = :id
 SQL;
 
@@ -57,9 +60,11 @@ SQL;
 
         $body = $request->toArray();
 
+        $dt = (new DateTimeImmutable('now'));
         $this->db->execute(static::SQL_UPDATE_TEMPLATE, [
             ':name' => $body['name'],
-            ':data' => $body['data'],
+            ':body' => $body['body'],
+            ':updated_at' => $dt->format('Y-m-d H:i:s'),
             ':id' => $id,
         ]);
 
