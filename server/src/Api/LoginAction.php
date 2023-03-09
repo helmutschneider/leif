@@ -19,8 +19,8 @@ final class LoginAction
         'message' => 'Invalid username or password.',
     ];
     const RULES = [
-        'password' => 'required|string',
-        'username' => 'required|string',
+        'password' => 'required|string|min:1',
+        'username' => 'required|string|min:1',
     ];
 
     private Database $db;

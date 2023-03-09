@@ -53,7 +53,7 @@ UPDATE voucher
  WHERE voucher_id = :voucher_id
 SQL;
     const RULES = [
-        'name' => 'string',
+        'name' => 'string|min:1',
         'notes' => 'string',
         'date' => 'date_format:Y-m-d',
 

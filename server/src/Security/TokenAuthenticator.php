@@ -19,7 +19,7 @@ final class TokenAuthenticator extends AbstractAuthenticator
     const AUTH_HEADER_NAME = 'Authorization';
     const AUTH_QUERY_NAME = 'token';
 
-    private TokenUserProvider $userProvider;
+    readonly TokenUserProvider $userProvider;
 
     public function __construct(TokenUserProvider $userProvider)
     {
@@ -40,7 +40,7 @@ final class TokenAuthenticator extends AbstractAuthenticator
             throw new BadCredentialsException('The token must be a hex encoded string of even length.');
         }
 
-        $loader = [$this->userProvider, 'loadUserByApiToken'];
+        $loader = $this->userProvider->loadUserByApiToken(...);
 
         return new SelfValidatingPassport(new UserBadge($bytes, $loader));
     }

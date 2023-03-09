@@ -75,3 +75,32 @@ CREATE TABLE "attachment" (
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
+
+CREATE TABLE "invoice_dataset" (
+  "invoice_dataset_id" INTEGER PRIMARY KEY NOT NULL,
+  "name" TEXT NOT NULL,
+  "data" TEXT NOT NULL,
+  "organization_id" INTEGER NOT NULL,
+  "extends_id" INTEGER DEFAULT NULL,
+  "created_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY ("organization_id")
+    REFERENCES "organization" ("organization_id")
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+  FOREIGN KEY ("extends_id")
+    REFERENCES "invoice_dataset" ("invoice_dataset_id")
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+CREATE TABLE "invoice_template" (
+  "invoice_template_id" INTEGER PRIMARY KEY NOT NULL,
+  "name" TEXT NOT NULL,
+  "data" TEXT NOT NULL,
+  "organization_id" INTEGER NOT NULL,
+  "created_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY ("organization_id")
+    REFERENCES "organization" ("organization_id")
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);

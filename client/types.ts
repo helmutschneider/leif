@@ -36,6 +36,8 @@ export type Workbook = {
     accounts: AccountPlan
     account_balances: AccountBalanceMap
     currency: CurrencyCode
+    invoice_datasets: ReadonlyArray<InvoiceDataset>
+    invoice_templates: ReadonlyArray<InvoiceTemplate>
     organization: Organization
     templates: ReadonlyArray<Voucher>
     vouchers: ReadonlyArray<Voucher>
@@ -91,4 +93,14 @@ export type AccountPlan = {
 }
 export type BackendError = {
     message: string
+}
+export type InvoiceDataset = {
+    invoice_dataset_id?: number
+    name: string
+    data: string
+}
+export type InvoiceTemplate = {
+    invoice_template_id?: number
+    name: string
+    data: string
 }

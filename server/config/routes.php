@@ -50,4 +50,23 @@ return function (RoutingConfigurator $routes) {
             'id' => '\d+',
         ])
         ->controller(\Leif\Api\UpdateUserAction::class);
+
+    $routes->add('create_invoice_template', '/api/invoice-template')
+        ->methods(['POST'])
+        ->controller(\Leif\Api\CreateInvoiceTemplateAction::class);
+
+    $routes->add('update_invoice_template', '/api/invoice-template/{id}')
+        ->methods(['PUT'])
+        ->requirements([
+            'id' => '\d+',
+        ])
+        ->controller(\Leif\Api\UpdateInvoiceTemplateAction::class);
+
+    $routes->add('delete_invoice_template', '/api/invoice-template/{id}')
+        ->methods(['DELETE'])
+        ->requirements([
+            'id' => '\d+',
+        ])
+        ->controller(\Leif\Api\DeleteInvoiceTemplateAction::class);
+
 };

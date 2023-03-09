@@ -282,6 +282,31 @@ final class ValidatorTest extends TestCase
                 ],
                 1,
             ],
+            'min fails with empty string' => [
+                [
+                    'yee' => 'string|min:1',
+                ],
+                [
+                    'yee' => '',
+                ],
+                1,
+            ],
+            'min success with a string of correct length' => [
+                [
+                    'yee' => 'string|min:1',
+                ],
+                [
+                    'yee' => 'yee!',
+                ],
+                0,
+            ],
+            'min does nothing without value' => [
+                [
+                    'yee' => 'string|min:1',
+                ],
+                [],
+                0,
+            ],
         ];
     }
 

@@ -12,10 +12,10 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 final class TokenUserProvider implements UserProviderInterface
 {
-    private Database $db;
-    private HmacHasher $hasher;
-    private int $ttl;
-    private DateTimeImmutable $now;
+    readonly Database $db;
+    readonly HmacHasher $hasher;
+    readonly int $ttl;
+    readonly DateTimeImmutable $now;
 
     public function __construct(Database $db, HmacHasher $hasher, int $ttl, ?DateTimeImmutable $now = null)
     {

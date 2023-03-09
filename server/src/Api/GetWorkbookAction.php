@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Leif\Database;
+use Leif\Security\User;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,6 +55,15 @@ SELECT a.attachment_id,
  WHERE v.organization_id = :organization_id
 SQL;
 
+    const SQL_GET_INVOICE_TEMPLATES = <<<SQL
+SELECT i.invoice_template_id,
+       i.name,
+       i.data
+  FROM invoice_template AS i
+ WHERE i.organization_id = :organization_id
+SQL;
+
+
     private Database $db;
 
     public function __construct(Database $db)
@@ -63,6 +73,8 @@ SQL;
 
     public function __invoke(Request $request, UserInterface $user): Response
     {
+        assert($user instanceof User);
+
         $vouchers = $this->findVouchers($user->getOrganizationId(), false);
         $templates = $this->findVouchers($user->getOrganizationId(), true);
         $organization = $this->db->selectOne(
@@ -72,11 +84,13 @@ SQL;
 
         $tz = new DateTimeZone('Europe/Stockholm');
         $today = DateTimeImmutable::createFromFormat('Y-m-d', $request->get('today', date('Y-m-d')), $tz);
+        $invoiceTemplates = $this->findInvoiceTemplates($user->getOrganizationId());
 
         $result = [
             'accounts' => require __DIR__ . '/../../../data/accounts-2022.php',
             'account_balances' => static::createAccountBalanceMap($vouchers, $today, $organization['carry_accounts']),
             'currency' => 'SEK',
+            'invoice_templates' => $invoiceTemplates,
             'organization' => $organization,
             'templates' => $templates,
             'vouchers' => $vouchers,
@@ -146,6 +160,13 @@ SQL;
         }
 
         return $out;
+    }
+
+    protected function findInvoiceTemplates(int $organizationId): array
+    {
+        return $this->db->selectAll(static::SQL_GET_INVOICE_TEMPLATES, [
+            ':organization_id' => $organizationId,
+        ]);
     }
 
     /**

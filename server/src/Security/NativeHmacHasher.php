@@ -9,7 +9,7 @@ final class NativeHmacHasher implements HmacHasher
 {
     const HASH_IS_BINARY = true;
 
-    private SecretKey $key;
+    private readonly SecretKey $key;
 
     public function __construct(SecretKey $key)
     {

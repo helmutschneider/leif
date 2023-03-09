@@ -1,12 +1,21 @@
 import * as React from 'react';
 import {KeyCode} from "./types";
 
+type ModalSize = 'sm' | 'default' | 'lg' | 'xl'
 type Props = React.PropsWithChildren<{
     actions?: React.ReactNode
     close: () => unknown
     show: boolean
+    size?: ModalSize
     title: React.ReactNode
 }>
+
+const sizeClazzes: {[K in ModalSize]: string} = {
+    sm: 'modal-sm',
+    default: '',
+    lg: 'modal-lg',
+    xl: 'modal-xl',
+};
 
 export const Modal: React.FC<Props> = props => {
     const clazz = props.show ? 'modal show' : 'modal';
@@ -52,9 +61,11 @@ export const Modal: React.FC<Props> = props => {
         props.close?.();
     }
 
+    const sizeClazz = sizeClazzes[props.size || 'default'];
+
     return (
         <div className={clazz} tabIndex={-1} style={style}>
-            <div className="modal-dialog">
+            <div className={'modal-dialog ' + sizeClazz}>
                 <div className="modal-content">
                     <div className="modal-header">
                         <h1 className="modal-title fs-5">{props.title}</h1>

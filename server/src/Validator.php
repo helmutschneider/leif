@@ -13,6 +13,7 @@ final class Validator
     const ERR_DATE_FORMAT = 'The property \'%s\' must be a date of format \'%s\'.';
     const ERR_BOOLEAN = 'The property \'%s\' must be a boolean.';
     const ERR_ARRAY = 'The property \'%s\' must be an array.';
+    const ERR_MINIMUM_STRING = 'The property \'%s\' must have at least %d characters.';
 
     private array $rules;
 
@@ -164,6 +165,23 @@ final class Validator
                         foreach ($values as $valueKey => $value) {
                             if ($value === null) {
                                 $shouldSkipValidatingProperties[$valueKey] = true;
+                            }
+                        }
+                        break;
+                    case 'min':
+                    case 'minimum':
+                        $min = $args[0] ?? null;
+
+                        if ($min === null) {
+                            throw new InvalidArgumentException(
+                                'The "min" rule requires a single argument specifying the minimum amount of characters.'
+                            );
+                        }
+
+                        $min = (int) $min;
+                        foreach ($values as $valueKey => $value) {
+                            if (is_string($value) && mb_strlen($value, 'utf-8') < $min) {
+                                $result->addErrorForKey($valueKey, sprintf(static::ERR_MINIMUM_STRING, $valueKey, $min));
                             }
                         }
                         break;

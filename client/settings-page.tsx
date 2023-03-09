@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as t from "./types";
-import {emptyVoucher, formatDate} from "./util";
+import {emptyInvoiceTemplate, emptyVoucher, formatDate} from "./util";
 import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
 import {Modal} from "./modal";
@@ -15,6 +15,7 @@ type Props = {
 type Editing =
     | { kind: 'none' }
     | { kind: 'voucher', voucher: t.Voucher }
+    | { kind: 'invoice_template', template: t.InvoiceTemplate }
 
 type State = {
     confirmPassword: string
@@ -22,6 +23,48 @@ type State = {
     password: string
     username: string
     organization: t.Organization
+}
+
+type InvoiceTemplateFormProps = {
+    onChange: (next: t.InvoiceTemplate) => unknown
+    template: t.InvoiceTemplate
+}
+
+const InvoiceTemplateForm: React.FC<InvoiceTemplateFormProps> = props => {
+    return (
+        <React.Fragment>
+            <div className="mb-3">
+                <label className="form-label">Namn</label>
+                <input
+                    className="form-control"
+                    onChange={event => {
+                        props.onChange({
+                            ...props.template,
+                            name: event.target.value,
+                        });
+                    }}
+                    placeholder="Namn"
+                    type="text"
+                    value={props.template.name}
+                />
+            </div>
+            <div className="mb-3">
+                <label className="form-label">Data</label>
+                <textarea
+                    className="form-control font-monospace"
+                    onChange={event => {
+                        props.onChange({
+                            ...props.template,
+                            data: event.target.value,
+                        });
+                    }}
+                    placeholder="Data"
+                    rows={32}
+                    value={props.template.data}
+                />
+            </div>
+        </React.Fragment>
+    )
 }
 
 export const SettingsPage: React.FC<Props> = props => {
@@ -169,8 +212,8 @@ export const SettingsPage: React.FC<Props> = props => {
                 </div>
 
                 <div className="col-6">
-                    <div className="d-flex">
-                        <h5 className="flex-grow-1">Mallar</h5>
+                    <div className="d-flex mb-1">
+                        <h5 className="flex-grow-1">Verifikatmallar</h5>
                         <button
                             className="btn btn-primary btn-sm"
                             onClick={event => {
@@ -256,10 +299,6 @@ export const SettingsPage: React.FC<Props> = props => {
                                                     url: `/api/voucher/${template.voucher_id}`,
                                                 }).then(res => {
                                                     props.onWorkbookChanged();
-                                                    setState({
-                                                        ...state,
-                                                        editing: { kind: 'none' },
-                                                    });
                                                 })
                                             }}
                                             title="Ta bort"
@@ -268,6 +307,76 @@ export const SettingsPage: React.FC<Props> = props => {
                                     </td>
                                 </tr>
                             )
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="col-6">
+                    <div className="d-flex mb-1">
+                        <h5 className="flex-grow-1">Fakturamallar</h5>
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                setState({
+                                    ...state,
+                                    editing: { kind: 'invoice_template', template: emptyInvoiceTemplate() },
+                                });
+                            }}>
+                            Skapa mall
+                        </button>
+                    </div>
+
+                    <table className="table table-sm">
+                        <tbody>
+                        {props.workbook.invoice_templates.map((template, i) => {
+                            return (
+                                <tr key={i}>
+                                    <td className="col-10">{template.name}</td>
+                                    <td className="text-end">
+                                        <i
+                                            className="bi bi-gear-fill me-1"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                setState({
+                                                    ...state,
+                                                    editing: {
+                                                        kind: 'invoice_template',
+                                                        template: template,
+                                                    },
+                                                });
+                                            }}
+                                            title="Redigera"
+                                            role="button"
+                                        />
+                                        <i
+                                            className="bi bi-x-circle-fill"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                if (!confirm('Ta bort mall?')) {
+                                                    return;
+                                                }
+
+                                                props.http({
+                                                    method: 'DELETE',
+                                                    url: `/api/invoice-template/${template.invoice_template_id}`,
+                                                }).then(res => {
+                                                    props.onWorkbookChanged();
+                                                })
+                                            }}
+                                            title="Ta bort"
+                                            role="button"
+                                        />
+                                    </td>
+                                </tr>
+                            );
                         })}
                         </tbody>
                     </table>
@@ -314,11 +423,69 @@ export const SettingsPage: React.FC<Props> = props => {
                                     editing: { kind: 'none' },
                                 });
                                 props.onWorkbookChanged();
-                            })
+                            });
                         }}
                         voucher={state.editing.voucher}
                     />
                 ) : undefined}
+            </Modal>
+
+            <Modal
+                actions={
+                    <React.Fragment>
+                        <button
+                            className="btn btn-success"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                if (state.editing.kind !== 'invoice_template') {
+                                    return;
+                                }
+
+                                const template = state.editing.template;
+                                const isEditingTemplate = typeof template.invoice_template_id !== 'undefined';
+
+                                props.http<t.Voucher>({
+                                    method: isEditingTemplate ? 'PUT' : 'POST',
+                                    url: isEditingTemplate
+                                        ? `/api/invoice-template/${template.invoice_template_id}`
+                                        : '/api/invoice-template',
+                                    body: template,
+                                }).then(res => {
+                                    setState({
+                                        ...state,
+                                        editing: { kind: 'none' },
+                                    });
+                                    props.onWorkbookChanged();
+                                });
+                            }}
+                        >
+                            Spara
+                        </button>
+                    </React.Fragment>
+                }
+                close={closeModal}
+                show={state.editing.kind === 'invoice_template'}
+                size="xl"
+                title={state.editing.kind === 'invoice_template' && typeof state.editing.template.invoice_template_id !== 'undefined'
+                    ? (state.editing.template.name || 'Redigera fakturamall')
+                    : 'Skapa fakturamall'}
+            >
+                {state.editing.kind === 'invoice_template'
+                    ? <InvoiceTemplateForm
+                        onChange={next => {
+                            setState({
+                                ...state,
+                                editing: {
+                                    kind: 'invoice_template',
+                                    template: next,
+                                },
+                            })
+                        }}
+                        template={state.editing.template}
+                    />
+                    : undefined}
             </Modal>
         </div>
 

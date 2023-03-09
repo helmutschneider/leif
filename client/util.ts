@@ -1,4 +1,5 @@
 import * as t from './types'
+import {InvoiceTemplate} from "./types";
 
 type DateFormatter = {
     (date: Date): string;
@@ -249,4 +250,11 @@ export function objectContains<T>(value: T, search: string) {
     }
 
     return true;
+}
+
+export function emptyInvoiceTemplate(): InvoiceTemplate {
+    return {
+        name: '',
+        data: '',
+    }
 }
