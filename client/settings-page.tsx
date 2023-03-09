@@ -1,9 +1,10 @@
 import * as React from 'react'
 import * as t from "./types";
-import {emptyInvoiceTemplate, emptyVoucher, formatDate} from "./util";
+import {emptyInvoiceDataset, emptyInvoiceTemplate, emptyVoucher, formatDate, tryParseFloat, tryParseInt} from "./util";
 import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
 import {Modal} from "./modal";
+import {currencies} from "./types";
 
 type Props = {
     http: HttpSendFn
@@ -16,6 +17,7 @@ type Editing =
     | { kind: 'none' }
     | { kind: 'voucher', voucher: t.Voucher }
     | { kind: 'invoice_template', template: t.InvoiceTemplate }
+    | { kind: 'invoice_dataset', dataset: t.InvoiceDataset }
 
 type State = {
     confirmPassword: string
@@ -65,6 +67,249 @@ const InvoiceTemplateForm: React.FC<InvoiceTemplateFormProps> = props => {
             </div>
         </React.Fragment>
     )
+};
+
+type JsonInputProps<T> = {
+    onChange: (next: T) => unknown
+    rows?: number
+    value: T
+}
+
+function JsonInput<T>(props: JsonInputProps<T>) {
+    const [json, setJson] = React.useState<string>(JSON.stringify(props.value, undefined, 2));
+
+    return (
+        <textarea
+            className="form-control font-monospace"
+            onChange={event => {
+                setJson(event.target.value);
+
+                try {
+                    const parsed = JSON.parse(event.target.value);
+                    props.onChange(parsed);
+                } catch (e) {
+                    // do nothing.
+                }
+            }}
+            rows={props.rows}
+            value={json}
+        />
+    )
+}
+
+type InvoiceDatasetFormProps = {
+    onChange: (next: t.InvoiceDataset) => unknown
+    datasets: ReadonlyArray<t.InvoiceDataset>
+    dataset: t.InvoiceDataset
+    templates: ReadonlyArray<t.InvoiceTemplate>
+}
+
+const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
+    const canInheritFromDatasets = props.datasets.filter(d => d.invoice_dataset_id !== props.dataset.invoice_dataset_id);
+
+    return (
+        <React.Fragment>
+            <div className="row">
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Namn</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                props.onChange({
+                                    ...props.dataset,
+                                    name: event.target.value,
+                                });
+                            }}
+                            placeholder="Namn"
+                            type="text"
+                            value={props.dataset.name}
+                        />
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">PDF-mall</label>
+                        <select
+                            className="form-control"
+                            onChange={event => {
+                                const parsed = tryParseInt(event.target.value, undefined);
+
+                                props.onChange({
+                                    ...props.dataset,
+                                    invoice_template_id: parsed,
+                                });
+                            }}
+                            value={props.dataset.invoice_template_id}
+                        >
+                            <option/>
+                            {props.templates.map((template, i) => {
+                                return (
+                                    <option
+                                        key={i}
+                                        value={template.invoice_template_id}>
+                                        {template.name}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Ärver från</label>
+                        <select
+                            className="form-control"
+                            onChange={event => {
+                                const parsed = tryParseInt(event.target.value, undefined);
+
+                                props.onChange({
+                                    ...props.dataset,
+                                    extends_id: parsed,
+                                });
+                            }}
+                            value={props.dataset.extends_id || ''}
+                        >
+                            <option/>
+                            {canInheritFromDatasets.map((set, i) => {
+                                return (
+                                    <option
+                                        key={i}
+                                        value={set.invoice_dataset_id}>
+                                        {set.name}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Valuta</label>
+                        <select
+                            className="form-control"
+                            onChange={event => {
+                                props.onChange({
+                                    ...props.dataset,
+                                    currency_code: event.target.value,
+                                });
+                            }}
+                            value={props.dataset.currency_code}
+                        >
+                            <option/>
+                            {Object.keys(currencies).map((key, i) => {
+                                return (
+                                    <option key={i} value={key}>{key}</option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Momssats</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                props.onChange({
+                                    ...props.dataset,
+                                    vat_rate: tryParseFloat(event.target.value, 0),
+                                });
+                            }}
+                            placeholder="Precision"
+                            type="text"
+                            value={props.dataset.vat_rate}
+                        />
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Precision</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                props.onChange({
+                                    ...props.dataset,
+                                    precision: tryParseInt(event.target.value, 0),
+                                });
+                            }}
+                            placeholder="Precision"
+                            type="text"
+                            value={props.dataset.precision}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label">Fält</label>
+                <JsonInput
+                    onChange={next => {
+                        props.onChange({
+                            ...props.dataset,
+                            fields: next,
+                        });
+                    }}
+                    rows={24}
+                    value={props.dataset.fields}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label">Rader</label>
+                <JsonInput
+                    onChange={next => {
+                        props.onChange({
+                            ...props.dataset,
+                            line_items: next,
+                        });
+                    }}
+                    rows={24}
+                    value={props.dataset.line_items}
+                />
+            </div>
+        </React.Fragment>
+    )
+};
+
+function ensureHasEmptyFieldAndLineItem(set: t.InvoiceDataset): t.InvoiceDataset {
+    const next: t.InvoiceDataset = {
+        ...set,
+    };
+
+    {
+        const len = next.fields.length;
+        if (!len || next.fields[len - 1]?.name) {
+            next.fields = next.fields.concat({
+                name: '',
+                key: '',
+                value: '',
+                sorting: 0,
+                is_editable: true,
+                is_visible: true,
+            });
+        }
+    }
+
+    {
+        const len = next.line_items.length;
+        if (!len || next.line_items[len - 1]?.name) {
+            next.line_items = next.line_items.concat({
+                name: '',
+                key: '',
+                kind: 'wage_hourly',
+                price: 0,
+                quantity: 0,
+            });
+        }
+    }
+
+    return next;
 }
 
 export const SettingsPage: React.FC<Props> = props => {
@@ -77,7 +322,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
     const [state, setState] = React.useState<State>({
         confirmPassword: '',
-        editing: { kind: 'none' },
+        editing: {kind: 'none'},
         password: '',
         username: props.user.username,
         organization: {
@@ -88,7 +333,7 @@ export const SettingsPage: React.FC<Props> = props => {
     function closeModal() {
         setState({
             ...state,
-            editing: { kind: 'none' },
+            editing: {kind: 'none'},
         });
     }
 
@@ -213,7 +458,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                 <div className="col-6">
                     <div className="d-flex mb-1">
-                        <h5 className="flex-grow-1">Verifikatmallar</h5>
+                        <h5 className="flex-grow-1">Verifikat: mallar</h5>
                         <button
                             className="btn btn-primary btn-sm"
                             onClick={event => {
@@ -222,7 +467,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                                 setState({
                                     ...state,
-                                    editing: { kind: 'voucher', voucher: emptyTemplate() },
+                                    editing: {kind: 'voucher', voucher: emptyTemplate()},
                                 });
                             }}>
                             Skapa mall
@@ -311,10 +556,12 @@ export const SettingsPage: React.FC<Props> = props => {
                         </tbody>
                     </table>
                 </div>
+            </div>
 
+            <div className="row">
                 <div className="col-6">
                     <div className="d-flex mb-1">
-                        <h5 className="flex-grow-1">Fakturamallar</h5>
+                        <h5 className="flex-grow-1">Faktura: PDF-mallar</h5>
                         <button
                             className="btn btn-primary btn-sm"
                             onClick={event => {
@@ -323,7 +570,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                                 setState({
                                     ...state,
-                                    editing: { kind: 'invoice_template', template: emptyInvoiceTemplate() },
+                                    editing: {kind: 'invoice_template', template: emptyInvoiceTemplate()},
                                 });
                             }}>
                             Skapa mall
@@ -381,8 +628,78 @@ export const SettingsPage: React.FC<Props> = props => {
                         </tbody>
                     </table>
                 </div>
+
+                <div className="col-6">
+                    <div className="d-flex mb-1">
+                        <h5 className="flex-grow-1">Faktura: dataset</h5>
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                setState({
+                                    ...state,
+                                    editing: {kind: 'invoice_dataset', dataset: emptyInvoiceDataset()},
+                                });
+                            }}>
+                            Skapa dataset
+                        </button>
+                    </div>
+
+                    <table className="table table-sm">
+                        <tbody>
+                        {props.workbook.invoice_datasets.map((dataset, i) => {
+                            return (
+                                <tr key={i}>
+                                    <td className="col-10">{dataset.name}</td>
+                                    <td className="text-end">
+                                        <i
+                                            className="bi bi-gear-fill me-1"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                setState({
+                                                    ...state,
+                                                    editing: {
+                                                        kind: 'invoice_dataset',
+                                                        dataset: dataset,
+                                                    },
+                                                });
+                                            }}
+                                            title="Redigera"
+                                            role="button"
+                                        />
+                                        <i
+                                            className="bi bi-x-circle-fill"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                if (!confirm('Ta bort dataset?')) {
+                                                    return;
+                                                }
+
+                                                props.http({
+                                                    method: 'DELETE',
+                                                    url: `/api/invoice-dataset/${dataset.invoice_dataset_id}`,
+                                                }).then(res => {
+                                                    props.onWorkbookChanged();
+                                                })
+                                            }}
+                                            title="Ta bort"
+                                            role="button"
+                                        />
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            
+
             <Modal
                 close={closeModal}
                 show={state.editing.kind === 'voucher'}
@@ -397,7 +714,7 @@ export const SettingsPage: React.FC<Props> = props => {
                         onChange={next => {
                             setState({
                                 ...state,
-                                editing: { kind: 'voucher', voucher: next },
+                                editing: {kind: 'voucher', voucher: next},
                             });
                         }}
                         onOK={() => {
@@ -420,7 +737,7 @@ export const SettingsPage: React.FC<Props> = props => {
                             }).then(res => {
                                 setState({
                                     ...state,
-                                    editing: { kind: 'none' },
+                                    editing: {kind: 'none'},
                                 });
                                 props.onWorkbookChanged();
                             });
@@ -455,7 +772,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                 }).then(res => {
                                     setState({
                                         ...state,
-                                        editing: { kind: 'none' },
+                                        editing: {kind: 'none'},
                                     });
                                     props.onWorkbookChanged();
                                 });
@@ -484,6 +801,71 @@ export const SettingsPage: React.FC<Props> = props => {
                             })
                         }}
                         template={state.editing.template}
+                    />
+                    : undefined}
+            </Modal>
+
+            <Modal
+                actions={
+                    <React.Fragment>
+                        <button
+                            className="btn btn-success"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                if (state.editing.kind !== 'invoice_dataset') {
+                                    return;
+                                }
+
+                                const dataset: t.InvoiceDataset = {
+                                    ...state.editing.dataset,
+                                    fields: state.editing.dataset.fields.filter(f => !!f.name),
+                                    line_items: state.editing.dataset.line_items.filter(f => !!f.name),
+                                };
+
+                                const isEditingDataset = typeof dataset.invoice_dataset_id !== 'undefined';
+
+                                props.http<t.Voucher>({
+                                    method: isEditingDataset ? 'PUT' : 'POST',
+                                    url: isEditingDataset
+                                        ? `/api/invoice-dataset/${dataset.invoice_dataset_id}`
+                                        : '/api/invoice-dataset',
+                                    body: dataset,
+                                }).then(res => {
+                                    setState({
+                                        ...state,
+                                        editing: {kind: 'none'},
+                                    });
+                                    props.onWorkbookChanged();
+                                });
+                            }}
+                        >
+                            Spara
+                        </button>
+                    </React.Fragment>
+                }
+                close={closeModal}
+                show={state.editing.kind === 'invoice_dataset'}
+                size="default"
+                title={state.editing.kind === 'invoice_dataset' && typeof state.editing.dataset.invoice_dataset_id !== 'undefined'
+                    ? (state.editing.dataset.name || 'Redigera dataset')
+                    : 'Skapa dataset'}
+            >
+                {state.editing.kind === 'invoice_dataset'
+                    ? <InvoiceDatasetForm
+                        onChange={next => {
+                            setState({
+                                ...state,
+                                editing: {
+                                    kind: 'invoice_dataset',
+                                    dataset: next,
+                                },
+                            })
+                        }}
+                        datasets={props.workbook.invoice_datasets}
+                        dataset={ensureHasEmptyFieldAndLineItem(state.editing.dataset)}
+                        templates={props.workbook.invoice_templates}
                     />
                     : undefined}
             </Modal>

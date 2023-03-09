@@ -69,4 +69,18 @@ return function (RoutingConfigurator $routes) {
         ])
         ->controller(\Leif\Api\DeleteInvoiceTemplateAction::class);
 
+    $routes->add('create_invoice_dataset', '/api/invoice-dataset')
+        ->methods(['POST'])
+        ->controller(\Leif\Api\CreateInvoiceDatasetAction::class);
+
+    $routes->add('update_invoice_dataset', '/api/invoice-dataset/{id}')
+        ->methods(['PUT'])
+        ->controller(\Leif\Api\UpdateInvoiceDatasetAction::class);
+
+    $routes->add('delete_invoice_template', '/api/invoice-dataset/{id}')
+        ->methods(['DELETE'])
+        ->requirements([
+            'id' => '\d+',
+        ])
+        ->controller(\Leif\Api\DeleteInvoiceDatasetAction::class);
 };

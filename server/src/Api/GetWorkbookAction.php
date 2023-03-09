@@ -56,13 +56,16 @@ SELECT a.attachment_id,
 SQL;
 
     const SQL_GET_INVOICE_TEMPLATES = <<<SQL
-SELECT i.invoice_template_id,
-       i.name,
-       i.body
+SELECT i.*
   FROM invoice_template AS i
- WHERE i.organization_id = :organization_id
+ WHERE i.organization_id = ?
 SQL;
 
+    const SQL_GET_INVOICE_DATASETS = <<<SQL
+SELECT i.*
+  FROM invoice_dataset AS i
+ WHERE i.organization_id = ?
+SQL;
 
     private Database $db;
 
@@ -84,12 +87,14 @@ SQL;
 
         $tz = new DateTimeZone('Europe/Stockholm');
         $today = DateTimeImmutable::createFromFormat('Y-m-d', $request->get('today', date('Y-m-d')), $tz);
-        $invoiceTemplates = $this->findInvoiceTemplates($user->getOrganizationId());
+        $invoiceTemplates = $this->db->selectAll(static::SQL_GET_INVOICE_TEMPLATES, [$user->getOrganizationId()]);
+        $invoiceDatasets = $this->findDatasets($user);
 
         $result = [
             'accounts' => require __DIR__ . '/../../../data/accounts-2022.php',
             'account_balances' => static::createAccountBalanceMap($vouchers, $today, $organization['carry_accounts']),
             'currency' => 'SEK',
+            'invoice_datasets' => $invoiceDatasets,
             'invoice_templates' => $invoiceTemplates,
             'organization' => $organization,
             'templates' => $templates,
@@ -162,11 +167,21 @@ SQL;
         return $out;
     }
 
-    protected function findInvoiceTemplates(int $organizationId): array
+    protected function findDatasets(User $user): array
     {
-        return $this->db->selectAll(static::SQL_GET_INVOICE_TEMPLATES, [
-            ':organization_id' => $organizationId,
-        ]);
+        $datasets = [];
+        $rows = $this->db->selectAll(static::SQL_GET_INVOICE_DATASETS, [$user->getOrganizationId()]);
+
+        foreach ($rows as $row) {
+            $set = $row;
+            $set['fields'] = json_decode($row['fields'], true);
+            $set['line_items'] = json_decode($row['line_items'], true);
+            $set['created_at'] = (new DateTimeImmutable($set['created_at']))->format('c');
+            $set['updated_at'] = (new DateTimeImmutable($set['updated_at']))->format('c');
+            $datasets[] = $set;
+        }
+
+        return $datasets;
     }
 
     /**

@@ -99,8 +99,32 @@ export type InvoiceTemplate = {
     name: string
     body: string
 }
+export type InvoiceField = {
+    name: string
+    key: string
+    value: string
+    sorting: number
+    is_editable: boolean
+    is_visible: boolean
+}
+export type InvoiceLineItemKind =
+    | 'piece'
+    | 'wage_hourly'
+export type InvoiceLineItem = {
+    name: string
+    key: string
+    kind: InvoiceLineItemKind
+    price: number
+    quantity: number
+}
 export type InvoiceDataset = {
     invoice_dataset_id?: number
     name: string
-    // TODO: more stuff here
+    vat_rate: number
+    currency_code: string
+    fields: ReadonlyArray<InvoiceField>
+    line_items: ReadonlyArray<InvoiceLineItem>
+    precision: number
+    extends_id?: number
+    invoice_template_id?: number
 }
