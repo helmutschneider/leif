@@ -14,6 +14,7 @@ final class Validator
     const ERR_BOOLEAN = 'The property \'%s\' must be a boolean.';
     const ERR_ARRAY = 'The property \'%s\' must be an array.';
     const ERR_MINIMUM_STRING = 'The property \'%s\' must have at least %d characters.';
+    const ERR_MAXIMUM_STRING = 'The property \'%s\' must have at most %d characters.';
     const ERR_NUMERIC = 'The property \'%s\' must be numeric.';
 
     readonly array $rules;
@@ -201,6 +202,27 @@ final class Validator
 
                             if (is_string($value) && mb_strlen($value, 'utf-8') < $min) {
                                 $result->addErrorForKey($valueKey, sprintf(static::ERR_MINIMUM_STRING, $valueKey, $min));
+                            }
+                        }
+                        break;
+                    case 'max':
+                    case 'maximum':
+                        $max = $args[0] ?? null;
+
+                        if ($max === null) {
+                            throw new InvalidArgumentException(
+                                'The "max" rule requires a single argument specifying the maximum amount of characters.'
+                            );
+                        }
+
+                        $max = (int) $max;
+                        foreach ($values as $valueKey => $value) {
+                            if (isset($shouldSkipValidatingProperties[$valueKey])) {
+                                continue;
+                            }
+
+                            if (is_string($value) && mb_strlen($value, 'utf-8') > $max) {
+                                $result->addErrorForKey($valueKey, sprintf(static::ERR_MAXIMUM_STRING, $valueKey, $max));
                             }
                         }
                         break;

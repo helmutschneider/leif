@@ -282,6 +282,22 @@ final class ValidatorTest extends TestCase
                 ],
                 1,
             ],
+            'null allows null string' => [
+                [
+                    'yee.*.bro' => 'required|string|null',
+                ],
+                [
+                    'yee' => [
+                        [
+                            'bro' => 'dude',
+                        ],
+                        [
+                            'bro' => null,
+                        ],
+                    ],
+                ],
+                0,
+            ],
             'min fails with empty string' => [
                 [
                     'yee' => 'string|min:1',
@@ -306,6 +322,58 @@ final class ValidatorTest extends TestCase
                 ],
                 [],
                 0,
+            ],
+            'max succeeds with empty string' => [
+                [
+                    'yee' => 'string|max:1',
+                ],
+                [
+                    'yee' => '',
+                ],
+                0,
+            ],
+            'max success with a string of correct length' => [
+                [
+                    'yee' => 'string|max:3',
+                ],
+                [
+                    'yee' => 'yee',
+                ],
+                0,
+            ],
+            'max fails with a too long string' => [
+                [
+                    'yee' => 'string|max:3',
+                ],
+                [
+                    'yee' => 'yee!',
+                ],
+                1,
+            ],
+            'max does nothing without value' => [
+                [
+                    'yee' => 'string|max:1',
+                ],
+                [],
+                0,
+            ],
+            'numeric fails with string' => [
+                [
+                    'yee' => 'numeric',
+                ],
+                [
+                    'yee' => 'bruh',
+                ],
+                1
+            ],
+            'numeric succeeds with numeric string' => [
+                [
+                    'yee' => 'numeric',
+                ],
+                [
+                    'yee' => '1.5',
+                ],
+                0
             ],
         ];
     }
