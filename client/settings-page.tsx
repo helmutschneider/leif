@@ -194,7 +194,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
                             onChange={event => {
                                 props.onChange({
                                     ...props.dataset,
-                                    currency_code: event.target.value,
+                                    currency_code: event.target.value as any,
                                 });
                             }}
                             value={props.dataset.currency_code}

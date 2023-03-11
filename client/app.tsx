@@ -165,6 +165,7 @@ const App: React.FC<Props> = props => {
         case 'invoice':
             viewStuff = (
                 <InvoicePage
+                    datasets={state.workbook?.invoice_datasets ?? []}
                     http={http}
                     user={state.user}
                 />

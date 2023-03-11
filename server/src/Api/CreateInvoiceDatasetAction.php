@@ -24,7 +24,7 @@ final class CreateInvoiceDatasetAction
 
         'fields' => 'array',
         'fields.*.name' => 'required|string|min:1',
-        'fields.*.key' => 'string',
+        'fields.*.key' => 'required|string|min:1',
         'fields.*.value' => 'string',
         'fields.*.sorting' => 'numeric',
         'fields.*.is_editable' => 'boolean',
@@ -69,8 +69,8 @@ SQL;
 
         $body = $request->toArray();
 
-        if (!static::ensureTemplateIsOwnedByUser($this->db, $user, $body['invoice_template_id'])) {
-            return new JsonResponse(['message' => 'Invalid template ID.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        if (!static::ensureTemplateExists($this->db, $user, $body['invoice_template_id'])) {
+            return new JsonResponse(['message' => 'Template does not exist.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $extendsId = isset($body['extends_id']) && is_int($body['extends_id'])
@@ -94,7 +94,7 @@ SQL;
         return new JsonResponse($body, Response::HTTP_CREATED);
     }
 
-    public static function ensureTemplateIsOwnedByUser(Database $db, UserInterface $user, int $templateId): bool
+    public static function ensureTemplateExists(Database $db, UserInterface $user, int $templateId): bool
     {
         assert($user instanceof User);
 

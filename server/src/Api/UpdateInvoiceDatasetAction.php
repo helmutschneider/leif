@@ -53,7 +53,7 @@ SQL;
 
         $body = $request->toArray();
 
-        if (!CreateInvoiceDatasetAction::ensureTemplateIsOwnedByUser($this->db, $user, $body['invoice_template_id'])) {
+        if (!CreateInvoiceDatasetAction::ensureTemplateExists($this->db, $user, $body['invoice_template_id'])) {
             return new JsonResponse(['message' => 'Invalid template ID.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 

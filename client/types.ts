@@ -121,10 +121,17 @@ export type InvoiceDataset = {
     invoice_dataset_id?: number
     name: string
     vat_rate: number
-    currency_code: string
+    currency_code: CurrencyCode
     fields: ReadonlyArray<InvoiceField>
     line_items: ReadonlyArray<InvoiceLineItem>
     precision: number
     extends_id?: number
     invoice_template_id?: number
+}
+export type MapLike<T> = {
+    [key: string]: T
+}
+export type Invoice = {
+    fields: ReadonlyArray<InvoiceField>
+    line_items: ReadonlyArray<InvoiceLineItem>
 }

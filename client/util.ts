@@ -163,7 +163,7 @@ function tryParseWithFn<D>(value: string | number | undefined, defaultValue: D, 
             result = defaultValue;
             break;
     }
-    if (typeof result === 'number' && isNaN(result)) {
+    if (typeof result === 'number' && (isNaN(result) || !isFinite(result))) {
         result = defaultValue
     }
     return result
