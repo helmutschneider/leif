@@ -278,7 +278,6 @@ function ensureHasEmptyFieldAndLineItem(set: t.InvoiceDataset): t.InvoiceDataset
                 name: '',
                 key: '',
                 value: '',
-                sorting: 0,
                 is_editable: true,
             });
         }

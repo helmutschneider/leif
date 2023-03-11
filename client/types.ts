@@ -103,7 +103,6 @@ export type InvoiceField = {
     name: string
     key: string
     value: string
-    sorting: number
     is_editable: boolean
 }
 export type InvoiceLineItem = {

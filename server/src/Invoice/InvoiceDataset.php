@@ -65,16 +65,11 @@ final class InvoiceDataset
         $fields = [];
 
         foreach ($data['fields'] as $field) {
-            $key = $field['key'];
-            $f = new InvoiceField($field['name'], $key, $field['value']);
-            $f->sorting = $field['sorting'] ?? pow(2, 16);
+            $f = new InvoiceField($field['name'], $field['value']);
             $f->isEditable = $field['is_editable'];
+            $key = $field['key'];
             $fields[$key] = $f;
         }
-
-        uasort($fields, function ($a, $b) {
-            return $a->sorting <=> $b->sorting;
-        });
 
         $currency = new Currency($data['currency_code']);
         $precision = $data['precision'];
@@ -83,7 +78,6 @@ final class InvoiceDataset
         foreach ($data['line_items'] as $item) {
             $price = new Money($item['price'], $currency);
             $it = new InvoiceLineItem($item['name'], (float)$item['quantity'], $price, $precision);
-            $it->key = $item['key'];
             $items[] = $it;
         }
 

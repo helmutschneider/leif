@@ -93,10 +93,10 @@ const Form: React.FC<FormProps> = props => {
                     <label>Artikel</label>
                 </div>
                 <div className="col-3">
-                    <label>Timmar</label>
+                    <label>Pris/timme</label>
                 </div>
                 <div className="col-3">
-                    <label>Pris/timme</label>
+                    <label>Timmar</label>
                 </div>
             </div>
 
@@ -111,13 +111,6 @@ const Form: React.FC<FormProps> = props => {
                                    onChange={onItemChangeWithEvent(props, 'name', idx)} />
                         </div>
                         <div className="col-3">
-                            <input type="text"
-                                   className="form-control"
-                                   placeholder="Timmar"
-                                   value={item.quantity}
-                                   onChange={onItemChangeWithEvent(props, 'quantity', idx)} />
-                        </div>
-                        <div className="col-3">
                             <div className="input-group">
                                 <MoneyInput
                                     currency={currency}
@@ -125,6 +118,13 @@ const Form: React.FC<FormProps> = props => {
                                     value={item.price}
                                 />
                             </div>
+                        </div>
+                        <div className="col-3">
+                            <input type="text"
+                                   className="form-control"
+                                   placeholder="Timmar"
+                                   value={item.quantity}
+                                   onChange={onItemChangeWithEvent(props, 'quantity', idx)} />
                         </div>
                     </div>
                 )

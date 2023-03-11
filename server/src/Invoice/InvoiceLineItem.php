@@ -14,8 +14,6 @@ final class InvoiceLineItem
     public readonly Money $price;
     public readonly Money $total;
 
-    public string $key = '';
-
     public function __construct(string $name, float $quantity, Money $price, int $precision)
     {
         $this->name = $name;

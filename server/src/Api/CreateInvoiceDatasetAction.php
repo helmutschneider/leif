@@ -27,11 +27,10 @@ final class CreateInvoiceDatasetAction
         'fields.*.name' => 'required|string|min:1|null',
         'fields.*.key' => 'required|string|min:1',
         'fields.*.value' => 'string',
-        'fields.*.sorting' => 'numeric',
         'fields.*.is_editable' => 'boolean',
 
         'line_items' => 'array',
-        'line_items.*.name' => 'required|string|min:1',
+        'line_items.*.name' => 'required|string|min:1|null',
         'line_items.*.key' => 'string',
         'line_items.*.price' => 'numeric',
         'line_items.*.quantity' => 'numeric',
