@@ -6,27 +6,10 @@ use Leif\Api\ExpandInvoiceDatasetAction;
 use Leif\Database;
 use Leif\Security\User;
 use Leif\Tests\WebTestCase;
-use Symfony\Component\HttpFoundation\Response;
 
-final class InvoiceTemplateTest extends WebTestCase
+final class ExpandInvoiceDatasetActionTest extends WebTestCase
 {
-    public function testCreateInvoiceTemplate(): void
-    {
-        $client = static::createClient();
-        static::createUserWithToken($client, 'tester', '1234');
-
-        $body = json_encode([
-            'name' => 'yee!',
-            'body' => 'boi!',
-        ]);
-        $client->request('POST', '/api/invoice-template', [], [], [
-            'HTTP_AUTHORIZATION' => '1234',
-        ], $body);
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
-    }
-
-    public function testExpandsTemplates()
+    public function testExtendsParentTemplate()
     {
         $client = static::createClient();
         $db = $client->getContainer()->get(Database::class);
@@ -37,6 +20,7 @@ final class InvoiceTemplateTest extends WebTestCase
         $db->execute('INSERT INTO invoice_template (name, body, organization_id) VALUES (?, ?, ?)', [
             'yee', '', $db->getLastInsertId()
         ]);
+        $templateId = $db->getLastInsertId();
 
         $fields = <<<TXT
 [
@@ -60,7 +44,6 @@ TXT;
 ]
 TXT;
 
-
         $db->execute('INSERT INTO invoice_dataset (
           name,
           vat_rate,
@@ -75,19 +58,66 @@ TXT;
         ) VALUES (\'\', 25, \'SEK\', ?, ?, 0, ?, ?, NULL, ?)', [
             $fields,
             $lineItems,
-            '{ "my_var": 42 }',
+            '{ "my_var": 42, "my_other_var": 3 }',
             $organizationId,
-            $db->getLastInsertId(),
+            $templateId,
+        ]);
+
+        $extendsId = $db->getLastInsertId();
+
+        $fields = <<<TXT
+[
+  {
+    "name": null,
+    "key": "a",
+    "value": "SWAGGER {{ 5 + variables.my_var }}",
+    "is_editable": true
+  }
+]
+TXT;
+
+        $lineItems = <<<TXT
+[
+  {
+    "name": "JAGGER {{ variables.my_var }}",
+    "key": "a",
+    "price": 0,
+    "quantity": 0
+  }
+]
+TXT;
+
+        $db->execute('INSERT INTO invoice_dataset (
+          name,
+          vat_rate,
+          currency_code,
+          fields,
+          line_items,
+          precision,
+          variables,
+          organization_id,
+          extends_id,
+          invoice_template_id
+        ) VALUES (\'\', 25, \'SEK\', ?, ?, 0, ?, ?, ?, ?)', [
+            $fields,
+            $lineItems,
+            '{ "my_var": 69 }',
+            $organizationId,
+            $extendsId,
+            $templateId,
         ]);
 
         $datasetId = $db->getLastInsertId();
+
         $user = new User([
             'organization_id' => $organizationId,
             'user_id' => $userId,
         ]);
         $dataset = ExpandInvoiceDatasetAction::loadAndExpandDataset($db, $user, $datasetId);
 
-        $this->assertSame('Yee 43', $dataset['fields'][0]['value']);
-        $this->assertSame('Line 42', $dataset['line_items'][0]['name']);
+        $this->assertSame('SWAGGER 74', $dataset['fields'][0]['value']);
+        $this->assertSame('JAGGER 69', $dataset['line_items'][0]['name']);
+        $this->assertSame(69, $dataset['variables']['my_var']);
+        $this->assertSame(3, $dataset['variables']['my_other_var']);
     }
 }

@@ -35,20 +35,11 @@ trait DatabaseTrait
 
     public static function createVoucher(Database $db, int $userId): int
     {
-        $org = $db->selectOne('
-SELECT o.*
-  FROM organization AS o
- INNER JOIN user AS u
-    ON u.organization_id = o.organization_id
- WHERE u.user_id = :user_id
-        ', [':user_id' => $userId]);
-
-        assert($org);
-
+        $organizationId = static::getOrganizationId($db, $userId);
         $db->execute('INSERT INTO voucher (date, name, organization_id) VALUES (?, ?, ?)', [
             '2022-02-14',
             'Test voucher',
-            $org['organization_id'],
+            $organizationId
         ]);
         return $db->getLastInsertId();
     }
@@ -75,5 +66,20 @@ SELECT o.*
             $voucherId,
         ]);
         return $db->getLastInsertId();
+    }
+
+    public static function getOrganizationId(Database $db, int $userId): int
+    {
+        $org = $db->selectOne('
+SELECT o.*
+  FROM organization AS o
+ INNER JOIN user AS u
+    ON u.organization_id = o.organization_id
+ WHERE u.user_id = :user_id
+        ', [':user_id' => $userId]);
+
+        assert($org);
+
+        return $org['organization_id'];
     }
 }

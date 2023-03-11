@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final class ExpandDatasetAction
+final class ExpandInvoiceDatasetAction
 {
     readonly Database $db;
 
@@ -23,16 +23,27 @@ final class ExpandDatasetAction
     {
         assert($user instanceof User);
 
-        $dataset = $this->loadAndDecodeDataset($user, $id);
+        $dataset = static::loadAndExpandDataset($this->db, $user, $id);
 
         if ($dataset === null) {
             return new JsonResponse(['message' => 'Not found.'], Response::HTTP_NOT_FOUND);
         }
 
+        return new JsonResponse($dataset, Response::HTTP_OK);
+    }
+
+    public static function loadAndExpandDataset(Database $db, User $user, int $id): ?array
+    {
+        $dataset = static::loadAndDecodeDataset($db, $user, $id);
+
+        if ($dataset === null) {
+            return null;
+        }
+
         $extendsId = $dataset['extends_id'];
 
         while ($extendsId !== null) {
-            $parent = $this->loadAndDecodeDataset($user, $extendsId);
+            $parent = static::loadAndDecodeDataset($db, $user, $extendsId);
             $dataset['fields'] = array_replace_recursive($parent['fields'], $dataset['fields']);
             $dataset['line_items'] = array_replace_recursive($parent['line_items'], $dataset['line_items']);
             $dataset['variables'] = array_replace_recursive($parent['variables'], $dataset['variables']);
@@ -41,6 +52,7 @@ final class ExpandDatasetAction
 
         $vars = $dataset['variables'];
         foreach ($vars as $key => $value) {
+            // TODO: maybe we should expand recursively for all string values.
             if (!is_string($value)) {
                 continue;
             }
@@ -65,12 +77,12 @@ final class ExpandDatasetAction
 
         $dataset['line_items'] = array_values($dataset['line_items']);
 
-        return new JsonResponse($dataset, Response::HTTP_OK);
+        return $dataset;
     }
 
-    private function loadAndDecodeDataset(User $user, int $id): ?array
+    private static function loadAndDecodeDataset(Database $db, User $user, int $id): ?array
     {
-        $dataset = $this->db->selectOne('SELECT * FROM invoice_dataset WHERE invoice_dataset_id = ? AND organization_id = ?', [
+        $dataset = $db->selectOne('SELECT * FROM invoice_dataset WHERE invoice_dataset_id = ? AND organization_id = ?', [
             $id, $user->getOrganizationId(),
         ]);
 
