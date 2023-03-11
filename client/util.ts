@@ -277,3 +277,16 @@ export function emptyInvoiceDataset(): t.InvoiceDataset {
         variables: {},
     };
 }
+
+export function downloadBlobWithName(blob: Blob, name: string): void {
+    const anchor = document.createElement('a');
+    const url = window.URL.createObjectURL(blob);
+    anchor.href = url;
+    anchor.download = name;
+    document.body.appendChild(anchor);
+    anchor.click();
+    window.setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(anchor);
+    });
+}

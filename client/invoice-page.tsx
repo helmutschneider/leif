@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as t from './types'
 import {HttpSendFn, LeifRequest} from "./http";
-import {emptyInvoiceDataset} from "./util";
+import {downloadBlobWithName, emptyInvoiceDataset} from "./util";
 import {MoneyInput} from "./money-input";
 import {currencies} from "./types";
 
@@ -93,10 +93,10 @@ const Form: React.FC<FormProps> = props => {
                     <label>Artikel</label>
                 </div>
                 <div className="col-3">
-                    <label>Pris/timme</label>
+                    <label>Pris</label>
                 </div>
                 <div className="col-3">
-                    <label>Timmar</label>
+                    <label>Antal</label>
                 </div>
             </div>
 
@@ -296,8 +296,12 @@ export const InvoicePage: React.FC<Props> = props => {
                         onClick={event => {
                             event.preventDefault();
 
+                            const firstNumberLikeField = state.invoice.fields.find(f => {
+                                return /^\d+$/.test(f.value);
+                            });
+
                             getInvoiceBlob().then(res => {
-                                // downloadBlobWithName(res, `invoice-${state.invoice.fields['id']}.pdf`);
+                                downloadBlobWithName(res, `invoice-${firstNumberLikeField?.value}.pdf`);
                             });
                         }}
                         className="btn btn-success">
