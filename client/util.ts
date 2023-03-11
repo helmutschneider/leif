@@ -274,5 +274,6 @@ export function emptyInvoiceDataset(): t.InvoiceDataset {
         fields: [],
         line_items: [],
         precision: 0,
+        variables: {},
     };
 }

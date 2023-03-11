@@ -19,6 +19,7 @@ final class CreateInvoiceDatasetAction
         'vat_rate' => 'required|float',
         'currency_code' => 'required|string|min:3',
         'precision' => 'required|integer',
+        'variables' => 'required|array',
         'extends_id' => 'integer|null',
         'invoice_template_id' => 'required|integer',
 
@@ -46,12 +47,13 @@ INSERT INTO "invoice_dataset" (
   "vat_rate",
   "currency_code",
   "precision",
+  "variables",
   "extends_id",
   "invoice_template_id",
   "fields",
   "line_items",
   "organization_id"
-) VALUES (:name, :vat_rate, :currency_code, :precision, :extends_id, :invoice_template_id, :fields, :line_items, :organization_id)
+) VALUES (:name, :vat_rate, :currency_code, :precision, :variables, :extends_id, :invoice_template_id, :fields, :line_items, :organization_id)
 SQL;
 
     public function __construct(Database $db)
@@ -82,6 +84,7 @@ SQL;
             ':vat_rate' => $body['vat_rate'],
             ':currency_code' => $body['currency_code'],
             ':precision' => $body['precision'],
+            ':variables' => json_encode($body['variables'], static::JSON_FLAGS),
             ':extends_id' => $extendsId,
             ':invoice_template_id' => $body['invoice_template_id'],
             ':fields' => json_encode($body['fields'], static::JSON_FLAGS),

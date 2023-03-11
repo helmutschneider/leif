@@ -83,4 +83,11 @@ return function (RoutingConfigurator $routes) {
             'id' => '\d+',
         ])
         ->controller(\Leif\Api\DeleteInvoiceDatasetAction::class);
+
+    $routes->add('expand_invoice_template', '/api/invoice-dataset/{id}/expand')
+        ->methods(['POST'])
+        ->requirements([
+            'id' => '\d+',
+        ])
+        ->controller(\Leif\Api\ExpandDatasetAction::class);
 };

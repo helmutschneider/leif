@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as t from './types'
 import {HttpSendFn, LeifRequest} from "./http";
-import {formatIntegerAsMoneyWithSeparatorsAndSymbol} from "./util";
+import {emptyInvoiceDataset, formatIntegerAsMoneyWithSeparatorsAndSymbol} from "./util";
 import {MoneyInput} from "./money-input";
 import {currencies} from "./types";
 
@@ -219,10 +219,7 @@ const iframeStyle: React.CSSProperties = {
 export const InvoicePage: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
         datasetIndex: undefined,
-        invoice: {
-            fields: [],
-            line_items: [],
-        },
+        invoice: emptyInvoiceDataset(),
         invoiceBlob: undefined,
     });
 
@@ -274,6 +271,22 @@ export const InvoicePage: React.FC<Props> = props => {
     }
 
     React.useEffect(scheduleInvoiceUpdate, [state.invoice]);
+    React.useEffect(() => {
+        if (typeof state.datasetIndex === 'undefined') {
+            return;
+        }
+        const dataset = props.datasets[state.datasetIndex];
+        props.http<t.InvoiceDataset>({
+            method: 'POST',
+            url: `/api/invoice-dataset/${dataset?.invoice_dataset_id}/expand`,
+        }).then(res => {
+            setState({
+                datasetIndex: state.datasetIndex,
+                invoice: res,
+                invoiceBlob: undefined,
+            })
+        })
+    }, [state.datasetIndex]);
 
     const dataset = typeof state.datasetIndex !== 'undefined'
         ? datasets[state.datasetIndex]
@@ -293,16 +306,9 @@ export const InvoicePage: React.FC<Props> = props => {
                                     return;
                                 }
 
-                                const invoice: t.Invoice = {
-                                    fields: def.fields,
-                                    line_items: def.line_items.length > 0
-                                        ? def.line_items
-                                        : [emptyItem({})],
-                                };
-
                                 setState({
                                     datasetIndex: id,
-                                    invoice: ensureHasEmptyItem(invoice),
+                                    invoice: state.invoice,
                                     invoiceBlob: state.invoiceBlob,
                                 });
                             }}

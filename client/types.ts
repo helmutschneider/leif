@@ -117,6 +117,9 @@ export type InvoiceLineItem = {
     price: number
     quantity: number
 }
+export type MapLike<T> = {
+    readonly [key: string]: T
+}
 export type InvoiceDataset = {
     invoice_dataset_id?: number
     name: string
@@ -125,13 +128,14 @@ export type InvoiceDataset = {
     fields: ReadonlyArray<InvoiceField>
     line_items: ReadonlyArray<InvoiceLineItem>
     precision: number
+    variables: MapLike<string>
     extends_id?: number
     invoice_template_id?: number
 }
-export type MapLike<T> = {
-    [key: string]: T
-}
 export type Invoice = {
+    vat_rate: number
+    currency_code: CurrencyCode
     fields: ReadonlyArray<InvoiceField>
     line_items: ReadonlyArray<InvoiceLineItem>
+    precision: number
 }

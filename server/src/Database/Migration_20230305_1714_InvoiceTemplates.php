@@ -31,6 +31,7 @@ CREATE TABLE "invoice_dataset" (
   "fields" TEXT NOT NULL,
   "line_items" TEXT NOT NULL,
   "precision" INTEGER NOT NULL,
+  "variables" TEXT NOT NULL,
   "organization_id" INTEGER NOT NULL,
   "extends_id" INTEGER DEFAULT NULL,
   "invoice_template_id" INTEGER NOT NULL,

@@ -5,6 +5,7 @@ import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
 import {Modal} from "./modal";
 import {currencies} from "./types";
+import {JsonInput} from "./json-input";
 
 type Props = {
     http: HttpSendFn
@@ -69,33 +70,7 @@ const InvoiceTemplateForm: React.FC<InvoiceTemplateFormProps> = props => {
     )
 };
 
-type JsonInputProps<T> = {
-    onChange: (next: T) => unknown
-    rows?: number
-    value: T
-}
 
-function JsonInput<T>(props: JsonInputProps<T>) {
-    const [json, setJson] = React.useState<string>(JSON.stringify(props.value, undefined, 2));
-
-    return (
-        <textarea
-            className="form-control font-monospace"
-            onChange={event => {
-                setJson(event.target.value);
-
-                try {
-                    const parsed = JSON.parse(event.target.value);
-                    props.onChange(parsed);
-                } catch (e) {
-                    // do nothing.
-                }
-            }}
-            rows={props.rows}
-            value={json}
-        />
-    )
-}
 
 type InvoiceDatasetFormProps = {
     onChange: (next: t.InvoiceDataset) => unknown
@@ -271,6 +246,20 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
                     }}
                     rows={24}
                     value={props.dataset.line_items}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label">Variabler</label>
+                <JsonInput
+                    onChange={next => {
+                        props.onChange({
+                            ...props.dataset,
+                            variables: next,
+                        });
+                    }}
+                    rows={24}
+                    value={props.dataset.variables}
                 />
             </div>
         </React.Fragment>

@@ -176,6 +176,7 @@ SQL;
             $set = $row;
             $set['fields'] = json_decode($row['fields'], true);
             $set['line_items'] = json_decode($row['line_items'], true);
+            $set['variables'] = json_decode($row['variables'], true);
             $set['created_at'] = (new DateTimeImmutable($set['created_at']))->format('c');
             $set['updated_at'] = (new DateTimeImmutable($set['updated_at']))->format('c');
             $datasets[] = $set;

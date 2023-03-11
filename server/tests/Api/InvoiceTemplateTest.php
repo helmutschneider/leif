@@ -14,7 +14,7 @@ final class InvoiceTemplateTest extends WebTestCase
 
         $body = json_encode([
             'name' => 'yee!',
-            'data' => 'boi!',
+            'body' => 'boi!',
         ]);
         $client->request('POST', '/api/invoice-template', [], [], [
             'HTTP_AUTHORIZATION' => '1234',
