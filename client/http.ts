@@ -2,6 +2,7 @@ export type LeifRequest = {
     body?: unknown
     headers?: {[name: string]: string}
     method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+    responseType?: 'text' | 'json' | 'blob'
     query?: {[name: string]: string}
     url: string
 }
@@ -46,10 +47,20 @@ export class FetchBackend implements HttpBackend {
             },
             body: JSON.stringify(request.body),
         }).then(res => {
-            const contentType = res.headers.get('Content-Type');
-            const message = contentType?.includes(JSON_CONTENT_TYPE)
-                ? res.json()
-                : res.text();
+            let message: PromiseLike<T>;
+
+            switch (request.responseType) {
+                case 'text':
+                    message = res.text() as any;
+                    break;
+                case 'blob':
+                    message = res.blob() as any;
+                    break;
+                case 'json':
+                default:
+                    message = res.json();
+                    break;
+            }
 
             if (res.status > 299) {
                 return message.then(d => Promise.reject(d));

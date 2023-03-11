@@ -90,4 +90,8 @@ return function (RoutingConfigurator $routes) {
             'id' => '\d+',
         ])
         ->controller(\Leif\Api\ExpandDatasetAction::class);
+
+    $routes->add('render_invoice', '/api/invoice/render')
+        ->methods(['POST'])
+        ->controller(\Leif\Api\RenderInvoiceAction::class);
 };

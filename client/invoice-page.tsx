@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as t from './types'
 import {HttpSendFn, LeifRequest} from "./http";
-import {emptyInvoiceDataset, formatIntegerAsMoneyWithSeparatorsAndSymbol} from "./util";
+import {emptyInvoiceDataset} from "./util";
 import {MoneyInput} from "./money-input";
 import {currencies} from "./types";
 
@@ -15,37 +15,15 @@ function emptyItem<K extends keyof t.InvoiceLineItem>(props: Pick<t.InvoiceLineI
     return {
         name: '',
         key: '',
-        kind: 'wage_hourly',
         price: 0,
         quantity: 0,
         ...props,
     };
 }
 
-function getTotal(invoice: t.Invoice, precision: number): number {
-    let num: number = 0;
-
-    for (const item of invoice.line_items) {
-        num += item.quantity * item.price;
-    }
-
-    // FIXME: rounding
-    return num;
-    // return round(num, precision)
-}
-
-function getVat(invoice: t.Invoice, vatRate: number, precision: number): number {
-    const total = getTotal(invoice, precision);
-
-    // FIXME: rounding
-    return total * (vatRate / 100.0);
-    // return round(getTotal(invoice, precision) * (vatRate / 100.0), precision);
-}
-
 type FormProps = {
-    dataset: t.InvoiceDataset
-    invoice: t.Invoice
-    onChange: (invoice: t.Invoice) => void
+    invoice: t.InvoiceDataset
+    onChange: (invoice: t.InvoiceDataset) => void
 }
 
 function onItemChangeWithValue<K extends keyof t.InvoiceLineItem>(props: FormProps, key: K, index: number): (value: unknown) => void {
@@ -57,7 +35,7 @@ function onItemChangeWithValue<K extends keyof t.InvoiceLineItem>(props: FormPro
         item[key] = value as any;
         items[index] = item;
 
-        const invoice: t.Invoice = {
+        const invoice: t.InvoiceDataset = {
             ...props.invoice,
             line_items: items,
         };
@@ -75,20 +53,13 @@ function onItemChangeWithEvent<K extends keyof t.InvoiceLineItem>(props: FormPro
 }
 
 const Form: React.FC<FormProps> = props => {
-    const dataset = props.dataset;
-    const total = getTotal(props.invoice, props.dataset.precision);
-    const vat = getVat(props.invoice, dataset.vat_rate, dataset.precision);
-    const totalWithVat = total + vat;
-    const currency = currencies[dataset.currency_code];
+    const invoice = props.invoice;
+    const currency = currencies[invoice.currency_code];
 
     return (
         <React.Fragment>
             <div className="row">
                 {props.invoice.fields.map((field, idx) => {
-                    if (!field.is_visible) {
-                        return;
-                    }
-
                     return (
                         <div className="col-6" key={idx}>
                             <div className="mb-3">
@@ -99,16 +70,16 @@ const Form: React.FC<FormProps> = props => {
                                     readOnly={field.is_editable == false}
                                     rows={3}
                                     onChange={event => {
-                                        const next = dataset.fields.slice();
+                                        const next = invoice.fields.slice();
                                         next[idx] = {
                                             ...field,
                                             value: event.target.value,
                                         }
-                                        const invoice: t.Invoice = {
+                                        const nextInvoice: t.InvoiceDataset = {
                                             ...props.invoice,
                                             fields: next,
                                         };
-                                        props.onChange(invoice);
+                                        props.onChange(nextInvoice);
                                     }}
                                     value={field.value} />
                             </div>
@@ -159,30 +130,6 @@ const Form: React.FC<FormProps> = props => {
                 )
             })}
 
-            <table className="table">
-                <tbody>
-                <tr>
-                    <td className="col-6">Summa artiklar</td>
-                    <td className="col-6 text-end">
-                        {formatIntegerAsMoneyWithSeparatorsAndSymbol(total, currency)}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Moms {dataset.vat_rate.toFixed(2)}%</td>
-                    <td className="text-end">
-                        {formatIntegerAsMoneyWithSeparatorsAndSymbol(vat, currency)}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong>SUMMA ATT BETALA</strong>
-                    </td>
-                    <td className="text-end">
-                        {formatIntegerAsMoneyWithSeparatorsAndSymbol(totalWithVat, currency)}
-                    </td>
-                </tr>
-                </tbody>
-            </table>
         </React.Fragment>
     )
 }
@@ -190,11 +137,11 @@ const Form: React.FC<FormProps> = props => {
 
 type State = {
     datasetIndex: number | undefined
-    invoice: t.Invoice
+    invoice: t.InvoiceDataset
     invoiceBlob: { blob: Blob, url: string } | undefined
 }
 
-function ensureHasEmptyItem(invoice: t.Invoice): t.Invoice {
+function ensureHasEmptyItem(invoice: t.InvoiceDataset): t.InvoiceDataset {
     const items = invoice.line_items;
     const last = items[items.length - 1] || emptyItem({});
 
@@ -230,14 +177,19 @@ export const InvoicePage: React.FC<Props> = props => {
         if (typeof state.datasetIndex === 'undefined') {
             return Promise.reject();
         }
-        const dataset = props.datasets[state.datasetIndex];
+        const invoice: t.InvoiceDataset = {
+            ...state.invoice,
+            line_items: state.invoice.line_items.filter(l => !!l.name.trim()),
+        };
+        // const dataset = props.datasets[state.datasetIndex];
         const request: LeifRequest = {
             method: 'POST',
-            url: '/app/pdf',
-            body: {
-                invoice_dataset_id: dataset?.invoice_dataset_id,
-                invoice: state.invoice,
+            url: '/api/invoice/render',
+            query: {
+                format: 'pdf',
             },
+            body: invoice,
+            responseType: 'blob',
         };
         return props.http(request);
     }
@@ -327,7 +279,6 @@ export const InvoicePage: React.FC<Props> = props => {
 
                 {dataset
                     ? <Form
-                        dataset={dataset}
                         invoice={state.invoice}
                         onChange={invoice => {
                             setState({

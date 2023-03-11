@@ -280,7 +280,6 @@ function ensureHasEmptyFieldAndLineItem(set: t.InvoiceDataset): t.InvoiceDataset
                 value: '',
                 sorting: 0,
                 is_editable: true,
-                is_visible: true,
             });
         }
     }
@@ -291,7 +290,6 @@ function ensureHasEmptyFieldAndLineItem(set: t.InvoiceDataset): t.InvoiceDataset
             next.line_items = next.line_items.concat({
                 name: '',
                 key: '',
-                kind: 'wage_hourly',
                 price: 0,
                 quantity: 0,
             });
@@ -809,8 +807,8 @@ export const SettingsPage: React.FC<Props> = props => {
 
                                 const dataset: t.InvoiceDataset = {
                                     ...state.editing.dataset,
-                                    fields: state.editing.dataset.fields.filter(f => !!f.name),
-                                    line_items: state.editing.dataset.line_items.filter(f => !!f.name),
+                                    fields: state.editing.dataset.fields.filter(f => !!f.key),
+                                    line_items: state.editing.dataset.line_items.filter(f => !!f.key),
                                 };
 
                                 const isEditingDataset = typeof dataset.invoice_dataset_id !== 'undefined';
@@ -836,7 +834,7 @@ export const SettingsPage: React.FC<Props> = props => {
                 }
                 close={closeModal}
                 show={state.editing.kind === 'invoice_dataset'}
-                size="default"
+                size="xl"
                 title={state.editing.kind === 'invoice_dataset' && typeof state.editing.dataset.invoice_dataset_id !== 'undefined'
                     ? (state.editing.dataset.name || 'Redigera dataset')
                     : 'Skapa dataset'}

@@ -23,41 +23,89 @@ final class ExpandDatasetAction
     {
         assert($user instanceof User);
 
-        $dataset = $this->db->selectOne('SELECT * FROM invoice_dataset WHERE invoice_dataset_id = ? AND organization_id = ?', [
-            $id, $user->getOrganizationId(),
-        ]);
+        $dataset = $this->loadAndDecodeDataset($user, $id);
 
         if ($dataset === null) {
             return new JsonResponse(['message' => 'Not found.'], Response::HTTP_NOT_FOUND);
         }
 
-        $dataset['fields'] = json_decode($dataset['fields'], true);
-        $dataset['line_items'] = json_decode($dataset['line_items'], true);
-        $dataset['variables'] = json_decode($dataset['variables'], true);
+        $extendsId = $dataset['extends_id'];
 
-        $twigLoader = new \Twig\Loader\ArrayLoader();
-        $twig = new \Twig\Environment($twigLoader, [
-            'cache' => false,
-            'strict_variables' => true,
-        ]);
+        while ($extendsId !== null) {
+            $parent = $this->loadAndDecodeDataset($user, $extendsId);
+            $dataset['fields'] = array_replace_recursive($parent['fields'], $dataset['fields']);
+            $dataset['line_items'] = array_replace_recursive($parent['line_items'], $dataset['line_items']);
+            $dataset['variables'] = array_replace_recursive($parent['variables'], $dataset['variables']);
+            $extendsId = $parent['extends_id'];
+        }
 
         $vars = $dataset['variables'];
         foreach ($vars as $key => $value) {
-            $template = $twig->createTemplate($value);
-            $vars[$key] = $twig->render($template, $vars);
+            if (!is_string($value)) {
+                continue;
+            }
+            $vars[$key] = render($value, $vars);
         }
         $dataset['variables'] = $vars;
 
-        $fields = $dataset['fields'];
+        $context = [
+            // 'organization' => $organization,
+            'variables' => $vars,
+        ];
 
-        foreach ($fields as $key => $field) {
-            $template = $twig->createTemplate($field['value']);
-            $field['value'] = $twig->render($template, $vars);
-            $fields[$key] = $field;
+        foreach ($dataset['fields'] as $key => $field) {
+            $dataset['fields'][$key]['value'] = render($field['value'], $context);
         }
 
-        $dataset['fields'] = $fields;
+        $dataset['fields'] = array_values($dataset['fields']);
+
+        foreach ($dataset['line_items'] as $key => $field) {
+            $dataset['line_items'][$key]['name'] = render($field['name'], $context);
+        }
+
+        $dataset['line_items'] = array_values($dataset['line_items']);
 
         return new JsonResponse($dataset, Response::HTTP_OK);
+    }
+
+    private function loadAndDecodeDataset(User $user, int $id): ?array
+    {
+        $dataset = $this->db->selectOne('SELECT * FROM invoice_dataset WHERE invoice_dataset_id = ? AND organization_id = ?', [
+            $id, $user->getOrganizationId(),
+        ]);
+
+        if ($dataset === null) {
+            return null;
+        }
+
+        $fields = json_decode($dataset['fields'], true);
+        $keyedFields = [];
+
+        foreach ($fields as $field) {
+            if ($field['name'] === null) {
+                unset($field['name']);
+            }
+
+            $key = $field['key'];
+            $keyedFields[$key] = $field;
+        }
+
+        $lineItems = json_decode($dataset['line_items'], true);
+        $keyedLineItems = [];
+
+        foreach ($lineItems as $item) {
+            if ($item['name'] === null) {
+                unset($item['name']);
+            }
+
+            $key = $item['key'];
+            $keyedLineItems[$key] = $item;
+        }
+
+        $dataset['fields'] = $keyedFields;
+        $dataset['line_items'] = $keyedLineItems;
+        $dataset['variables'] = json_decode($dataset['variables'], true);
+
+        return $dataset;
     }
 }

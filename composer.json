@@ -47,7 +47,10 @@
     "autoload": {
         "psr-4": {
             "Leif\\": "server/src/"
-        }
+        },
+        "files": [
+            "server/src/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

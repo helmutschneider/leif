@@ -18,6 +18,7 @@ return static function (ContainerConfigurator $container) {
             __DIR__ . '/../src/DependencyInjection',
             __DIR__ . '/../src/Entity',
             __DIR__ . '/../src/Kernel.php',
+            __DIR__ . '/../src/functions.php',
         ]);
 
     $services

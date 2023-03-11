@@ -15,26 +15,24 @@ final class CreateInvoiceDatasetAction
 
     public const JSON_FLAGS = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
     public const RULES = [
-        'name' => 'required|string|min:1',
+        'name' => 'required|string|min:1|null',
         'vat_rate' => 'required|float',
-        'currency_code' => 'required|string|min:3',
+        'currency_code' => 'required|string|min:3|max:3',
         'precision' => 'required|integer',
         'variables' => 'required|array',
         'extends_id' => 'integer|null',
         'invoice_template_id' => 'required|integer',
 
         'fields' => 'array',
-        'fields.*.name' => 'required|string|min:1',
+        'fields.*.name' => 'required|string|min:1|null',
         'fields.*.key' => 'required|string|min:1',
         'fields.*.value' => 'string',
         'fields.*.sorting' => 'numeric',
         'fields.*.is_editable' => 'boolean',
-        'fields.*.is_visible' => 'boolean',
 
         'line_items' => 'array',
         'line_items.*.name' => 'required|string|min:1',
         'line_items.*.key' => 'string',
-        'line_items.*.kind' => 'required|string|min:1',
         'line_items.*.price' => 'numeric',
         'line_items.*.quantity' => 'numeric',
     ];

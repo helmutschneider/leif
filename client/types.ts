@@ -105,15 +105,10 @@ export type InvoiceField = {
     value: string
     sorting: number
     is_editable: boolean
-    is_visible: boolean
 }
-export type InvoiceLineItemKind =
-    | 'piece'
-    | 'wage_hourly'
 export type InvoiceLineItem = {
     name: string
     key: string
-    kind: InvoiceLineItemKind
     price: number
     quantity: number
 }
@@ -131,11 +126,4 @@ export type InvoiceDataset = {
     variables: MapLike<string>
     extends_id?: number
     invoice_template_id?: number
-}
-export type Invoice = {
-    vat_rate: number
-    currency_code: CurrencyCode
-    fields: ReadonlyArray<InvoiceField>
-    line_items: ReadonlyArray<InvoiceLineItem>
-    precision: number
 }
