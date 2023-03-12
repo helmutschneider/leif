@@ -14,7 +14,13 @@ function render(string $template, array $data = []): string {
             'strict_variables' => true,
         ]);
 
-        $anchors = new \Twig\TwigFilter('anchors', anchors(...));
+        // FIXME: we can't use the first-class callable syntax here due
+        //   to a bug in OPCache. it seems to have been fixed in later
+        //   versions of 8.1, but not in 8.1.2 which ubuntu mainline is
+        //   using.
+        //
+        //   https://github.com/php/php-src/issues/8140
+        $anchors = new \Twig\TwigFilter('anchors', '\\anchors');
         $twig->addFilter($anchors);
 
         $money = new \Twig\TwigFilter('money', function (\Money\Money $money, int $decimals = 0) {
