@@ -4,7 +4,7 @@ namespace Leif\Security;
 
 final class SecretKey
 {
-    private string $value;
+    private readonly string $value;
 
     public function __construct(string $value)
     {

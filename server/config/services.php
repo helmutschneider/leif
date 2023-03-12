@@ -18,6 +18,7 @@ return static function (ContainerConfigurator $container) {
             __DIR__ . '/../src/DependencyInjection',
             __DIR__ . '/../src/Entity',
             __DIR__ . '/../src/Kernel.php',
+            __DIR__ . '/../src/functions.php',
         ]);
 
     $services
@@ -82,10 +83,12 @@ return static function (ContainerConfigurator $container) {
                 : 15,
         ]);
 
-    $services->set(
-        \Leif\Security\HmacHasher::class,
-        \Leif\Security\NativeHmacHasher::class
-    );
+    $services
+        ->set(
+            \Leif\Security\HmacHasher::class,
+            \Leif\Security\NativeHmacHasher::class
+        )
+        ->public();
 
     $services->set(
         \Leif\Database::class,

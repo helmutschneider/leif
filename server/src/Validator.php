@@ -13,8 +13,11 @@ final class Validator
     const ERR_DATE_FORMAT = 'The property \'%s\' must be a date of format \'%s\'.';
     const ERR_BOOLEAN = 'The property \'%s\' must be a boolean.';
     const ERR_ARRAY = 'The property \'%s\' must be an array.';
+    const ERR_MINIMUM_STRING = 'The property \'%s\' must have at least %d characters.';
+    const ERR_MAXIMUM_STRING = 'The property \'%s\' must have at most %d characters.';
+    const ERR_NUMERIC = 'The property \'%s\' must be numeric.';
 
-    private array $rules;
+    readonly array $rules;
 
     public function __construct(array $rules)
     {
@@ -97,6 +100,20 @@ final class Validator
                             }
                         }
                         break;
+                    case 'float':
+                    case 'double':
+                    case 'number':
+                    case 'numeric':
+                        foreach ($values as $valueKey => $value) {
+                            if (isset($shouldSkipValidatingProperties[$valueKey])) {
+                                continue;
+                            }
+                            if (!is_numeric($value)) {
+                                $result->addErrorForKey($valueKey, sprintf(static::ERR_NUMERIC, $valueKey));
+                            }
+                        }
+                        break;
+                    case 'str':
                     case 'string':
                         foreach ($values as $valueKey => $value) {
                             if (isset($shouldSkipValidatingProperties[$valueKey])) {
@@ -164,6 +181,48 @@ final class Validator
                         foreach ($values as $valueKey => $value) {
                             if ($value === null) {
                                 $shouldSkipValidatingProperties[$valueKey] = true;
+                            }
+                        }
+                        break;
+                    case 'min':
+                    case 'minimum':
+                        $min = $args[0] ?? null;
+
+                        if ($min === null) {
+                            throw new InvalidArgumentException(
+                                'The "min" rule requires a single argument specifying the minimum amount of characters.'
+                            );
+                        }
+
+                        $min = (int) $min;
+                        foreach ($values as $valueKey => $value) {
+                            if (isset($shouldSkipValidatingProperties[$valueKey])) {
+                                continue;
+                            }
+
+                            if (is_string($value) && mb_strlen($value, 'utf-8') < $min) {
+                                $result->addErrorForKey($valueKey, sprintf(static::ERR_MINIMUM_STRING, $valueKey, $min));
+                            }
+                        }
+                        break;
+                    case 'max':
+                    case 'maximum':
+                        $max = $args[0] ?? null;
+
+                        if ($max === null) {
+                            throw new InvalidArgumentException(
+                                'The "max" rule requires a single argument specifying the maximum amount of characters.'
+                            );
+                        }
+
+                        $max = (int) $max;
+                        foreach ($values as $valueKey => $value) {
+                            if (isset($shouldSkipValidatingProperties[$valueKey])) {
+                                continue;
+                            }
+
+                            if (is_string($value) && mb_strlen($value, 'utf-8') > $max) {
+                                $result->addErrorForKey($valueKey, sprintf(static::ERR_MAXIMUM_STRING, $valueKey, $max));
                             }
                         }
                         break;

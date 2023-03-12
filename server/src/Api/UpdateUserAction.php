@@ -14,11 +14,11 @@ final class UpdateUserAction
     use ValidationTrait;
 
     const RULES = [
-        'username' => 'string',
+        'username' => 'string|min:1',
         'password' => 'string',
         'organization' => 'array',
         'organization.carry_accounts' => 'string',
-        'organization.name' => 'string',
+        'organization.name' => 'string|min:1',
     ];
 
     private Database $db;

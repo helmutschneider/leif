@@ -9,12 +9,14 @@ import {LoginForm} from "./login-form";
 import {FetchBackend, HttpBackend, LeifRequest} from "./http";
 import {SettingsPage} from "./settings-page";
 import {VouchersPage} from "./vouchers-page";
+import {InvoicePage} from "./invoice-page";
 
 type Props = {
     httpBackend: HttpBackend
 }
 type Page =
     | 'vouchers'
+    | 'invoice'
     | 'settings'
 
 type State = {
@@ -25,13 +27,6 @@ type State = {
     user: User | undefined
     workbook: Workbook | undefined
 }
-
-const colorsForTheNavBar = [
-    '#A93F55',
-    '#54457F',
-    '#226F54',
-    '#BB6B00',
-];
 
 const SESSION_STORAGE_USER_KEY = 'user';
 
@@ -165,7 +160,16 @@ const App: React.FC<Props> = props => {
                     user={state.user}
                     workbook={workbook}
                 />
-            )
+            );
+            break;
+        case 'invoice':
+            viewStuff = (
+                <InvoicePage
+                    datasets={state.workbook?.invoice_datasets ?? []}
+                    http={http}
+                    user={state.user}
+                />
+            );
             break;
         case 'settings':
             viewStuff = (
@@ -175,7 +179,7 @@ const App: React.FC<Props> = props => {
                     user={state.user}
                     workbook={workbook}
                 />
-            )
+            );
             break;
     }
 
@@ -197,13 +201,10 @@ const App: React.FC<Props> = props => {
         return b > a ? 1 : -1
     })
 
-    const colorIndex = state.today.getFullYear() % colorsForTheNavBar.length;
-
     return (
         <div>
             <nav
-                className="navbar navbar-dark navbar-expand-lg sticky-top"
-                style={{background: colorsForTheNavBar[colorIndex]}}
+                className="navbar navbar-dark navbar-expand-lg bg-body-tertiary sticky-top"
             >
                 <div className={CONTAINER_CLASS}>
                     <div className="navbar-brand d-flex align-items-center">
@@ -327,6 +328,24 @@ const App: React.FC<Props> = props => {
                                     href="#"
                                 >
                                     Verifikat
+                                </a>
+                            </li>
+                            <li className="nav-item">
+                                <a
+                                    className="nav-link text-nowrap"
+                                    onClick={event => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+
+                                        setState({
+                                            ...state,
+                                            page: 'invoice',
+                                            selectYearDropdownOpen: false,
+                                        })
+                                    }}
+                                    href="#"
+                                >
+                                    Faktura
                                 </a>
                             </li>
                             <li className="nav-item">

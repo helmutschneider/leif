@@ -150,23 +150,31 @@ export function ensureHasEmptyTransaction(transactions: ReadonlyArray<t.Transact
     return transactions
 }
 
-export function tryParseInt<D>(value: string | number | undefined, defaultValue: D): number | D {
+function tryParseWithFn<D>(value: string | number | undefined, defaultValue: D, fn: typeof window.parseInt): number | D {
     let result: number | D
     switch (typeof value) {
         case 'number':
             result = value;
             break;
         case 'string':
-            result = parseInt(value, 10);
+            result = fn(value, 10);
             break;
         case 'undefined':
             result = defaultValue;
             break;
     }
-    if (typeof result === 'number' && isNaN(result)) {
+    if (typeof result === 'number' && (isNaN(result) || !isFinite(result))) {
         result = defaultValue
     }
     return result
+}
+
+export function tryParseInt<D>(value: string | number | undefined, defaultValue: D): number | D {
+    return tryParseWithFn(value, defaultValue, window.parseInt)
+}
+
+export function tryParseFloat<D>(value: string | number | undefined, defaultValue: D): number | D {
+    return tryParseWithFn(value, defaultValue, window.parseFloat)
 }
 
 export function sumOfTransactions(transactions: ReadonlyArray<t.Transaction>): number {
@@ -249,4 +257,36 @@ export function objectContains<T>(value: T, search: string) {
     }
 
     return true;
+}
+
+export function emptyInvoiceTemplate(): t.InvoiceTemplate {
+    return {
+        name: '',
+        body: '',
+    };
+}
+
+export function emptyInvoiceDataset(): t.InvoiceDataset {
+    return {
+        name: '',
+        vat_rate: 0,
+        currency_code: 'SEK',
+        fields: [],
+        line_items: [],
+        precision: 0,
+        variables: {},
+    };
+}
+
+export function downloadBlobWithName(blob: Blob, name: string): void {
+    const anchor = document.createElement('a');
+    const url = window.URL.createObjectURL(blob);
+    anchor.href = url;
+    anchor.download = name;
+    document.body.appendChild(anchor);
+    anchor.click();
+    window.setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(anchor);
+    });
 }

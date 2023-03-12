@@ -9,6 +9,7 @@ import {
 import {HttpSendFn} from "./http";
 import * as t from "./types";
 import {currencies, KeyCode} from "./types";
+import {Modal} from "./modal";
 
 type Selection =
     | { kind: 'none' }
@@ -25,6 +26,7 @@ type Props = {
 }
 
 type State = {
+    isVoucherModalOpen: boolean
     openVoucherIds: ReadonlyArray<number>
     selection: Selection
     voucher: t.Voucher
@@ -169,6 +171,7 @@ function maybeMakeAmountRed(amount: string | number): React.ReactNode {
 
 export const VouchersPage: React.FC<Props> = props => {
     const [state, setState] = React.useState<State>({
+        isVoucherModalOpen: false,
         openVoucherIds: [],
         selection: { kind: 'none' },
         voucher: emptyVoucher(),
@@ -180,8 +183,8 @@ export const VouchersPage: React.FC<Props> = props => {
             && (props.search === '' || objectContains(voucher, props.search));
     });
 
-    const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
     const editingVoucherId = state.voucher.voucher_id;
+    const isEditingVoucher = typeof state.voucher.voucher_id !== 'undefined';
     const currency = currencies[props.workbook.currency];
 
     React.useEffect(() => {
@@ -220,14 +223,32 @@ export const VouchersPage: React.FC<Props> = props => {
     return (
         <div className="row">
             <div className="col-lg-8">
-                <h5>
-                    Verifikat
-                    {
-                        props.search !== ''
-                            ? ` (${filteredVouchers.length} resultat)`
-                            : ''
-                    }
-                </h5>
+                <div className="d-flex mb-1">
+                    <h5 className="flex-grow-1">
+                        Verifikat
+                        {
+                            props.search !== ''
+                                ? ` (${filteredVouchers.length} resultat)`
+                                : ''
+                        }
+                    </h5>
+                    <div>
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                setState({
+                                    ...state,
+                                    isVoucherModalOpen: true,
+                                    voucher: emptyVoucher(),
+                                })
+                            }}
+                        >Skapa verifikat</button>
+                    </div>
+                </div>
+
                 <table className="table table-sm">
                     <tbody>
                     {filteredVouchers.map((voucher, idx) => {
@@ -338,6 +359,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                         }
 
                                         setState({
+                                            isVoucherModalOpen: false,
                                             openVoucherIds: next,
                                             selection: {
                                                 kind: 'voucher',
@@ -391,21 +413,12 @@ export const VouchersPage: React.FC<Props> = props => {
                                                 event.preventDefault();
                                                 event.stopPropagation();
 
-                                                if (isEditingVoucher && editingVoucherId === voucher.voucher_id) {
-                                                    // we were already editing this exact voucher.
-                                                    // stop editing instead.
-                                                    setState({
-                                                        openVoucherIds: state.openVoucherIds,
-                                                        selection: { kind: 'none' },
-                                                        voucher: emptyVoucher(),
-                                                    })
-                                                } else {
-                                                    setState({
-                                                        openVoucherIds: state.openVoucherIds,
-                                                        selection: { kind: 'none' },
-                                                        voucher: voucher,
-                                                    })
-                                                }
+                                                setState({
+                                                    isVoucherModalOpen: true,
+                                                    openVoucherIds: state.openVoucherIds,
+                                                    selection: state.selection,
+                                                    voucher: {...voucher},
+                                                });
                                             }}
                                             title="Redigera"
                                             role="button"
@@ -426,6 +439,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                                 }).then(res => {
                                                     props.onWorkbookChanged();
                                                     setState({
+                                                        isVoucherModalOpen: false,
                                                         openVoucherIds: state.openVoucherIds,
                                                         selection: { kind: 'none' },
                                                         // if we had accidentally clicked the "edit" button
@@ -448,71 +462,6 @@ export const VouchersPage: React.FC<Props> = props => {
                 </table>
             </div>
             <div className="col-lg-4">
-                <div className="mb-3">
-                    <div className="row">
-                        <div className="col">
-                            <h5>
-                                {isEditingVoucher ? 'Redigera verifikat' : 'Lägg till verifikat'}
-                            </h5>
-                        </div>
-                        <div className="col-md-auto">
-                        <span>
-                            <i
-                                className="bi bi-x-circle-fill"
-                                onClick={event => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-
-                                    setState({
-                                        openVoucherIds: state.openVoucherIds,
-                                        selection: { kind: 'none' },
-                                        voucher: emptyVoucher(),
-                                    });
-                                }}
-                                title="Avbryt"
-                                role="button"
-                            />
-                        </span>
-                        </div>
-                    </div>
-
-                    <VoucherForm
-                        accounts={props.workbook.accounts}
-                        currency={currency}
-                        onChange={next => {
-                            setState({
-                                openVoucherIds: state.openVoucherIds,
-                                selection: { kind: 'none' },
-                                voucher: next,
-                            });
-                        }}
-                        onOK={() => {
-                            const body: t.Voucher = {
-                                ...state.voucher,
-                                transactions: state.voucher.transactions.filter(t => {
-                                    return t.amount !== 0
-                                }),
-                            };
-
-                            props.http<t.Voucher>({
-                                method: isEditingVoucher ? 'PUT' : 'POST',
-                                url: isEditingVoucher
-                                    ? `/api/voucher/${editingVoucherId}`
-                                    : '/api/voucher',
-                                body: body,
-                            }).then(res => {
-                                props.onWorkbookChanged();
-                                setState({
-                                    openVoucherIds: state.openVoucherIds,
-                                    selection: { kind: 'none' },
-                                    voucher: emptyVoucher(),
-                                });
-                            })
-                        }}
-                        templates={props.workbook.templates.concat(props.workbook.vouchers)}
-                        voucher={state.voucher}
-                    />
-                </div>
                 <h5>Kontobalans ({formatDate(props.today, 'yyyy-MM-dd')})</h5>
                 <table className="table table-sm">
                     <tbody>
@@ -558,6 +507,57 @@ export const VouchersPage: React.FC<Props> = props => {
                     </tbody>
                 </table>
             </div>
+            <Modal
+                close={() => {
+                    setState({
+                        isVoucherModalOpen: false,
+                        openVoucherIds: state.openVoucherIds,
+                        selection: state.selection,
+                        voucher: emptyVoucher(),
+                    })
+                }}
+                show={state.isVoucherModalOpen}
+                title={isEditingVoucher ? (state.voucher.name || 'Redigera verifikat') : 'Skapa verifikat'}
+            >
+                <VoucherForm
+                    accounts={props.workbook.accounts}
+                    currency={currency}
+                    onChange={next => {
+                        setState({
+                            isVoucherModalOpen: true,
+                            openVoucherIds: state.openVoucherIds,
+                            selection: state.selection,
+                            voucher: next,
+                        });
+                    }}
+                    onOK={() => {
+                        const body: t.Voucher = {
+                            ...state.voucher,
+                            transactions: state.voucher.transactions.filter(t => {
+                                return t.amount !== 0
+                            }),
+                        };
+
+                        props.http<t.Voucher>({
+                            method: isEditingVoucher ? 'PUT' : 'POST',
+                            url: isEditingVoucher
+                                ? `/api/voucher/${editingVoucherId}`
+                                : '/api/voucher',
+                            body: body,
+                        }).then(res => {
+                            props.onWorkbookChanged();
+                            setState({
+                                isVoucherModalOpen: false,
+                                openVoucherIds: state.openVoucherIds,
+                                selection: state.selection,
+                                voucher: emptyVoucher(),
+                            });
+                        })
+                    }}
+                    templates={props.workbook.templates.concat(props.workbook.vouchers)}
+                    voucher={state.voucher}
+                />
+            </Modal>
         </div>
     )
 };

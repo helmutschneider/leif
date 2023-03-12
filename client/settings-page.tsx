@@ -1,26 +1,297 @@
 import * as React from 'react'
-import {Workbook, Voucher, currencies, User, Organization} from "./types";
-import {emptyVoucher, formatDate} from "./util";
+import * as t from "./types";
+import {emptyInvoiceDataset, emptyInvoiceTemplate, emptyVoucher, formatDate, tryParseFloat, tryParseInt} from "./util";
 import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
+import {Modal} from "./modal";
+import {currencies} from "./types";
+import {JsonInput} from "./json-input";
 
 type Props = {
     http: HttpSendFn
     onWorkbookChanged: () => unknown
-    workbook: Workbook
-    user: User
+    workbook: t.Workbook
+    user: t.User
 }
+
+type Editing =
+    | { kind: 'none' }
+    | { kind: 'voucher', voucher: t.Voucher }
+    | { kind: 'invoice_template', template: t.InvoiceTemplate }
+    | { kind: 'invoice_dataset', dataset: t.InvoiceDataset }
 
 type State = {
     confirmPassword: string
-    template: Voucher
+    editing: Editing
     password: string
     username: string
-    organization: Organization
+    organization: t.Organization
+}
+
+type InvoiceTemplateFormProps = {
+    onChange: (next: t.InvoiceTemplate) => unknown
+    template: t.InvoiceTemplate
+}
+
+const InvoiceTemplateForm: React.FC<InvoiceTemplateFormProps> = props => {
+    return (
+        <React.Fragment>
+            <div className="mb-3">
+                <label className="form-label">Namn</label>
+                <input
+                    className="form-control"
+                    onChange={event => {
+                        props.onChange({
+                            ...props.template,
+                            name: event.target.value,
+                        });
+                    }}
+                    placeholder="Namn"
+                    type="text"
+                    value={props.template.name}
+                />
+            </div>
+            <div className="mb-3">
+                <label className="form-label">Data</label>
+                <textarea
+                    className="form-control font-monospace"
+                    onChange={event => {
+                        props.onChange({
+                            ...props.template,
+                            body: event.target.value,
+                        });
+                    }}
+                    placeholder="HTML..."
+                    rows={32}
+                    value={props.template.body}
+                />
+            </div>
+        </React.Fragment>
+    )
+};
+
+
+
+type InvoiceDatasetFormProps = {
+    onChange: (next: t.InvoiceDataset) => unknown
+    datasets: ReadonlyArray<t.InvoiceDataset>
+    dataset: t.InvoiceDataset
+    templates: ReadonlyArray<t.InvoiceTemplate>
+}
+
+const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
+    const canInheritFromDatasets = props.datasets.filter(d => d.invoice_dataset_id !== props.dataset.invoice_dataset_id);
+
+    return (
+        <React.Fragment>
+            <div className="row">
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Namn</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                props.onChange({
+                                    ...props.dataset,
+                                    name: event.target.value,
+                                });
+                            }}
+                            placeholder="Namn"
+                            type="text"
+                            value={props.dataset.name}
+                        />
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">PDF-mall</label>
+                        <select
+                            className="form-control"
+                            onChange={event => {
+                                const parsed = tryParseInt(event.target.value, undefined);
+
+                                props.onChange({
+                                    ...props.dataset,
+                                    invoice_template_id: parsed,
+                                });
+                            }}
+                            value={props.dataset.invoice_template_id}
+                        >
+                            <option/>
+                            {props.templates.map((template, i) => {
+                                return (
+                                    <option
+                                        key={i}
+                                        value={template.invoice_template_id}>
+                                        {template.name}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Ärver från</label>
+                        <select
+                            className="form-control"
+                            onChange={event => {
+                                const parsed = tryParseInt(event.target.value, undefined);
+
+                                props.onChange({
+                                    ...props.dataset,
+                                    extends_id: parsed,
+                                });
+                            }}
+                            value={props.dataset.extends_id || ''}
+                        >
+                            <option/>
+                            {canInheritFromDatasets.map((set, i) => {
+                                return (
+                                    <option
+                                        key={i}
+                                        value={set.invoice_dataset_id}>
+                                        {set.name}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Valuta</label>
+                        <select
+                            className="form-control"
+                            onChange={event => {
+                                props.onChange({
+                                    ...props.dataset,
+                                    currency_code: event.target.value as any,
+                                });
+                            }}
+                            value={props.dataset.currency_code}
+                        >
+                            <option/>
+                            {Object.keys(currencies).map((key, i) => {
+                                return (
+                                    <option key={i} value={key}>{key}</option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Momssats</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                props.onChange({
+                                    ...props.dataset,
+                                    vat_rate: tryParseFloat(event.target.value, 0),
+                                });
+                            }}
+                            placeholder="Precision"
+                            type="text"
+                            value={props.dataset.vat_rate}
+                        />
+                    </div>
+                </div>
+
+                <div className="col-6">
+                    <div className="mb-3">
+                        <label className="form-label">Precision</label>
+                        <input
+                            className="form-control"
+                            onChange={event => {
+                                props.onChange({
+                                    ...props.dataset,
+                                    precision: tryParseInt(event.target.value, 0),
+                                });
+                            }}
+                            placeholder="Precision"
+                            type="text"
+                            value={props.dataset.precision}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label">Fält</label>
+                <JsonInput
+                    onChange={next => {
+                        props.onChange({
+                            ...props.dataset,
+                            fields: next,
+                        });
+                    }}
+                    rows={24}
+                    value={props.dataset.fields}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label">Rader</label>
+                <JsonInput
+                    onChange={next => {
+                        props.onChange({
+                            ...props.dataset,
+                            line_items: next,
+                        });
+                    }}
+                    rows={24}
+                    value={props.dataset.line_items}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label">Variabler</label>
+                <JsonInput
+                    onChange={next => {
+                        props.onChange({
+                            ...props.dataset,
+                            variables: next,
+                        });
+                    }}
+                    rows={24}
+                    value={props.dataset.variables}
+                />
+            </div>
+        </React.Fragment>
+    )
+};
+
+function ensureHasEmptyFieldAndLineItem(set: t.InvoiceDataset): t.InvoiceDataset {
+    const next: t.InvoiceDataset = {...set};
+
+    if (next.fields[next.fields.length - 1]?.name) {
+        next.fields = next.fields.concat({
+            name: '',
+            key: '',
+            value: '',
+            is_editable: true,
+        });
+    }
+
+    if (next.line_items[next.line_items.length - 1]?.name) {
+        next.line_items = next.line_items.concat({
+            name: '',
+            key: '',
+            price: 0,
+            quantity: 0,
+        });
+    }
+
+    return next;
 }
 
 export const SettingsPage: React.FC<Props> = props => {
-    function emptyTemplate(): Voucher {
+    function emptyTemplate(): t.Voucher {
         return {
             ...emptyVoucher(),
             is_template: true,
@@ -29,7 +300,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
     const [state, setState] = React.useState<State>({
         confirmPassword: '',
-        template: emptyTemplate(),
+        editing: {kind: 'none'},
         password: '',
         username: props.user.username,
         organization: {
@@ -37,10 +308,17 @@ export const SettingsPage: React.FC<Props> = props => {
         },
     });
 
+    function closeModal() {
+        setState({
+            ...state,
+            editing: {kind: 'none'},
+        });
+    }
+
     return (
         <div>
             <div className="row">
-                <div className="col-4">
+                <div className="col-6">
                     <h5>Generellt</h5>
 
                     <div className="mb-3">
@@ -156,8 +434,24 @@ export const SettingsPage: React.FC<Props> = props => {
                     </div>
                 </div>
 
-                <div className="col-4">
-                    <h5>Mallar</h5>
+                <div className="col-6">
+                    <div className="d-flex mb-1">
+                        <h5 className="flex-grow-1">Verifikat: mallar</h5>
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                setState({
+                                    ...state,
+                                    editing: {kind: 'voucher', voucher: emptyTemplate()},
+                                });
+                            }}>
+                            Skapa mall
+                        </button>
+                    </div>
+
                     <table className="table table-sm">
                         <tbody>
                         {props.workbook.templates.map((template, index) => {
@@ -175,9 +469,10 @@ export const SettingsPage: React.FC<Props> = props => {
 
                                                 setState({
                                                     ...state,
-                                                    template: state.template.voucher_id === template.voucher_id
-                                                        ? emptyTemplate()
-                                                        : template,
+                                                    editing: {
+                                                        kind: 'voucher',
+                                                        voucher: template,
+                                                    },
                                                 });
                                             }}
                                             title="Redigera"
@@ -190,7 +485,7 @@ export const SettingsPage: React.FC<Props> = props => {
                                                 event.stopPropagation();
 
                                                 const dt = new Date();
-                                                const copied: Voucher = {
+                                                const copied: t.Voucher = {
                                                     attachments: [],
                                                     created_at: '',
                                                     date: formatDate(dt, 'yyyy-MM-dd'),
@@ -227,10 +522,6 @@ export const SettingsPage: React.FC<Props> = props => {
                                                     url: `/api/voucher/${template.voucher_id}`,
                                                 }).then(res => {
                                                     props.onWorkbookChanged();
-                                                    setState({
-                                                        ...state,
-                                                        template: emptyTemplate(),
-                                                    });
                                                 })
                                             }}
                                             title="Ta bort"
@@ -243,65 +534,319 @@ export const SettingsPage: React.FC<Props> = props => {
                         </tbody>
                     </table>
                 </div>
+            </div>
 
-                <div className="col-4">
-                    <div className="row">
-                        <div className="col">
-                            <h5>
-                                {state.template.voucher_id ? 'Redigera mall' : 'Lägg till mall'}
-                            </h5>
-                        </div>
-                        <div className="col-md-auto">
-                            <i
-                                className="bi bi-x-circle-fill"
-                                onClick={event => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
+            <div className="row">
+                <div className="col-6">
+                    <div className="d-flex mb-1">
+                        <h5 className="flex-grow-1">Faktura: PDF-mallar</h5>
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
 
-                                    setState({
-                                        ...state,
-                                        template: emptyTemplate(),
-                                    });
-                                }}
-                                role="button"
-                                title="Avbryt"
-                            />
-                        </div>
+                                setState({
+                                    ...state,
+                                    editing: {kind: 'invoice_template', template: emptyInvoiceTemplate()},
+                                });
+                            }}>
+                            Skapa mall
+                        </button>
                     </div>
 
+                    <table className="table table-sm">
+                        <tbody>
+                        {props.workbook.invoice_templates.map((template, i) => {
+                            return (
+                                <tr key={i}>
+                                    <td className="col-10">{template.name}</td>
+                                    <td className="text-end">
+                                        <i
+                                            className="bi bi-gear-fill me-1"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                setState({
+                                                    ...state,
+                                                    editing: {
+                                                        kind: 'invoice_template',
+                                                        template: template,
+                                                    },
+                                                });
+                                            }}
+                                            title="Redigera"
+                                            role="button"
+                                        />
+                                        <i
+                                            className="bi bi-x-circle-fill"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                if (!confirm('Ta bort mall?')) {
+                                                    return;
+                                                }
+
+                                                props.http({
+                                                    method: 'DELETE',
+                                                    url: `/api/invoice-template/${template.invoice_template_id}`,
+                                                }).then(res => {
+                                                    props.onWorkbookChanged();
+                                                })
+                                            }}
+                                            title="Ta bort"
+                                            role="button"
+                                        />
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="col-6">
+                    <div className="d-flex mb-1">
+                        <h5 className="flex-grow-1">Faktura: dataset</h5>
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                setState({
+                                    ...state,
+                                    editing: {kind: 'invoice_dataset', dataset: emptyInvoiceDataset()},
+                                });
+                            }}>
+                            Skapa dataset
+                        </button>
+                    </div>
+
+                    <table className="table table-sm">
+                        <tbody>
+                        {props.workbook.invoice_datasets.map((dataset, i) => {
+                            return (
+                                <tr key={i}>
+                                    <td className="col-10">{dataset.name}</td>
+                                    <td className="text-end">
+                                        <i
+                                            className="bi bi-gear-fill me-1"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                setState({
+                                                    ...state,
+                                                    editing: {
+                                                        kind: 'invoice_dataset',
+                                                        dataset: dataset,
+                                                    },
+                                                });
+                                            }}
+                                            title="Redigera"
+                                            role="button"
+                                        />
+                                        <i
+                                            className="bi bi-x-circle-fill"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+
+                                                if (!confirm('Ta bort dataset?')) {
+                                                    return;
+                                                }
+
+                                                props.http({
+                                                    method: 'DELETE',
+                                                    url: `/api/invoice-dataset/${dataset.invoice_dataset_id}`,
+                                                }).then(res => {
+                                                    props.onWorkbookChanged();
+                                                })
+                                            }}
+                                            title="Ta bort"
+                                            role="button"
+                                        />
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <Modal
+                close={closeModal}
+                show={state.editing.kind === 'voucher'}
+                title={state.editing.kind === 'voucher' && typeof state.editing.voucher.voucher_id !== 'undefined'
+                    ? (state.editing.voucher.name || 'Redigera mall')
+                    : 'Skapa mall'}
+            >
+                {state.editing.kind === 'voucher' ? (
                     <VoucherForm
                         accounts={props.workbook.accounts}
-                        currency={currencies[props.workbook.currency]}
+                        currency={t.currencies[props.workbook.currency]}
                         onChange={next => {
                             setState({
                                 ...state,
-                                template: next,
+                                editing: {kind: 'voucher', voucher: next},
                             });
                         }}
                         onOK={() => {
-                            const isEditingTemplate = typeof state.template.voucher_id !== 'undefined';
+                            if (state.editing.kind !== 'voucher') {
+                                return;
+                            }
 
-                            props.http<Voucher>({
+                            const voucher = state.editing.voucher;
+                            const isEditingTemplate = typeof voucher.voucher_id !== 'undefined';
+
+                            props.http<t.Voucher>({
                                 method: isEditingTemplate ? 'PUT' : 'POST',
                                 url: isEditingTemplate
-                                    ? `/api/voucher/${state.template.voucher_id}`
+                                    ? `/api/voucher/${voucher.voucher_id}`
                                     : '/api/voucher',
                                 body: {
-                                    ...state.template,
-                                    transactions: state.template.transactions.filter(t => t.amount !== 0),
+                                    ...voucher,
+                                    transactions: voucher.transactions.filter(t => t.amount !== 0),
                                 },
                             }).then(res => {
                                 setState({
                                     ...state,
-                                    template: emptyTemplate(),
+                                    editing: {kind: 'none'},
                                 });
                                 props.onWorkbookChanged();
+                            });
+                        }}
+                        voucher={state.editing.voucher}
+                    />
+                ) : undefined}
+            </Modal>
+
+            <Modal
+                actions={
+                    <React.Fragment>
+                        <button
+                            className="btn btn-success"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                if (state.editing.kind !== 'invoice_template') {
+                                    return;
+                                }
+
+                                const template = state.editing.template;
+                                const isEditingTemplate = typeof template.invoice_template_id !== 'undefined';
+
+                                props.http<t.Voucher>({
+                                    method: isEditingTemplate ? 'PUT' : 'POST',
+                                    url: isEditingTemplate
+                                        ? `/api/invoice-template/${template.invoice_template_id}`
+                                        : '/api/invoice-template',
+                                    body: template,
+                                }).then(res => {
+                                    setState({
+                                        ...state,
+                                        editing: {kind: 'none'},
+                                    });
+                                    props.onWorkbookChanged();
+                                });
+                            }}
+                        >
+                            Spara
+                        </button>
+                    </React.Fragment>
+                }
+                close={closeModal}
+                show={state.editing.kind === 'invoice_template'}
+                size="xl"
+                title={state.editing.kind === 'invoice_template' && typeof state.editing.template.invoice_template_id !== 'undefined'
+                    ? (state.editing.template.name || 'Redigera fakturamall')
+                    : 'Skapa fakturamall'}
+            >
+                {state.editing.kind === 'invoice_template'
+                    ? <InvoiceTemplateForm
+                        onChange={next => {
+                            setState({
+                                ...state,
+                                editing: {
+                                    kind: 'invoice_template',
+                                    template: next,
+                                },
                             })
                         }}
-                        voucher={state.template}
+                        template={state.editing.template}
                     />
-                </div>
-            </div>
+                    : undefined}
+            </Modal>
+
+            <Modal
+                actions={
+                    <React.Fragment>
+                        <button
+                            className="btn btn-success"
+                            onClick={event => {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                if (state.editing.kind !== 'invoice_dataset') {
+                                    return;
+                                }
+
+                                const dataset: t.InvoiceDataset = {
+                                    ...state.editing.dataset,
+                                    fields: state.editing.dataset.fields.filter(f => !!f.key),
+                                    line_items: state.editing.dataset.line_items.filter(f => !!f.key),
+                                };
+
+                                const isEditingDataset = typeof dataset.invoice_dataset_id !== 'undefined';
+
+                                props.http<t.Voucher>({
+                                    method: isEditingDataset ? 'PUT' : 'POST',
+                                    url: isEditingDataset
+                                        ? `/api/invoice-dataset/${dataset.invoice_dataset_id}`
+                                        : '/api/invoice-dataset',
+                                    body: dataset,
+                                }).then(res => {
+                                    setState({
+                                        ...state,
+                                        editing: {kind: 'none'},
+                                    });
+                                    props.onWorkbookChanged();
+                                });
+                            }}
+                        >
+                            Spara
+                        </button>
+                    </React.Fragment>
+                }
+                close={closeModal}
+                show={state.editing.kind === 'invoice_dataset'}
+                size="xl"
+                title={state.editing.kind === 'invoice_dataset' && typeof state.editing.dataset.invoice_dataset_id !== 'undefined'
+                    ? (state.editing.dataset.name || 'Redigera dataset')
+                    : 'Skapa dataset'}
+            >
+                {state.editing.kind === 'invoice_dataset'
+                    ? <InvoiceDatasetForm
+                        onChange={next => {
+                            setState({
+                                ...state,
+                                editing: {
+                                    kind: 'invoice_dataset',
+                                    dataset: next,
+                                },
+                            })
+                        }}
+                        datasets={props.workbook.invoice_datasets}
+                        dataset={ensureHasEmptyFieldAndLineItem(state.editing.dataset)}
+                        templates={props.workbook.invoice_templates}
+                    />
+                    : undefined}
+            </Modal>
         </div>
 
     )

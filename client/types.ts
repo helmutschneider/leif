@@ -36,6 +36,8 @@ export type Workbook = {
     accounts: AccountPlan
     account_balances: AccountBalanceMap
     currency: CurrencyCode
+    invoice_datasets: ReadonlyArray<InvoiceDataset>
+    invoice_templates: ReadonlyArray<InvoiceTemplate>
     organization: Organization
     templates: ReadonlyArray<Voucher>
     vouchers: ReadonlyArray<Voucher>
@@ -91,4 +93,36 @@ export type AccountPlan = {
 }
 export type BackendError = {
     message: string
+}
+export type InvoiceTemplate = {
+    invoice_template_id?: number
+    name: string
+    body: string
+}
+export type InvoiceField = {
+    name: string
+    key: string
+    value: string
+    is_editable: boolean
+}
+export type InvoiceLineItem = {
+    name: string
+    key: string
+    price: number
+    quantity: number
+}
+export type MapLike<T> = {
+    readonly [key: string]: T
+}
+export type InvoiceDataset = {
+    invoice_dataset_id?: number
+    name: string
+    vat_rate: number
+    currency_code: CurrencyCode
+    fields: ReadonlyArray<InvoiceField>
+    line_items: ReadonlyArray<InvoiceLineItem>
+    precision: number
+    variables: MapLike<string>
+    extends_id?: number
+    invoice_template_id?: number
 }

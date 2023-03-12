@@ -13,24 +13,19 @@ final class TokenAuthenticatorTest extends TestCase
 {
     public TokenUserProvider $provider;
 
+    public function fixtures(): array
+    {
+        return [
+            'organization',
+            'user',
+        ];
+    }
+
     public function setUp(): void
     {
         parent::setUp();
 
-        static::createUser($this->db, 'tester');
-
-        $hasher = new class implements HmacHasher {
-            public function hash(string $value): string
-            {
-                return $value . $value;
-            }
-
-            public function verify(string $hash, string $value): bool
-            {
-                return $hash === $this->hash($value);
-            }
-        };
-
+        $hasher = static::getContainer()->get(HmacHasher::class);
         $this->provider = new TokenUserProvider(
             $this->db, $hasher, 3600, new DateTimeImmutable('2022-02-10 15:00:00')
         );
@@ -58,7 +53,7 @@ final class TokenAuthenticatorTest extends TestCase
 
     public function testSucceedsWithValidToken()
     {
-        static::createToken($this->db, '12341234', 1, '2022-02-10 14:30:00');
+        static::createToken($this->db, '1234', 1, '2022-02-10 14:30:00');
         $user = $this->provider->loadUserByApiToken('1234');
         $this->assertInstanceOf(User::class, $user);
     }

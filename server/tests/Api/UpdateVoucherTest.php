@@ -5,23 +5,31 @@ namespace Leif\Tests\Api;
 use Leif\Api\CreateVoucherAction;
 use Leif\Database;
 use Leif\Security\HmacHasher;
-use Leif\Tests\WebTestCase;
+use Leif\Tests\TestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
-final class UpdateVoucherTest extends WebTestCase
+final class UpdateVoucherTest extends TestCase
 {
+    public function fixtures(): array
+    {
+        return [
+            'organization',
+            'user',
+            'token',
+            'voucher',
+        ];
+    }
+
     public function testPreventsUnauthenticatedAccess(): void
     {
-        $client = static::createClient();
-        $client->request('PUT', '/api/voucher/1');
+        $this->client->request('PUT', '/api/voucher/1');
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testUpdateVoucherWithoutModifyingAttachments()
     {
-        $client = static::createClient();
-        $voucherId = static::init($client);
+        static::createAttachment($this->db, 1);
 
         $body = json_encode([
             'name' => 'My name!',
@@ -44,16 +52,14 @@ final class UpdateVoucherTest extends WebTestCase
             ],
         ]);
 
-        $client->request('PUT', "/api/voucher/$voucherId", [], [], [
+        $this->client->request('PUT', "/api/voucher/1", [], [], [
             'HTTP_AUTHORIZATION' => '1234',
         ], $body);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $db = $client->getContainer()->get(Database::class);
-
-        $transactions = $db->selectAll('SELECT * FROM "transaction" WHERE voucher_id = :id', [
-            ':id' => $voucherId,
+        $transactions = $this->db->selectAll('SELECT * FROM "transaction" WHERE voucher_id = :id', [
+            ':id' => 1,
         ]);
 
         $this->assertCount(2, $transactions);
@@ -63,8 +69,8 @@ final class UpdateVoucherTest extends WebTestCase
         $this->assertEquals(100, $transactions[1]['amount']);
         $this->assertEquals(CreateVoucherAction::VOUCHER_KIND_CREDIT, $transactions[1]['kind']);
 
-        $attachments = $db->selectAll('SELECT attachment_id FROM attachment WHERE voucher_id = :id', [
-            ':id' => $voucherId,
+        $attachments = $this->db->selectAll('SELECT attachment_id FROM attachment WHERE voucher_id = :id', [
+            ':id' => 1,
         ]);
 
         $this->assertCount(1, $attachments);
@@ -73,8 +79,7 @@ final class UpdateVoucherTest extends WebTestCase
 
     public function testUpdateVoucherWhereAttachmentIsDeletedAndAnotherAdded()
     {
-        $client = static::createClient();
-        $voucherId = static::init($client);
+        static::createAttachment($this->db, 1);
 
         $body = json_encode([
             'name' => 'My name!',
@@ -87,36 +92,17 @@ final class UpdateVoucherTest extends WebTestCase
             ],
         ]);
 
-        $client->request('PUT', "/api/voucher/$voucherId", [], [], [
+        $this->client->request('PUT', "/api/voucher/1", [], [], [
             'HTTP_AUTHORIZATION' => '1234',
         ], $body);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $db = $client->getContainer()->get(Database::class);
-
-        $attachments = $db->selectAll('SELECT attachment_id FROM attachment WHERE voucher_id = :id', [
-            ':id' => $voucherId,
+        $attachments = $this->db->selectAll('SELECT attachment_id FROM attachment WHERE voucher_id = :id', [
+            ':id' => 1,
         ]);
 
         $this->assertCount(1, $attachments);
         $this->assertEquals(2, $attachments[0]['attachment_id']);
-    }
-
-    private static function init(KernelBrowser $client): int
-    {
-        $db = $client->getContainer()->get(Database::class);
-        $hasher = $client->getContainer()->get(HmacHasher::class);
-
-        assert($db instanceof Database);
-        assert($hasher instanceof HmacHasher);
-
-        $userId = static::createUser($db, 'tester');
-        static::createToken($db, $hasher->hash(hex2bin('1234')), $userId);
-        $voucherId = static::createVoucher($db, $userId);
-
-        static::createAttachment($db, $voucherId);
-
-        return $voucherId;
     }
 }

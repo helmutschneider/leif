@@ -4,43 +4,39 @@ namespace Leif\Tests\Api;
 
 use DateTimeImmutable;
 use Leif\Api\GetWorkbookAction;
-use Leif\Database;
-use Leif\Security\HmacHasher;
-use Leif\Security\SecretKey;
-use Leif\Tests\WebTestCase;
+use Leif\Tests\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-final class GetWorkbookTest extends WebTestCase
+final class GetWorkbookTest extends TestCase
 {
+    public function fixtures(): array
+    {
+        return [
+            'organization',
+            'user',
+            'token',
+        ];
+    }
+
     public function testPreventsUnauthenticatedAccess(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/api/workbook');
+        $this->client->request('GET', '/api/workbook');
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testGetWorkbook()
+    public function testGetWorkbook(): void
     {
-        $client = static::createClient();
+        $voucherId = static::createVoucher($this->db, 1, 1);
+        static::createTransaction($this->db, $voucherId);
 
-        $db = $client->getContainer()->get(Database::class);
-        $hasher = $client->getContainer()->get(HmacHasher::class);
-
-        assert($db instanceof Database);
-        assert($hasher instanceof HmacHasher);
-
-        $userId = static::createUser($db, 'tester');
-        static::createToken($db, $hasher->hash(hex2bin('1234')), $userId);
-        $voucherId = static::createVoucher($db, $userId);
-        static::createTransaction($db, $voucherId);
-
-        $client->request('GET', '/api/workbook', [], [], [
+        $this->client->request('GET', '/api/workbook', [], [], [
             'HTTP_AUTHORIZATION' => '1234',
         ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $body = json_decode($client->getResponse()->getContent(), true);
+        $res = $this->client->getResponse();
+        $body = json_decode($res->getContent(), true);
 
         $this->assertArrayHasKey('vouchers', $body);
     }

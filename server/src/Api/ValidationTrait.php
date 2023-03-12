@@ -9,6 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait ValidationTrait
 {
+    /**
+     * Validates a request against the supplied rules. Returns null
+     * if the request successfully validates or an error response
+     * on failure.
+     */
     public function validate(Request $request, array $rules): ?Response
     {
         $data = $request->toArray();

@@ -19,7 +19,7 @@ final class TokenAuthenticator extends AbstractAuthenticator
     const AUTH_HEADER_NAME = 'Authorization';
     const AUTH_QUERY_NAME = 'token';
 
-    private TokenUserProvider $userProvider;
+    readonly TokenUserProvider $userProvider;
 
     public function __construct(TokenUserProvider $userProvider)
     {
@@ -34,15 +34,15 @@ final class TokenAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $bytes = $this->getTokenBytesFromRequest($request);
+        $token = $this->getTokenFromRequest($request);
 
-        if ($bytes === null) {
-            throw new BadCredentialsException('The token must be a hex encoded string of even length.');
+        if (!$token) {
+            throw new BadCredentialsException('Could not find request token.');
         }
 
-        $loader = [$this->userProvider, 'loadUserByApiToken'];
+        $loader = $this->userProvider->loadUserByApiToken(...);
 
-        return new SelfValidatingPassport(new UserBadge($bytes, $loader));
+        return new SelfValidatingPassport(new UserBadge($token, $loader));
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
@@ -59,15 +59,9 @@ final class TokenAuthenticator extends AbstractAuthenticator
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
-    private function getTokenBytesFromRequest(Request $request): ?string
+    private function getTokenFromRequest(Request $request): string
     {
-        $token = $request->query->get(static::AUTH_QUERY_NAME, '')
+        return $request->query->get(static::AUTH_QUERY_NAME, '')
             ?: $request->headers->get(static::AUTH_HEADER_NAME, '');
-
-        if (!preg_match('/^(?:[a-f0-9]{2})+$/i', $token)) {
-            return null;
-        }
-
-        return hex2bin($token);
     }
 }

@@ -50,4 +50,48 @@ return function (RoutingConfigurator $routes) {
             'id' => '\d+',
         ])
         ->controller(\Leif\Api\UpdateUserAction::class);
+
+    $routes->add('create_invoice_template', '/api/invoice-template')
+        ->methods(['POST'])
+        ->controller(\Leif\Api\CreateInvoiceTemplateAction::class);
+
+    $routes->add('update_invoice_template', '/api/invoice-template/{id}')
+        ->methods(['PUT'])
+        ->requirements([
+            'id' => '\d+',
+        ])
+        ->controller(\Leif\Api\UpdateInvoiceTemplateAction::class);
+
+    $routes->add('delete_invoice_template', '/api/invoice-template/{id}')
+        ->methods(['DELETE'])
+        ->requirements([
+            'id' => '\d+',
+        ])
+        ->controller(\Leif\Api\DeleteInvoiceTemplateAction::class);
+
+    $routes->add('create_invoice_dataset', '/api/invoice-dataset')
+        ->methods(['POST'])
+        ->controller(\Leif\Api\CreateInvoiceDatasetAction::class);
+
+    $routes->add('update_invoice_dataset', '/api/invoice-dataset/{id}')
+        ->methods(['PUT'])
+        ->controller(\Leif\Api\UpdateInvoiceDatasetAction::class);
+
+    $routes->add('delete_invoice_dataset', '/api/invoice-dataset/{id}')
+        ->methods(['DELETE'])
+        ->requirements([
+            'id' => '\d+',
+        ])
+        ->controller(\Leif\Api\DeleteInvoiceDatasetAction::class);
+
+    $routes->add('expand_invoice_dataset', '/api/invoice-dataset/{id}/expand')
+        ->methods(['POST'])
+        ->requirements([
+            'id' => '\d+',
+        ])
+        ->controller(\Leif\Api\ExpandInvoiceDatasetAction::class);
+
+    $routes->add('render_invoice', '/api/invoice/render')
+        ->methods(['POST'])
+        ->controller(\Leif\Api\RenderInvoiceAction::class);
 };

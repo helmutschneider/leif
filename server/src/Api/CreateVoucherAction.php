@@ -27,7 +27,7 @@ final class CreateVoucherAction
         'debit' => self::VOUCHER_KIND_DEBIT,
     ];
     const RULES = [
-        'name' => 'required|string',
+        'name' => 'required|string|min:1',
         'notes' => 'string',
         'date' => 'required|date_format:Y-m-d',
         'is_template' => 'required|boolean',
@@ -35,7 +35,7 @@ final class CreateVoucherAction
         'attachments' => 'array',
         'attachments.*.data' => 'required|string',
         'attachments.*.mime' => 'required|string',
-        'attachments.*.name' => 'required|string',
+        'attachments.*.name' => 'required|string|min:1',
 
         'transactions' => 'required|array',
         'transactions.*.account' => 'required|integer',
