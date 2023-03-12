@@ -65,11 +65,11 @@ final class LoginAction
             ]);
         }
 
-        $token = random_bytes(32);
+        $token = bin2hex(random_bytes(32));
         $now = new DateTimeImmutable('now');
 
         $this->db->execute('INSERT INTO token (value, seen_at, user_id) VALUES (?, ?, ?)', [
-            [$this->tokenHasher->hash($token), Database::PARAM_BLOB],
+            $this->tokenHasher->hash($token),
             $now->format('Y-m-d H:i:s'),
             $row['user_id'],
         ]);
@@ -84,15 +84,11 @@ final class LoginAction
             ':after' => $mustBeSeenAfter,
         ]);
 
-        $organization = $this->db->selectOne('SELECT * FROM organization WHERE organization_id = ?', [
-            $row['organization_id'],
-        ]);
-
         return new JsonResponse([
             'user_id' => $row['user_id'],
             'username' => $row['username'],
             'role' => $row['role'],
-            'token' => bin2hex($token),
+            'token' => $token,
         ], Response::HTTP_OK);
     }
 }

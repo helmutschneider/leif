@@ -2,51 +2,44 @@
 
 namespace Leif\Tests\Api;
 
-use Leif\Database;
-use Leif\Security\HmacHasher;
-use Leif\Tests\WebTestCase;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Leif\Tests\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-final class DeleteVoucherTest extends WebTestCase
+final class DeleteVoucherTest extends TestCase
 {
+    public function fixtures(): array
+    {
+        return [
+            'organization',
+            'user',
+            'token',
+            'voucher',
+        ];
+    }
+
     public function testPreventsUnauthenticatedAccess(): void
     {
-        $client = static::createClient();
-        $client->request('DELETE', '/api/voucher/1');
+        $this->client->request('DELETE', '/api/voucher/1');
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testDeleteVoucher()
     {
-        $client = static::createClient();
-        $id = static::init($client);
+        $exists = $this->db->selectOne('SELECT 1 FROM voucher WHERE voucher_id = :id', [
+            ':id' => 1,
+        ]);
+        $this->assertNotNull($exists);
 
-        $client->request('DELETE', "/api/voucher/$id", [], [], [
+        $this->client->request('DELETE', "/api/voucher/1", [], [], [
             'HTTP_AUTHORIZATION' => '1234',
         ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
 
-        $db = $client->getContainer()->get(Database::class);
-        $exists = $db->selectOne('SELECT 1 FROM voucher WHERE voucher_id = :id', [
-            ':id' => $id,
+        $exists = $this->db->selectOne('SELECT 1 FROM voucher WHERE voucher_id = :id', [
+            ':id' => 1,
         ]);
 
         $this->assertNull($exists);
-    }
-
-    private static function init(KernelBrowser $client): int
-    {
-        $db = $client->getContainer()->get(Database::class);
-        $hasher = $client->getContainer()->get(HmacHasher::class);
-
-        assert($db instanceof Database);
-        assert($hasher instanceof HmacHasher);
-
-        $userId = static::createUser($db, 'tester');
-        static::createToken($db, $hasher->hash(hex2bin('1234')), $userId);
-
-        return static::createVoucher($db, $userId);
     }
 }

@@ -12,7 +12,7 @@ final class NativeHmacHasherTest extends TestCase
     const SECRET_KEY = '4fc68a3dc2b26f95d106edd257ebe0bcfedef7f6f8ddd6440fad6641312943ab';
     const HASH_OF_BRO = 'f9ee44bea40e46b7e8293231cd80cf41edccbd0103b7cd91448520a6e2556aff';
 
-    private HmacHasher $hasher;
+    private HmacHasher|null $hasher = null;
 
     public function setUp(): void
     {
@@ -26,7 +26,7 @@ final class NativeHmacHasherTest extends TestCase
     public function testHashesCorrectly()
     {
         $this->assertSame(
-            hex2bin(static::HASH_OF_BRO),
+            static::HASH_OF_BRO,
             $this->hasher->hash('bro')
         );
     }
@@ -34,14 +34,14 @@ final class NativeHmacHasherTest extends TestCase
     public function testVerifiesCorrectly()
     {
         $this->assertTrue(
-            $this->hasher->verify(hex2bin(static::HASH_OF_BRO), 'bro')
+            $this->hasher->verify(static::HASH_OF_BRO, 'bro')
         );
     }
 
     public function testFailsToVerifyString()
     {
         $this->assertFalse(
-            $this->hasher->verify(hex2bin(static::HASH_OF_BRO . 'aa'), 'bro')
+            $this->hasher->verify(static::HASH_OF_BRO . 'aa', 'bro')
         );
     }
 }

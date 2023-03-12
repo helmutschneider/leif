@@ -267,32 +267,24 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
 };
 
 function ensureHasEmptyFieldAndLineItem(set: t.InvoiceDataset): t.InvoiceDataset {
-    const next: t.InvoiceDataset = {
-        ...set,
-    };
+    const next: t.InvoiceDataset = {...set};
 
-    {
-        const len = next.fields.length;
-        if (!len || next.fields[len - 1]?.name) {
-            next.fields = next.fields.concat({
-                name: '',
-                key: '',
-                value: '',
-                is_editable: true,
-            });
-        }
+    if (next.fields[next.fields.length - 1]?.name) {
+        next.fields = next.fields.concat({
+            name: '',
+            key: '',
+            value: '',
+            is_editable: true,
+        });
     }
 
-    {
-        const len = next.line_items.length;
-        if (!len || next.line_items[len - 1]?.name) {
-            next.line_items = next.line_items.concat({
-                name: '',
-                key: '',
-                price: 0,
-                quantity: 0,
-            });
-        }
+    if (next.line_items[next.line_items.length - 1]?.name) {
+        next.line_items = next.line_items.concat({
+            name: '',
+            key: '',
+            price: 0,
+            quantity: 0,
+        });
     }
 
     return next;

@@ -77,7 +77,7 @@ SELECT u.*,
    AND t.seen_at > :after
 SQL,
             [
-                ':hash' => [$this->hasher->hash($token), Database::PARAM_BLOB],
+                ':hash' => $this->hasher->hash($token),
                 ':after' => $mustBeSeenAfter,
             ]);
 

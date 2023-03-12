@@ -3,38 +3,38 @@
 namespace Leif\Tests\Api;
 
 use Leif\Database;
+use Leif\Tests\TestCase;
 use Leif\Tests\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-final class LoginActionTest extends WebTestCase
+final class LoginActionTest extends TestCase
 {
+    public function fixtures(): array
+    {
+        return [
+            'organization',
+            'user',
+        ];
+    }
+
     public function testLoginWithValidCredentials()
     {
-        $client = static::createClient();
-        $db = $client->getContainer()->get(Database::class);
-
-        static::createUser($db, 'tester', 'test_password');
-
-        $client->request('POST', '/api/login', [], [], [], json_encode([
+        $this->client->request('POST', '/api/login', [], [], [], json_encode([
             'username' => 'tester',
             'password' => 'test_password',
         ]));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $body = json_decode($client->getResponse()->getContent(), true);
+        $res = $this->client->getResponse();
+        $body = json_decode($res->getContent(), true);
 
         $this->assertArrayHasKey('token', $body);
     }
 
     public function testLoginWithBadCredentials()
     {
-        $client = static::createClient();
-        $db = $client->getContainer()->get(Database::class);
-
-        static::createUser($db, 'tester', 'test_password');
-
-        $client->request('POST', '/api/login', [], [], [], json_encode([
+        $this->client->request('POST', '/api/login', [], [], [], json_encode([
             'username' => 'tester',
             'password' => 'wrong_password',
         ]));
@@ -44,29 +44,22 @@ final class LoginActionTest extends WebTestCase
 
     public function testRehashesWeakPassword()
     {
-        $client = static::createClient();
-        $db = $client->getContainer()->get(Database::class);
-        assert($db instanceof Database);
-
-        $userId = static::createUser($db, 'tester', 'test_password');
-
         // the default cost for testing is 4.
         $hash = password_hash('test_password', PASSWORD_BCRYPT, [
             'cost' => 5,
         ]);
-        $db->execute('UPDATE user SET password_hash = ? WHERE user_id = ?', [
-            $hash,
-            $userId,
+        $this->db->execute('UPDATE user SET password_hash = ? WHERE user_id = ?', [
+            $hash, 1,
         ]);
 
-        $client->request('POST', '/api/login', [], [], [], json_encode([
+        $this->client->request('POST', '/api/login', [], [], [], json_encode([
             'username' => 'tester',
             'password' => 'test_password',
         ]));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $user = $db->selectOne('SELECT * FROM user WHERE user_id = ?', [$userId]);
+        $user = $this->db->selectOne('SELECT * FROM user WHERE user_id = ?', [1]);
 
         $this->assertNotSame($hash, $user['password_hash']);
     }

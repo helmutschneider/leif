@@ -15,6 +15,11 @@ final class PDODatabase implements Database
         $this->db = $db;
     }
 
+    public function getPDO(): PDO
+    {
+        return $this->db;
+    }
+
     public function selectOne(string $query, array $parameters = []): ?array
     {
         $stmt = $this->db->prepare($query);

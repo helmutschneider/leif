@@ -11,7 +11,7 @@ type Props = {
     user: t.User
 }
 
-function emptyItem<K extends keyof t.InvoiceLineItem>(props: Pick<t.InvoiceLineItem, K>): t.InvoiceLineItem {
+function emptyInvoiceLineItem<K extends keyof t.InvoiceLineItem>(props: Pick<t.InvoiceLineItem, K>): t.InvoiceLineItem {
     return {
         name: '',
         key: '',
@@ -134,28 +134,24 @@ const Form: React.FC<FormProps> = props => {
     )
 }
 
-
 type State = {
     datasetIndex: number | undefined
     invoice: t.InvoiceDataset
     invoiceBlob: { blob: Blob, url: string } | undefined
 }
 
-function ensureHasEmptyItem(invoice: t.InvoiceDataset): t.InvoiceDataset {
-    const items = invoice.line_items;
-    const last = items[items.length - 1] || emptyItem({});
+function ensureHasEmptyLineItem(invoice: t.InvoiceDataset): t.InvoiceDataset {
+    const next: t.InvoiceDataset = {...invoice};
+    const last = next.line_items[next.line_items.length - 1];
 
-    if (!last.name) {
-        return invoice;
+    if (last?.name) {
+        const empty = emptyInvoiceLineItem({
+            price: last.price,
+        });
+        next.line_items = next.line_items.concat(empty);
     }
 
-    const empty = emptyItem({
-        price: last.price,
-    });
-    return {
-        ...invoice,
-        line_items: items.concat(empty),
-    };
+    return next;
 }
 
 const iframeStyle: React.CSSProperties = {
@@ -173,7 +169,7 @@ export const InvoicePage: React.FC<Props> = props => {
     const datasets = props.datasets;
     const timeout = React.useRef<number>();
 
-    function getInvoiceBlob(): PromiseLike<Blob> {
+    function renderInvoice(): PromiseLike<Blob> {
         if (typeof state.datasetIndex === 'undefined') {
             return Promise.reject();
         }
@@ -194,7 +190,7 @@ export const InvoicePage: React.FC<Props> = props => {
         return props.http(request);
     }
 
-    function scheduleInvoiceUpdate() {
+    function scheduleRenderInvoice() {
         if (typeof timeout.current !== 'undefined') {
             window.clearTimeout(timeout.current);
             timeout.current = undefined;
@@ -206,7 +202,7 @@ export const InvoicePage: React.FC<Props> = props => {
             if (state.invoiceBlob) {
                 window.URL.revokeObjectURL(state.invoiceBlob.url);
             }
-            getInvoiceBlob().then(res => {
+            renderInvoice().then(res => {
                 const url = window.URL.createObjectURL(res);
 
                 setState(prev => {
@@ -222,7 +218,7 @@ export const InvoicePage: React.FC<Props> = props => {
         }, 500);
     }
 
-    React.useEffect(scheduleInvoiceUpdate, [state.invoice]);
+    React.useEffect(scheduleRenderInvoice, [state.invoice]);
     React.useEffect(() => {
         if (typeof state.datasetIndex === 'undefined') {
             return;
@@ -279,11 +275,11 @@ export const InvoicePage: React.FC<Props> = props => {
 
                 {dataset
                     ? <Form
-                        invoice={state.invoice}
+                        invoice={ensureHasEmptyLineItem(state.invoice)}
                         onChange={invoice => {
                             setState({
                                 datasetIndex: state.datasetIndex,
-                                invoice: ensureHasEmptyItem(invoice),
+                                invoice: invoice,
                                 invoiceBlob: state.invoiceBlob,
                             });
                         }}
@@ -300,7 +296,7 @@ export const InvoicePage: React.FC<Props> = props => {
                                 return /^\d+$/.test(f.value);
                             });
 
-                            getInvoiceBlob().then(res => {
+                            renderInvoice().then(res => {
                                 downloadBlobWithName(res, `invoice-${firstNumberLikeField?.value}.pdf`);
                             });
                         }}

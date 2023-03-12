@@ -83,10 +83,12 @@ return static function (ContainerConfigurator $container) {
                 : 15,
         ]);
 
-    $services->set(
-        \Leif\Security\HmacHasher::class,
-        \Leif\Security\NativeHmacHasher::class
-    );
+    $services
+        ->set(
+            \Leif\Security\HmacHasher::class,
+            \Leif\Security\NativeHmacHasher::class
+        )
+        ->public();
 
     $services->set(
         \Leif\Database::class,

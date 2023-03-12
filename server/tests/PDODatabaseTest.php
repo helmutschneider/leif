@@ -9,7 +9,7 @@ use Leif\PDODatabase;
 
 final class PDODatabaseTest extends TestCase
 {
-    private ?Database $otherDb = null;
+    private Database|null $otherDb = null;
 
     public function setUp(): void
     {
