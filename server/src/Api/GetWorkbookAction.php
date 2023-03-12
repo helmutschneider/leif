@@ -174,9 +174,9 @@ SQL;
 
         foreach ($rows as $row) {
             $set = $row;
-            $set['fields'] = json_decode($row['fields'], true);
-            $set['line_items'] = json_decode($row['line_items'], true);
-            $set['variables'] = json_decode($row['variables'], true);
+            $set['fields'] = \Leif\Json::decode($row['fields']);
+            $set['line_items'] = \Leif\Json::decode($row['line_items']);
+            $set['variables'] = \Leif\Json::decode($row['variables']);
             $set['created_at'] = (new DateTimeImmutable($set['created_at']))->format('c');
             $set['updated_at'] = (new DateTimeImmutable($set['updated_at']))->format('c');
             $datasets[] = $set;

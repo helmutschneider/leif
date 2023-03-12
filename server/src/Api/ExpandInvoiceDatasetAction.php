@@ -90,7 +90,7 @@ final class ExpandInvoiceDatasetAction
             return null;
         }
 
-        $fields = json_decode($dataset['fields'], true);
+        $fields = \Leif\Json::decode($dataset['fields']);
         $keyedFields = [];
 
         foreach ($fields as $field) {
@@ -102,7 +102,7 @@ final class ExpandInvoiceDatasetAction
             $keyedFields[$key] = $field;
         }
 
-        $lineItems = json_decode($dataset['line_items'], true);
+        $lineItems = \Leif\Json::decode($dataset['line_items']);
         $keyedLineItems = [];
 
         foreach ($lineItems as $item) {
@@ -116,7 +116,7 @@ final class ExpandInvoiceDatasetAction
 
         $dataset['fields'] = $keyedFields;
         $dataset['line_items'] = $keyedLineItems;
-        $dataset['variables'] = json_decode($dataset['variables'], true);
+        $dataset['variables'] = \Leif\Json::decode($dataset['variables']);
 
         return $dataset;
     }

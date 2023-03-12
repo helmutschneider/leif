@@ -65,8 +65,7 @@ final class InvoiceDataset
         $fields = [];
 
         foreach ($data['fields'] as $field) {
-            $f = new InvoiceField($field['name'], $field['value']);
-            $f->isEditable = $field['is_editable'];
+            $f = new InvoiceField($field['name'], $field['value'], $field['is_editable']);
             $key = $field['key'];
             $fields[$key] = $f;
         }

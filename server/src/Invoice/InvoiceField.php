@@ -10,13 +10,13 @@ final class InvoiceField
 
     public readonly string $name;
     public readonly string $value;
+    public readonly bool $isEditable;
 
-    public bool $isEditable = true;
-
-    public function __construct(string $name, string $value)
+    public function __construct(string $name, string $value, bool $isEditable)
     {
         $this->name = $name;
         $this->value = $value;
+        $this->isEditable = $isEditable;
     }
 
     public function __toString(): string

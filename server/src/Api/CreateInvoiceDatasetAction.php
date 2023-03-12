@@ -13,7 +13,6 @@ final class CreateInvoiceDatasetAction
 {
     use ValidationTrait;
 
-    public const JSON_FLAGS = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
     public const RULES = [
         'name' => 'required|string|min:1|null',
         'vat_rate' => 'required|float',
@@ -81,11 +80,11 @@ SQL;
             ':vat_rate' => $body['vat_rate'],
             ':currency_code' => $body['currency_code'],
             ':precision' => $body['precision'],
-            ':variables' => json_encode($body['variables'], static::JSON_FLAGS),
+            ':variables' => \Leif\Json::encode($body['variables']),
             ':extends_id' => $extendsId,
             ':invoice_template_id' => $body['invoice_template_id'],
-            ':fields' => json_encode($body['fields'], static::JSON_FLAGS),
-            ':line_items' => json_encode($body['line_items'], static::JSON_FLAGS),
+            ':fields' => \Leif\Json::encode($body['fields']),
+            ':line_items' => \Leif\Json::encode($body['line_items']),
             ':organization_id' => $user->getOrganizationId(),
         ]);
 
