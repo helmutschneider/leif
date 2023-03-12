@@ -16,7 +16,7 @@ final class CreateVoucherActionTest extends TestCase
         ];
     }
 
-    public function testCreateTheThing()
+    public function testCreateTheThing(): void
     {
         $this->client->request('POST', '/api/voucher', [], [], ['HTTP_AUTHORIZATION' => '1234'], json_encode([
             'date' => '2022-02-14',

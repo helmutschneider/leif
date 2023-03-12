@@ -16,11 +16,10 @@ final class ExpandInvoiceDatasetActionTest extends TestCase
             'user',
             'token',
             'invoice_template',
-            // 'invoice_dataset',
         ];
     }
 
-    public function testExpandsTemplates()
+    public function testExpandsTemplates(): void
     {
         $fields = <<<TXT
 [
@@ -75,7 +74,7 @@ TXT;
         $this->assertSame('Line 42', $dataset['line_items'][0]['name']);
     }
 
-    public function testExtendsParentTemplate()
+    public function testExtendsParentTemplate(): void
     {
         $fields = <<<TXT
 [

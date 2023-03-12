@@ -24,7 +24,7 @@ final class GetWorkbookTest extends TestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testGetWorkbook()
+    public function testGetWorkbook(): void
     {
         $voucherId = static::createVoucher($this->db, 1, 1);
         static::createTransaction($this->db, $voucherId);

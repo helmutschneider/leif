@@ -23,7 +23,7 @@ final class DeleteVoucherTest extends TestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testDeleteVoucher()
+    public function testDeleteVoucher(): void
     {
         $exists = $this->db->selectOne('SELECT 1 FROM voucher WHERE voucher_id = :id', [
             ':id' => 1,

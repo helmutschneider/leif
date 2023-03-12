@@ -17,7 +17,7 @@ final class LoginActionTest extends TestCase
         ];
     }
 
-    public function testLoginWithValidCredentials()
+    public function testLoginWithValidCredentials(): void
     {
         $this->client->request('POST', '/api/login', [], [], [], json_encode([
             'username' => 'tester',
@@ -32,7 +32,7 @@ final class LoginActionTest extends TestCase
         $this->assertArrayHasKey('token', $body);
     }
 
-    public function testLoginWithBadCredentials()
+    public function testLoginWithBadCredentials(): void
     {
         $this->client->request('POST', '/api/login', [], [], [], json_encode([
             'username' => 'tester',
@@ -42,7 +42,7 @@ final class LoginActionTest extends TestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testRehashesWeakPassword()
+    public function testRehashesWeakPassword(): void
     {
         // the default cost for testing is 4.
         $hash = password_hash('test_password', PASSWORD_BCRYPT, [
