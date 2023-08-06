@@ -1,16 +1,16 @@
 import * as React from 'react';
-import {KeyCode} from "./types";
+import { KeyCode } from "./types";
 
 type ModalSize = 'sm' | 'default' | 'lg' | 'xl'
 type Props = React.PropsWithChildren<{
-    actions?: React.ReactNode
-    close: () => unknown
-    show: boolean
-    size?: ModalSize
-    title: React.ReactNode
+  actions?: React.ReactNode
+  close: () => unknown
+  show: boolean
+  size?: ModalSize
+  title: React.ReactNode
 }>
 
-const sizeClazzes: {[K in ModalSize]: string} = {
+const sizeClazzes: { [K in ModalSize]: string } = {
   sm: 'modal-sm',
   default: '',
   lg: 'modal-lg',

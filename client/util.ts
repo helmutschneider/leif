@@ -1,10 +1,10 @@
 import * as t from './types'
 
 type DateFormatter = {
-    (date: Date): string;
+  (date: Date): string;
 };
 type DateParser = {
-    (date: Date, chunk: string): Date | undefined;
+  (date: Date, chunk: string): Date | undefined;
 };
 
 const DATE_FORMATTERS: { [pattern: string]: DateFormatter } = {
@@ -16,7 +16,7 @@ const DATE_FORMATTERS: { [pattern: string]: DateFormatter } = {
   "ss": (date) => date.getSeconds().toString().padStart(2, '0'),
 };
 
-const DATE_PARSERS: { [pattern: string]: DateParser} = {
+const DATE_PARSERS: { [pattern: string]: DateParser } = {
   "yyyy": (date, chunk) => {
     if (!/^\d{4}$/.test(chunk)) {
       return undefined;
@@ -83,8 +83,8 @@ export function hashDate(dt: Date): number {
   const date = dt.getDate();
 
   return (year << 16)
-        | (month << 8)
-        | date;
+    | (month << 8)
+    | date;
 }
 
 export function isFuture(date: Date, origin: Date): boolean {

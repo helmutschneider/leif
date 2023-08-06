@@ -1,18 +1,18 @@
 import * as React from 'react'
-import {KeyCode} from "./types";
+import { KeyCode } from "./types";
 
 type Props<T> = {
-    data: ReadonlyArray<T>
-    disabled?: boolean
-    itemMatches: (item: T, query: string) => boolean
-    maxMatchCount: number
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => unknown
-    onItemSelected: (item: T) => unknown
-    placeholder?: string
-    renderItem: (item: T) => React.ReactNode
-    sortItems?: (items: Array<T>) => void
-    tabIndex?: number
-    value: string
+  data: ReadonlyArray<T>
+  disabled?: boolean
+  itemMatches: (item: T, query: string) => boolean
+  maxMatchCount: number
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => unknown
+  onItemSelected: (item: T) => unknown
+  placeholder?: string
+  renderItem: (item: T) => React.ReactNode
+  sortItems?: (items: Array<T>) => void
+  tabIndex?: number
+  value: string
 }
 
 const dropdownStyle: React.CSSProperties = {
@@ -25,9 +25,9 @@ const dropdownStyle: React.CSSProperties = {
 }
 
 type State = {
-    activeItemIndex: number
-    closingTimeout: number | undefined
-    open: boolean
+  activeItemIndex: number
+  closingTimeout: number | undefined
+  open: boolean
 }
 
 function filterItems<T>(items: ReadonlyArray<T>, fn: (value: T) => boolean, max: number): Array<T> {

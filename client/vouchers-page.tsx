@@ -1,35 +1,35 @@
 import * as React from 'react'
-import {VoucherForm} from "./voucher-form";
+import { VoucherForm } from "./voucher-form";
 import {
   ellipsis,
   emptyVoucher, formatDate,
   formatIntegerAsMoneyWithSeparatorsAndSymbol, isFuture, objectContains, parseDate, sumOfTransactions,
   tryParseInt
 } from "./util";
-import {HttpSendFn} from "./http";
+import { HttpSendFn } from "./http";
 import * as t from "./types"
-import {currencies, KeyCode} from "./types";
-import {Modal} from "./modal";
+import { currencies, KeyCode } from "./types";
+import { Modal } from "./modal";
 
 type Selection =
-    | { kind: 'none' }
-    | { kind: 'account', accountNumber: number }
-    | { kind: 'voucher', voucher: t.Voucher }
+  | { kind: 'none' }
+  | { kind: 'account', accountNumber: number }
+  | { kind: 'voucher', voucher: t.Voucher }
 
 type Props = {
-    http: HttpSendFn
-    onWorkbookChanged: () => unknown
-    search: string
-    today: Date
-    user: t.User
-    workbook: t.Workbook
+  http: HttpSendFn
+  onWorkbookChanged: () => unknown
+  search: string
+  today: Date
+  user: t.User
+  workbook: t.Workbook
 }
 
 type State = {
-    isVoucherModalOpen: boolean
-    openVoucherIds: ReadonlyArray<number>
-    selection: Selection
-    voucher: t.Voucher
+  isVoucherModalOpen: boolean
+  openVoucherIds: ReadonlyArray<number>
+  selection: Selection
+  voucher: t.Voucher
 }
 
 function getNextIndexFromKeyboardEvent<T>(event: KeyboardEvent, values: ReadonlyArray<T>, current: T | undefined): number | undefined {
@@ -215,14 +215,14 @@ export const VouchersPage: React.FC<Props> = props => {
   const [state, setState] = React.useState<State>({
     isVoucherModalOpen: false,
     openVoucherIds: [],
-    selection: {kind: 'none'},
+    selection: { kind: 'none' },
     voucher: emptyVoucher(),
   });
 
   const workbook = props.workbook
   const filteredVouchers: ReadonlyArray<t.Voucher> = workbook.vouchers.filter(voucher => {
     return (new Date(voucher.date)).getFullYear() === props.today.getFullYear()
-            && (props.search === '' || objectContains(voucher, props.search));
+      && (props.search === '' || objectContains(voucher, props.search));
   });
 
   const editingVoucherId = state.voucher.voucher_id;
@@ -234,7 +234,7 @@ export const VouchersPage: React.FC<Props> = props => {
       setState(prev => {
         return {
           ...prev,
-          selection: {kind: 'none'},
+          selection: { kind: 'none' },
         };
       });
     };
@@ -257,7 +257,7 @@ export const VouchersPage: React.FC<Props> = props => {
       return {
         ...prev,
         openVoucherIds: [],
-        selection: {kind: 'none'},
+        selection: { kind: 'none' },
       };
     })
   }, [props.search]);
@@ -305,7 +305,7 @@ export const VouchersPage: React.FC<Props> = props => {
               const maybeOpenVoucherStuff = isVoucherOpen
                 ? (
                   <tr>
-                    <td/>
+                    <td />
                     <td colSpan={2}>
                       {voucher.transactions.map((item, k) => {
                         const formattedAmount = formatIntegerAsMoneyWithSeparatorsAndSymbol(
@@ -324,7 +324,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         )
                       })}
                     </td>
-                    <td/>
+                    <td />
                   </tr>
                 )
                 : null
@@ -339,8 +339,8 @@ export const VouchersPage: React.FC<Props> = props => {
 
               const previous = filteredVouchers[idx - 1];
               const isFirstVoucherInThePresent = typeof previous !== 'undefined'
-                            && isFuture(parseDate(previous.date, 'yyyy-MM-dd')!, props.today)
-                            && !isFuture(parseDate(voucher.date, 'yyyy-MM-dd')!, props.today);
+                && isFuture(parseDate(previous.date, 'yyyy-MM-dd')!, props.today)
+                && !isFuture(parseDate(voucher.date, 'yyyy-MM-dd')!, props.today);
 
               const style: React.CSSProperties = {};
 
@@ -454,7 +454,7 @@ export const VouchersPage: React.FC<Props> = props => {
                             isVoucherModalOpen: true,
                             openVoucherIds: state.openVoucherIds,
                             selection: state.selection,
-                            voucher: {...voucher},
+                            voucher: { ...voucher },
                           });
                         }}
                         title="Redigera"
@@ -478,7 +478,7 @@ export const VouchersPage: React.FC<Props> = props => {
                             setState({
                               isVoucherModalOpen: false,
                               openVoucherIds: state.openVoucherIds,
-                              selection: {kind: 'none'},
+                              selection: { kind: 'none' },
                               // if we had accidentally clicked the "edit" button
                               // before deleting the voucher it would still be in
                               // state, which is kinda weird.
@@ -510,7 +510,7 @@ export const VouchersPage: React.FC<Props> = props => {
                 <tr
                   className={
                     state.selection.kind === 'account'
-                                    && state.selection.accountNumber === accountNumber
+                      && state.selection.accountNumber === accountNumber
                       ? 'table-primary'
                       : undefined
                   }

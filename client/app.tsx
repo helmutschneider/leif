@@ -4,28 +4,28 @@ import {
   tryParseInt,
   formatDate,
 } from './util';
-import {User, Workbook} from "./types";
-import {LoginForm} from "./login-form";
-import {FetchBackend, HttpBackend, LeifRequest} from "./http";
-import {SettingsPage} from "./settings-page";
-import {VouchersPage} from "./vouchers-page";
-import {InvoicePage} from "./invoice-page";
+import { User, Workbook } from "./types";
+import { LoginForm } from "./login-form";
+import { FetchBackend, HttpBackend, LeifRequest } from "./http";
+import { SettingsPage } from "./settings-page";
+import { VouchersPage } from "./vouchers-page";
+import { InvoicePage } from "./invoice-page";
 
 type Props = {
-    httpBackend: HttpBackend
+  httpBackend: HttpBackend
 }
 type Page =
-    | 'vouchers'
-    | 'invoice'
-    | 'settings'
+  | 'vouchers'
+  | 'invoice'
+  | 'settings'
 
 type State = {
-    page: Page
-    search: string
-    selectYearDropdownOpen: boolean
-    today: Date
-    user: User | undefined
-    workbook: Workbook | undefined
+  page: Page
+  search: string
+  selectYearDropdownOpen: boolean
+  today: Date
+  user: User | undefined
+  workbook: Workbook | undefined
 }
 
 const SESSION_STORAGE_USER_KEY = 'user';
@@ -35,7 +35,7 @@ function tryGetUserFromSessionStorage(): User | undefined {
   let user: User | undefined;
   try {
     user = JSON.parse(json ?? '');
-  } catch {}
+  } catch { }
   if (typeof user !== 'object') {
     return undefined;
   }
@@ -67,7 +67,7 @@ const App: React.FC<Props> = props => {
   }
 
   function http<T>(request: LeifRequest): PromiseLike<T> {
-    const headers = {...request.headers};
+    const headers = { ...request.headers };
 
     if (state.user) {
       headers[AUTHORIZATION_HEADER] = state.user.token;
@@ -185,7 +185,7 @@ const App: React.FC<Props> = props => {
 
   const yearsAsMap = workbook.vouchers
     .map(voucher => (new Date(voucher.date)).getFullYear())
-    .reduce<{[key: number]: boolean}>((carry, year) => {
+    .reduce<{ [key: number]: boolean }>((carry, year) => {
       carry[year] = true;
       return carry;
     }, {});

@@ -1,18 +1,18 @@
 import * as React from 'react'
-import {Currency} from "./types";
-import {formatIntegerAsMoneyDecimal, monetaryAmountToInteger, tryParseInt} from "./util";
+import { Currency } from "./types";
+import { formatIntegerAsMoneyDecimal, monetaryAmountToInteger, tryParseInt } from "./util";
 
 type Props = {
-    currency: Currency
-    disabled?: boolean
-    onChange: (value: number) => unknown
-    placeholder?: string
-    tabIndex?: number
-    value: number | string
+  currency: Currency
+  disabled?: boolean
+  onChange: (value: number) => unknown
+  placeholder?: string
+  tabIndex?: number
+  value: number | string
 }
 
 type State = {
-    value: string
+  value: string
 }
 
 export const MoneyInput: React.FC<Props> = props => {

@@ -1,36 +1,36 @@
 import * as React from 'react'
 import * as t from "./types";
-import {emptyInvoiceDataset, emptyInvoiceTemplate, emptyVoucher, formatDate, tryParseFloat, tryParseInt} from "./util";
-import {HttpSendFn} from "./http";
-import {VoucherForm} from "./voucher-form";
-import {Modal} from "./modal";
-import {currencies, CurrencyCode} from "./types";
-import {JsonInput} from "./json-input";
+import { emptyInvoiceDataset, emptyInvoiceTemplate, emptyVoucher, formatDate, tryParseFloat, tryParseInt } from "./util";
+import { HttpSendFn } from "./http";
+import { VoucherForm } from "./voucher-form";
+import { Modal } from "./modal";
+import { currencies, CurrencyCode } from "./types";
+import { JsonInput } from "./json-input";
 
 type Props = {
-    http: HttpSendFn
-    onWorkbookChanged: () => unknown
-    workbook: t.Workbook
-    user: t.User
+  http: HttpSendFn
+  onWorkbookChanged: () => unknown
+  workbook: t.Workbook
+  user: t.User
 }
 
 type Editing =
-    | { kind: 'none' }
-    | { kind: 'voucher', voucher: t.Voucher }
-    | { kind: 'invoice_template', template: t.InvoiceTemplate }
-    | { kind: 'invoice_dataset', dataset: t.InvoiceDataset }
+  | { kind: 'none' }
+  | { kind: 'voucher', voucher: t.Voucher }
+  | { kind: 'invoice_template', template: t.InvoiceTemplate }
+  | { kind: 'invoice_dataset', dataset: t.InvoiceDataset }
 
 type State = {
-    confirmPassword: string
-    editing: Editing
-    password: string
-    username: string
-    organization: t.Organization
+  confirmPassword: string
+  editing: Editing
+  password: string
+  username: string
+  organization: t.Organization
 }
 
 type InvoiceTemplateFormProps = {
-    onChange: (next: t.InvoiceTemplate) => unknown
-    template: t.InvoiceTemplate
+  onChange: (next: t.InvoiceTemplate) => unknown
+  template: t.InvoiceTemplate
 }
 
 const InvoiceTemplateForm: React.FC<InvoiceTemplateFormProps> = props => {
@@ -73,10 +73,10 @@ const InvoiceTemplateForm: React.FC<InvoiceTemplateFormProps> = props => {
 
 
 type InvoiceDatasetFormProps = {
-    onChange: (next: t.InvoiceDataset) => unknown
-    datasets: ReadonlyArray<t.InvoiceDataset>
-    dataset: t.InvoiceDataset
-    templates: ReadonlyArray<t.InvoiceTemplate>
+  onChange: (next: t.InvoiceDataset) => unknown
+  datasets: ReadonlyArray<t.InvoiceDataset>
+  dataset: t.InvoiceDataset
+  templates: ReadonlyArray<t.InvoiceTemplate>
 }
 
 const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
@@ -118,7 +118,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
               }}
               value={props.dataset.invoice_template_id}
             >
-              <option/>
+              <option />
               {props.templates.map((template, i) => {
                 return (
                   <option
@@ -147,7 +147,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
               }}
               value={props.dataset.extends_id || ''}
             >
-              <option/>
+              <option />
               {canInheritFromDatasets.map((set, i) => {
                 return (
                   <option
@@ -174,7 +174,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
               }}
               value={props.dataset.currency_code}
             >
-              <option/>
+              <option />
               {Object.keys(currencies).map((key, i) => {
                 return (
                   <option key={i} value={key}>{key}</option>
@@ -267,7 +267,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
 };
 
 function ensureHasEmptyFieldAndLineItem(set: t.InvoiceDataset): t.InvoiceDataset {
-  const next: t.InvoiceDataset = {...set};
+  const next: t.InvoiceDataset = { ...set };
 
   if (next.fields[next.fields.length - 1]?.name) {
     next.fields = next.fields.concat({
@@ -300,7 +300,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
   const [state, setState] = React.useState<State>({
     confirmPassword: '',
-    editing: {kind: 'none'},
+    editing: { kind: 'none' },
     password: '',
     username: props.user.username,
     organization: {
@@ -311,7 +311,7 @@ export const SettingsPage: React.FC<Props> = props => {
   function closeModal() {
     setState({
       ...state,
-      editing: {kind: 'none'},
+      editing: { kind: 'none' },
     });
   }
 
@@ -445,7 +445,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                 setState({
                   ...state,
-                  editing: {kind: 'voucher', voucher: emptyTemplate()},
+                  editing: { kind: 'voucher', voucher: emptyTemplate() },
                 });
               }}>
               Skapa mall
@@ -548,7 +548,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                 setState({
                   ...state,
-                  editing: {kind: 'invoice_template', template: emptyInvoiceTemplate()},
+                  editing: { kind: 'invoice_template', template: emptyInvoiceTemplate() },
                 });
               }}>
               Skapa mall
@@ -618,7 +618,7 @@ export const SettingsPage: React.FC<Props> = props => {
 
                 setState({
                   ...state,
-                  editing: {kind: 'invoice_dataset', dataset: emptyInvoiceDataset()},
+                  editing: { kind: 'invoice_dataset', dataset: emptyInvoiceDataset() },
                 });
               }}>
               Skapa dataset
@@ -692,7 +692,7 @@ export const SettingsPage: React.FC<Props> = props => {
             onChange={next => {
               setState({
                 ...state,
-                editing: {kind: 'voucher', voucher: next},
+                editing: { kind: 'voucher', voucher: next },
               });
             }}
             onOK={() => {
@@ -715,7 +715,7 @@ export const SettingsPage: React.FC<Props> = props => {
               }).then(res => {
                 setState({
                   ...state,
-                  editing: {kind: 'none'},
+                  editing: { kind: 'none' },
                 });
                 props.onWorkbookChanged();
               });
@@ -750,7 +750,7 @@ export const SettingsPage: React.FC<Props> = props => {
                 }).then(res => {
                   setState({
                     ...state,
-                    editing: {kind: 'none'},
+                    editing: { kind: 'none' },
                   });
                   props.onWorkbookChanged();
                 });
@@ -813,7 +813,7 @@ export const SettingsPage: React.FC<Props> = props => {
                 }).then(res => {
                   setState({
                     ...state,
-                    editing: {kind: 'none'},
+                    editing: { kind: 'none' },
                   });
                   props.onWorkbookChanged();
                 });

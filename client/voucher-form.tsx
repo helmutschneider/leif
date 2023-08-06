@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {AccountPlan, Attachment, Currency, Voucher} from './types'
+import { AccountPlan, Attachment, Currency, Voucher } from './types'
 import {
   areDebitsAndCreditsBalanced,
   arrayBufferToBase64,
@@ -7,16 +7,16 @@ import {
   formatDate, objectContains, parseDate,
   toArray,
 } from './util'
-import {MoneyInput} from "./money-input";
-import {Autocomplete} from "./autocomplete";
+import { MoneyInput } from "./money-input";
+import { Autocomplete } from "./autocomplete";
 
 type Props = {
-    accounts: AccountPlan
-    currency: Currency
-    onChange: (next: Voucher) => unknown
-    onOK: () => unknown
-    templates?: ReadonlyArray<Voucher>
-    voucher: Voucher
+  accounts: AccountPlan
+  currency: Currency
+  onChange: (next: Voucher) => unknown
+  onOK: () => unknown
+  templates?: ReadonlyArray<Voucher>
+  voucher: Voucher
 }
 
 const collator = new Intl.Collator('sv-SE', {

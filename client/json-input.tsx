@@ -1,9 +1,9 @@
 import * as React from 'react';
 
 type JsonInputProps<T> = {
-    onChange: (next: T) => unknown
-    rows?: number
-    value: T
+  onChange: (next: T) => unknown
+  rows?: number
+  value: T
 }
 
 function toJsonStringWithUnescapedNewlines(value: unknown): string {

@@ -1,18 +1,18 @@
 export type LeifRequest = {
-    body?: unknown
-    headers?: {[name: string]: string}
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE'
-    responseType?: 'text' | 'json' | 'blob'
-    query?: {[name: string]: string}
-    url: string
+  body?: unknown
+  headers?: { [name: string]: string }
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  responseType?: 'text' | 'json' | 'blob'
+  query?: { [name: string]: string }
+  url: string
 }
 
 export type HttpSendFn = {
-    <T>(request: LeifRequest): PromiseLike<T>
+  <T>(request: LeifRequest): PromiseLike<T>
 }
 
 export type HttpBackend = {
-    send: HttpSendFn
+  send: HttpSendFn
 }
 
 const JSON_CONTENT_TYPE = 'application/json';

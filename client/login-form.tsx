@@ -1,17 +1,17 @@
 import * as React from 'react'
-import {BackendError, KeyCode, User} from "./types";
-import {HttpSendFn} from "./http";
+import { BackendError, KeyCode, User } from "./types";
+import { HttpSendFn } from "./http";
 
 type Props = {
-    http: HttpSendFn
-    onLogin: (user: User) => unknown
+  http: HttpSendFn
+  onLogin: (user: User) => unknown
 }
 
 type State = {
-    username: string;
-    password: string;
-    isLoading: boolean;
-    error: string | undefined;
+  username: string;
+  password: string;
+  isLoading: boolean;
+  error: string | undefined;
 }
 
 type AlertKind = 'primary' | 'success' | 'danger';

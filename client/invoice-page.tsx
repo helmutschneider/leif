@@ -1,14 +1,14 @@
 import * as React from 'react';
 import * as t from './types'
-import {HttpSendFn, LeifRequest} from "./http";
-import {downloadBlobWithName, emptyInvoiceDataset} from "./util";
-import {MoneyInput} from "./money-input";
-import {currencies} from "./types";
+import { HttpSendFn, LeifRequest } from "./http";
+import { downloadBlobWithName, emptyInvoiceDataset } from "./util";
+import { MoneyInput } from "./money-input";
+import { currencies } from "./types";
 
 type Props = {
-    http: HttpSendFn
-    datasets: ReadonlyArray<t.InvoiceDataset>
-    user: t.User
+  http: HttpSendFn
+  datasets: ReadonlyArray<t.InvoiceDataset>
+  user: t.User
 }
 
 function emptyInvoiceLineItem<K extends keyof t.InvoiceLineItem>(props: Pick<t.InvoiceLineItem, K>): t.InvoiceLineItem {
@@ -22,8 +22,8 @@ function emptyInvoiceLineItem<K extends keyof t.InvoiceLineItem>(props: Pick<t.I
 }
 
 type FormProps = {
-    invoice: t.InvoiceDataset
-    onChange: (invoice: t.InvoiceDataset) => void
+  invoice: t.InvoiceDataset
+  onChange: (invoice: t.InvoiceDataset) => void
 }
 
 function onItemChangeWithValue<K extends keyof t.InvoiceLineItem>(props: FormProps, key: K, index: number): (value: unknown) => void {
@@ -135,13 +135,13 @@ const Form: React.FC<FormProps> = props => {
 }
 
 type State = {
-    datasetIndex: number | undefined
-    invoice: t.InvoiceDataset
-    invoiceBlob: { blob: Blob, url: string } | undefined
+  datasetIndex: number | undefined
+  invoice: t.InvoiceDataset
+  invoiceBlob: { blob: Blob, url: string } | undefined
 }
 
 function ensureHasEmptyLineItem(invoice: t.InvoiceDataset): t.InvoiceDataset {
-  const next: t.InvoiceDataset = {...invoice};
+  const next: t.InvoiceDataset = { ...invoice };
   const last = next.line_items[next.line_items.length - 1];
 
   if (last?.name) {
@@ -308,7 +308,7 @@ export const InvoicePage: React.FC<Props> = props => {
       <div className="col-6">
         {state.invoiceBlob
           ? <iframe style={iframeStyle} src={state.invoiceBlob.url} />
-          : undefined }
+          : undefined}
       </div>
     </div>
   );
