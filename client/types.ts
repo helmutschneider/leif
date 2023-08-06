@@ -64,14 +64,14 @@ export type Currency = {
     thousandsSeparator: string
 }
 export const currencies: {[P in CurrencyCode]: Currency} = {
-    SEK: {
-        code: 'SEK',
-        decimalSeparator: ',',
-        locale: 'sv-SE',
-        subunit: 2,
-        symbol: 'kr',
-        thousandsSeparator: ' ',
-    },
+  SEK: {
+    code: 'SEK',
+    decimalSeparator: ',',
+    locale: 'sv-SE',
+    subunit: 2,
+    symbol: 'kr',
+    thousandsSeparator: ' ',
+  },
 }
 export type AccountBalance = {
     account: AccountNumber
