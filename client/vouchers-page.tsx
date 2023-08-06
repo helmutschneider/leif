@@ -70,7 +70,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
         case 'account': {
             switch (event.keyCode) {
                 case KeyCode.ArrowUp:
-                case KeyCode.ArrowDown:
+                case KeyCode.ArrowDown: {
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -90,6 +90,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
                     }
 
                     break;
+                }
             }
             return undefined;
         }
@@ -335,7 +336,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         const selection = state.selection
                         const rowClassName = getVoucherRowClazz(voucher, selection);
 
-                        const previous = filteredVouchers?.[idx - 1];
+                        const previous = filteredVouchers[idx - 1];
                         const isFirstVoucherInThePresent = typeof previous !== 'undefined'
                             && isFuture(parseDate(previous.date, 'yyyy-MM-dd')!, props.today)
                             && !isFuture(parseDate(voucher.date, 'yyyy-MM-dd')!, props.today);

@@ -4,7 +4,7 @@ import {emptyInvoiceDataset, emptyInvoiceTemplate, emptyVoucher, formatDate, try
 import {HttpSendFn} from "./http";
 import {VoucherForm} from "./voucher-form";
 import {Modal} from "./modal";
-import {currencies} from "./types";
+import {currencies, CurrencyCode} from "./types";
 import {JsonInput} from "./json-input";
 
 type Props = {
@@ -169,7 +169,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
                             onChange={event => {
                                 props.onChange({
                                     ...props.dataset,
-                                    currency_code: event.target.value as any,
+                                    currency_code: event.target.value as CurrencyCode,
                                 });
                             }}
                             value={props.dataset.currency_code}

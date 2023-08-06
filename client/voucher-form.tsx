@@ -173,7 +173,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                                 const transactions = props.voucher.transactions.slice()
                                                 transactions[idx] = {
                                                     ...t,
-                                                    account: event.target.value as any,
+                                                    account: event.target.value as unknown as number,
                                                 };
                                                 props.onChange({
                                                     ...props.voucher,
@@ -184,7 +184,7 @@ export const VoucherForm: React.FC<Props> = props => {
                                                 const transactions = props.voucher.transactions.slice()
                                                 transactions[idx] = {
                                                     ...t,
-                                                    account: item[0] as any,
+                                                    account: item[0] as unknown as number,
                                                 };
                                                 props.onChange({
                                                     ...props.voucher,

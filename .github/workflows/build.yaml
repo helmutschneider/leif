@@ -36,7 +36,9 @@ jobs:
         run: composer install
       - name: Install Node dependencies
         run: npm install
-      - name: Server tests
+      - name: "Server: test"
         run: composer run test
-      - name: Client tests
-        run: npm test
+      - name: "Client: lint"
+        run: npm run lint
+      - name: "Client: test"
+        run: npm run test

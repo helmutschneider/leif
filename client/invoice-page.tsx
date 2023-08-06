@@ -31,8 +31,8 @@ function onItemChangeWithValue<K extends keyof t.InvoiceLineItem>(props: FormPro
         const items = props.invoice.line_items.slice();
         const item: t.InvoiceLineItem = {
             ...items[index]!,
+            [key]: value,
         };
-        item[key] = value as any;
         items[index] = item;
 
         const invoice: t.InvoiceDataset = {
@@ -67,7 +67,7 @@ const Form: React.FC<FormProps> = props => {
                                 <textarea
                                     className="form-control"
                                     placeholder={field.name}
-                                    readOnly={field.is_editable == false}
+                                    readOnly={!field.is_editable}
                                     rows={3}
                                     onChange={event => {
                                         const next = invoice.fields.slice();

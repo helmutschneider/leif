@@ -185,10 +185,10 @@ const App: React.FC<Props> = props => {
 
     const yearsAsMap = workbook.vouchers
         .map(voucher => (new Date(voucher.date)).getFullYear())
-        .reduce((carry, year) => {
+        .reduce<{[key: number]: boolean}>((carry, year) => {
             carry[year] = true;
             return carry;
-        }, {} as {[key: number]: boolean});
+        }, {});
 
     // always include the current year.
     yearsAsMap[(new Date().getFullYear())] = true;

@@ -132,13 +132,14 @@ export function Autocomplete<T>(props: Props<T>): JSX.Element {
                             });
                             break;
                         }
-                        case KeyCode.Enter:
+                        case KeyCode.Enter: {
                             const item = items[state.activeItemIndex];
                             if (item) {
                                 props.onItemSelected(item);
                             }
                             closeImmediate();
                             break;
+                        }
                         case KeyCode.Escape:
                             closeImmediate();
                             break;

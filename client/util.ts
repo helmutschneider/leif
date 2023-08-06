@@ -52,7 +52,7 @@ export function formatDate(date: Date, pattern: string): string {
 
 export function parseDate(value: string, pattern: string): Date | undefined {
     const regex = new RegExp(Object.keys(DATE_PARSERS).join('|'), 'g');
-    let dt = new Date();
+    const dt = new Date();
     let match: RegExpMatchArray | null;
     while ((match = regex.exec(pattern)) !== null) {
         const matchedPatternChunk = match[0]!;
@@ -188,7 +188,7 @@ export function sumOfTransactions(transactions: ReadonlyArray<t.Transaction>): n
                 sum -= t.amount;
                 break;
             default:
-                throw new Error(`Invalid transaction kind '${t.kind}'.`);
+                throw new Error(`Invalid transaction kind '${t.kind as string}'.`);
         }
     }
     return sum;
@@ -219,7 +219,7 @@ export function emptyVoucher(): t.Voucher {
 }
 
 export function toArray<T>(stuff: ArrayLike<T>): ReadonlyArray<T> {
-    return Array.prototype.slice.call(stuff);
+    return Array.prototype.slice.call(stuff) as Array<T>;
 }
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {

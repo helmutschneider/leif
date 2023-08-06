@@ -51,10 +51,10 @@ export class FetchBackend implements HttpBackend {
 
             switch (request.responseType) {
                 case 'text':
-                    message = res.text() as any;
+                    message = res.text() as unknown as PromiseLike<T>;
                     break;
                 case 'blob':
-                    message = res.blob() as any;
+                    message = res.blob() as unknown as PromiseLike<T>;
                     break;
                 case 'json':
                 default:

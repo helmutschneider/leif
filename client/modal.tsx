@@ -58,7 +58,7 @@ export const Modal: React.FC<Props> = props => {
     function close(event: React.MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
-        props.close?.();
+        props.close();
     }
 
     const sizeClazz = sizeClazzes[props.size || 'default'];
