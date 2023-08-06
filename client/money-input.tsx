@@ -36,6 +36,10 @@ export const NUMBER_INPUT_DEFAULT_PARSER: NumberParser = {
       return value;
     }
 
+    if (value === '') {
+      return 0;
+    }
+
     const withDotAsDecimalSeparator = value
       .replace(/[^-\d,.]/g, '')
       .replace(/[.,]$/g, '')
