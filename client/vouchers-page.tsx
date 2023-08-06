@@ -14,7 +14,7 @@ import {Modal} from "./modal";
 type Selection =
     | { kind: 'none' }
     | { kind: 'account', accountNumber: number }
-    | { kind: 'voucher', voucherId: number }
+    | { kind: 'voucher', voucher: t.Voucher }
 
 type Props = {
     http: HttpSendFn
@@ -100,8 +100,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
                     event.preventDefault();
                     event.stopPropagation();
 
-                    const selectedVoucher = vouchers.find(v => v.voucher_id === selection.voucherId);
-                    const nextIndex = getNextIndexFromKeyboardEvent(event, vouchers, selectedVoucher);
+                    const nextIndex = getNextIndexFromKeyboardEvent(event, vouchers, selection.voucher);
 
                     if (typeof nextIndex !== 'undefined') {
                         const voucher = vouchers[nextIndex];
@@ -110,7 +109,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
                             ...state,
                             selection: {
                                 kind: 'voucher',
-                                voucherId: voucher?.voucher_id!,
+                                voucher: voucher!,
                             },
                         };
                     }
@@ -121,7 +120,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
                     event.preventDefault()
                     event.stopPropagation();
                     const next = state.openVoucherIds.slice();
-                    const index = next.indexOf(selection.voucherId);
+                    const index = next.indexOf(selection.voucher.voucher_id!);
                     if (index !== -1) {
                         next.splice(index, 1);
                         return {
@@ -135,10 +134,10 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
                     event.preventDefault()
                     event.stopPropagation();
                     const next = state.openVoucherIds.slice();
-                    if (!next.includes(selection.voucherId)) {
+                    if (!next.includes(selection.voucher.voucher_id!)) {
                         return {
                             ...state,
-                            openVoucherIds: next.concat(selection.voucherId),
+                            openVoucherIds: next.concat(selection.voucher.voucher_id!),
                         };
                     }
                     return undefined;
@@ -167,6 +166,48 @@ function maybeMakeAmountRed(amount: string | number): React.ReactNode {
         )
     }
     return str;
+}
+
+function findNumberLikeStringsInString(value: string): ReadonlyArray<number> {
+    const out: Array<number> = [];
+    const pattern = /(\d+)/g;
+    let matches: RegExpMatchArray | null;
+    while ((matches = pattern.exec(value)) !== null) {
+        const num = tryParseInt(matches[1], undefined);
+        if (typeof num === 'number') {
+            out.push(num);
+        }
+    }
+    return out;
+}
+
+function getVoucherRowClazz(voucher: t.Voucher, selection: Selection): string {
+    let rowClassName: string = '';
+
+    switch (selection.kind) {
+        case "voucher": {
+            if (selection.voucher.voucher_id === voucher.voucher_id) {
+                rowClassName = 'table-primary';
+            } else {
+                const numbersInSelection = findNumberLikeStringsInString(selection.voucher.name);
+                const numbersInVoucher = findNumberLikeStringsInString(voucher.name);
+                const matchesAnyNumberInSelection = numbersInSelection.some(num => numbersInVoucher.includes(num));
+
+                if (matchesAnyNumberInSelection) {
+                    rowClassName = 'table-secondary';
+                }
+            }
+            break;
+        }
+        case 'account': {
+            if (voucher.transactions.some(t => t.account === selection.accountNumber)) {
+                rowClassName = 'table-secondary';
+            }
+            break;
+        }
+    }
+
+    return rowClassName;
 }
 
 export const VouchersPage: React.FC<Props> = props => {
@@ -292,13 +333,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         const sumOfCheckingAccounts = sumOfTransactions(transactionsFromCheckingAccounts);
 
                         const selection = state.selection
-                        let rowClassName = '';
-
-                        if (selection.kind === 'voucher' && selection.voucherId === voucher.voucher_id) {
-                            rowClassName = 'table-primary';
-                        } else if (selection.kind === 'account' && voucher.transactions.some(t => t.account === selection.accountNumber)) {
-                            rowClassName = 'table-secondary';
-                        }
+                        const rowClassName = getVoucherRowClazz(voucher, selection);
 
                         const previous = filteredVouchers?.[idx - 1];
                         const isFirstVoucherInThePresent = typeof previous !== 'undefined'
@@ -335,7 +370,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                             ...state,
                                             selection: {
                                                 kind: 'voucher',
-                                                voucherId: voucher.voucher_id!,
+                                                voucher: voucher,
                                             },
                                         });
                                     }}
@@ -363,7 +398,7 @@ export const VouchersPage: React.FC<Props> = props => {
                                             openVoucherIds: next,
                                             selection: {
                                                 kind: 'voucher',
-                                                voucherId: voucher.voucher_id!,
+                                                voucher: voucher,
                                             },
                                             voucher: state.voucher,
                                         });
