@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as t from './types'
 import { HttpSendFn, LeifRequest } from "./http";
 import { downloadBlobWithName, emptyInvoiceDataset } from "./util";
-import { MoneyInput } from "./money-input";
+import { MoneyInput, NUMBER_INPUT_DEFAULT_PARSER, NumberInput } from "./money-input";
 import { currencies } from "./types";
 
 type Props = {
@@ -120,11 +120,11 @@ const Form: React.FC<FormProps> = props => {
               </div>
             </div>
             <div className="col-3">
-              <input type="text"
-                className="form-control"
-                placeholder="Timmar"
+              <NumberInput
+                onChange={onItemChangeWithValue(props, 'quantity', idx)}
+                parser={NUMBER_INPUT_DEFAULT_PARSER}
                 value={item.quantity}
-                onChange={onItemChangeWithEvent(props, 'quantity', idx)} />
+              />
             </div>
           </div>
         )
