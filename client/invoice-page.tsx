@@ -301,7 +301,7 @@ export const InvoicePage: React.FC<Props> = props => {
               });
             }}
             className="btn btn-success">
-                        Hämta PDF
+            Hämta PDF
           </button>
         </div>
       </div>

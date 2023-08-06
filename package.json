@@ -24,6 +24,7 @@
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "eslint": "^8.46.0",
+    "eslint-plugin-react": "^7.33.1",
     "jest": "^29.6.2",
     "jest-environment-jsdom": "^29.6.2",
     "ts-jest": "^29.1.1"
@@ -44,22 +45,38 @@
     "root": true,
     "extends": [
       "eslint:recommended",
-      "plugin:@typescript-eslint/strict-type-checked"
+      "plugin:@typescript-eslint/strict-type-checked",
+      "plugin:react/recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-      "project": ["./tsconfig.json"]
+      "project": [
+        "./tsconfig.json"
+      ]
     },
     "plugins": [
-      "@typescript-eslint"
+      "@typescript-eslint",
+      "react"
     ],
     "rules": {
-      "@typescript-eslint/no-floating-promises": ["off"],
-      "@typescript-eslint/no-non-null-assertion": ["off"],
-      "@typescript-eslint/no-unsafe-argument": ["off"],
-      "@typescript-eslint/no-unsafe-assignment": ["off"],
-      "@typescript-eslint/no-unsafe-enum-comparison": ["off"],
-      "@typescript-eslint/no-unused-vars": ["off"],
+      "@typescript-eslint/no-floating-promises": [
+        "off"
+      ],
+      "@typescript-eslint/no-non-null-assertion": [
+        "off"
+      ],
+      "@typescript-eslint/no-unsafe-argument": [
+        "off"
+      ],
+      "@typescript-eslint/no-unsafe-assignment": [
+        "off"
+      ],
+      "@typescript-eslint/no-unsafe-enum-comparison": [
+        "off"
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "off"
+      ],
       "indent": [
         "error",
         2,
@@ -76,11 +93,20 @@
       "operator-linebreak": [
         "error",
         "before"
+      ],
+      "react/jsx-indent": [
+        "error",
+        2
       ]
     },
     "ignorePatterns": [
       "**/*.test.ts",
       "**/*.test.tsx"
-    ]
+    ],
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    }
   }
 }

@@ -429,7 +429,7 @@ export const SettingsPage: React.FC<Props> = props => {
                 })
               }}
             >
-                            OK
+              OK
             </button>
           </div>
         </div>
@@ -448,7 +448,7 @@ export const SettingsPage: React.FC<Props> = props => {
                   editing: {kind: 'voucher', voucher: emptyTemplate()},
                 });
               }}>
-                            Skapa mall
+              Skapa mall
             </button>
           </div>
 
@@ -551,7 +551,7 @@ export const SettingsPage: React.FC<Props> = props => {
                   editing: {kind: 'invoice_template', template: emptyInvoiceTemplate()},
                 });
               }}>
-                            Skapa mall
+              Skapa mall
             </button>
           </div>
 
@@ -621,7 +621,7 @@ export const SettingsPage: React.FC<Props> = props => {
                   editing: {kind: 'invoice_dataset', dataset: emptyInvoiceDataset()},
                 });
               }}>
-                            Skapa dataset
+              Skapa dataset
             </button>
           </div>
 
@@ -756,7 +756,7 @@ export const SettingsPage: React.FC<Props> = props => {
                 });
               }}
             >
-                            Spara
+              Spara
             </button>
           </React.Fragment>
         }
@@ -819,7 +819,7 @@ export const SettingsPage: React.FC<Props> = props => {
                 });
               }}
             >
-                            Spara
+              Spara
             </button>
           </React.Fragment>
         }

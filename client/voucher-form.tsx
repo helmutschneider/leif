@@ -265,7 +265,7 @@ export const VoucherForm: React.FC<Props> = props => {
               <label
                 htmlFor="files"
                 className="btn btn-secondary">
-                                Bifoga filer
+                Bifoga filer
               </label>
               <input
                 id="files"
@@ -349,7 +349,7 @@ export const VoucherForm: React.FC<Props> = props => {
             }}
             title={isBalanced ? '' : 'Obalans'}
           >
-                        OK
+            OK
           </button>
         </div>
       </div>

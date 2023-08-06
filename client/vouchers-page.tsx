@@ -267,7 +267,7 @@ export const VouchersPage: React.FC<Props> = props => {
       <div className="col-lg-8">
         <div className="d-flex mb-1">
           <h5 className="flex-grow-1">
-                        Verifikat
+            Verifikat
             {
               props.search !== ''
                 ? ` (${filteredVouchers.length} resultat)`

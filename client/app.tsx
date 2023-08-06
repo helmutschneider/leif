@@ -327,7 +327,7 @@ const App: React.FC<Props> = props => {
                   }}
                   href="#"
                 >
-                                    Verifikat
+                  Verifikat
                 </a>
               </li>
               <li className="nav-item">
@@ -345,7 +345,7 @@ const App: React.FC<Props> = props => {
                   }}
                   href="#"
                 >
-                                    Faktura
+                  Faktura
                 </a>
               </li>
               <li className="nav-item">
@@ -363,7 +363,7 @@ const App: React.FC<Props> = props => {
                   }}
                   href="#"
                 >
-                                    Inställningar
+                  Inställningar
                 </a>
               </li>
               <li className="nav-item">
@@ -377,7 +377,7 @@ const App: React.FC<Props> = props => {
                   }}
                   href="#"
                 >
-                                    Logga ut
+                  Logga ut
                 </a>
               </li>
             </ul>
