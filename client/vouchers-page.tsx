@@ -195,14 +195,14 @@ function getVoucherRowClazz(voucher: t.Voucher, selection: Selection): string {
         const matchesAnyNumberInSelection = numbersInSelection.some(num => numbersInVoucher.includes(num));
 
         if (matchesAnyNumberInSelection) {
-          rowClassName = 'table-secondary';
+          rowClassName = 'table-warning';
         }
       }
       break;
     }
     case 'account': {
       if (voucher.transactions.some(t => t.account === selection.accountNumber)) {
-        rowClassName = 'table-secondary';
+        rowClassName = 'table-warning';
       }
       break;
     }
