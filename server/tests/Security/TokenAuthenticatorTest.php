@@ -31,27 +31,27 @@ final class TokenAuthenticatorTest extends TestCase
         );
     }
 
-    public function testFailsToLoadUserWithoutToken()
+    public function testFailsToLoadUserWithoutToken(): void
     {
         $this->expectException(UserNotFoundException::class);
         $this->provider->loadUserByApiToken('1234');
     }
 
-    public function testFailsWithExpiredToken()
+    public function testFailsWithExpiredToken(): void
     {
         $this->expectException(UserNotFoundException::class);
         static::createToken($this->db, '12341234', 1, '2022-01-01 01:00:00');
         $this->provider->loadUserByApiToken('1234');
     }
 
-    public function testFailsWithWrongTokenValue()
+    public function testFailsWithWrongTokenValue(): void
     {
         $this->expectException(UserNotFoundException::class);
         static::createToken($this->db, '12341234', 1, '2022-02-10 14:30:00');
         $this->provider->loadUserByApiToken('123');
     }
 
-    public function testSucceedsWithValidToken()
+    public function testSucceedsWithValidToken(): void
     {
         static::createToken($this->db, '1234', 1, '2022-02-10 14:30:00');
         $user = $this->provider->loadUserByApiToken('1234');

@@ -6,7 +6,7 @@ use Leif\Validator;
 
 final class ValidatorTest extends TestCase
 {
-    public function validateProvider()
+    public function validateProvider(): array
     {
         return [
 
@@ -398,7 +398,7 @@ final class ValidatorTest extends TestCase
         }
     }
 
-    public function testFlatten()
+    public function testFlatten(): void
     {
         $stuff = Validator::flatten([
             'a' => [

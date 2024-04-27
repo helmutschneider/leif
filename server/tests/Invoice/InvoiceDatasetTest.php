@@ -7,7 +7,7 @@ use Leif\Tests\TestCase;
 
 final class InvoiceDatasetTest extends TestCase
 {
-    public function testCalculatesTotalCorrectlyWithZeroPrecision()
+    public function testCalculatesTotalCorrectlyWithZeroPrecision(): void
     {
         $ds = InvoiceDataset::fromArray([
             'currency_code' => 'SEK',
@@ -34,7 +34,7 @@ final class InvoiceDatasetTest extends TestCase
         $this->assertSame('575100', $ds->totalWithVat->getAmount());
     }
 
-    public function testCalculatesTotalCorrectlyWithNonZeroPrecision()
+    public function testCalculatesTotalCorrectlyWithNonZeroPrecision(): void
     {
         $ds = InvoiceDataset::fromArray([
             'currency_code' => 'SEK',

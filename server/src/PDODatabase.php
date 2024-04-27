@@ -53,7 +53,7 @@ final class PDODatabase implements Database
         if ($num) {
             return (int) $num;
         }
-        return $num;
+        return null;
     }
 
     public function transaction(callable $fn)

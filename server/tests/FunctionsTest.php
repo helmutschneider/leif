@@ -4,7 +4,7 @@ namespace Leif\Tests;
 
 final class FunctionsTest extends TestCase
 {
-    public function roundProvider()
+    public function roundProvider(): array
     {
         return [
             [150, 0, 200],
@@ -25,7 +25,7 @@ final class FunctionsTest extends TestCase
         $this->assertSame((string)$expected, $rounded->getAmount());
     }
 
-    public function testSnake()
+    public function testSnake(): void
     {
         $this->assertSame('i_am_a_snake', snake('IAmASnake'));
         $this->assertSame('i_am_a_snake', snake('i_am_a_snake'));

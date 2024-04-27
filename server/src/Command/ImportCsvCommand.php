@@ -25,7 +25,7 @@ final class ImportCsvCommand extends Command
         parent::__construct('import_csv');
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 

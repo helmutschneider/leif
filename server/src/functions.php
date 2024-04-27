@@ -28,7 +28,7 @@ function render(string $template, array $data = []): string {
             $formatter = match ($code) {
                 'SEK' => new \Leif\NumberFormatMoneyFormatter($decimals, ',', ' '),
                 'USD' => new \Leif\NumberFormatMoneyFormatter($decimals, '.', ','),
-                _ => throw new RuntimeException('bad'),
+                default => throw new RuntimeException('bad'),
             };
             return $formatter->format($money);
         });

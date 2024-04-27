@@ -23,7 +23,7 @@ final class NativeHmacHasherTest extends TestCase
         );
     }
 
-    public function testHashesCorrectly()
+    public function testHashesCorrectly(): void
     {
         $this->assertSame(
             static::HASH_OF_BRO,
@@ -31,14 +31,14 @@ final class NativeHmacHasherTest extends TestCase
         );
     }
 
-    public function testVerifiesCorrectly()
+    public function testVerifiesCorrectly(): void
     {
         $this->assertTrue(
             $this->hasher->verify(static::HASH_OF_BRO, 'bro')
         );
     }
 
-    public function testFailsToVerifyString()
+    public function testFailsToVerifyString(): void
     {
         $this->assertFalse(
             $this->hasher->verify(static::HASH_OF_BRO . 'aa', 'bro')

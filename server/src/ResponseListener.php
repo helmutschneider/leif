@@ -13,7 +13,7 @@ final class ResponseListener
         $this->data = $data;
     }
 
-    public function onKernelResponse(ResponseEvent $event)
+    public function onKernelResponse(ResponseEvent $event): void
     {
         $headers = $event->getResponse()->headers;
 

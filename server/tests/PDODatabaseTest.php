@@ -27,7 +27,7 @@ SQL
 );
     }
 
-    public function testSelectOneAndCastsValues()
+    public function testSelectOneAndCastsValues(): void
     {
         $this->otherDb->execute('INSERT INTO car (make, model, weight) VALUES (?, ?, ?)', ['Volvo', 'V70', 3.5]);
 
@@ -39,7 +39,7 @@ SQL
         $this->assertSame(3.5, $row['weight']);
     }
 
-    public function testSelectAll()
+    public function testSelectAll(): void
     {
         $this->otherDb->execute('INSERT INTO car (make, model) VALUES (?, ?)', ['Volvo', 'V70']);
         $this->otherDb->execute('INSERT INTO car (make, model) VALUES (?, ?)', ['Toyota', 'Prius']);
@@ -56,7 +56,7 @@ SQL
         $this->assertSame('Prius', $rows[1]['model']);
     }
 
-    public function testGetLastInsertId()
+    public function testGetLastInsertId(): void
     {
         $this->otherDb->execute('INSERT INTO car (make, model) VALUES (?, ?)', ['Volvo', 'V70']);
         $this->assertSame(1, $this->otherDb->getLastInsertId());
@@ -65,7 +65,7 @@ SQL
         $this->assertSame(2, $this->otherDb->getLastInsertId());
     }
 
-    public function testTransactionCommits()
+    public function testTransactionCommits(): void
     {
         $this->otherDb->transaction(function () {
             $this->otherDb->execute('INSERT INTO car (make, model) VALUES (?, ?)', ['Tesla', 'Model S']);
@@ -78,7 +78,7 @@ SQL
         $this->assertSame('Model S', $rows[0]['model']);
     }
 
-    public function testTransactionRollsBackOnExceptions()
+    public function testTransactionRollsBackOnExceptions(): void
     {
         try {
             $this->otherDb->transaction(function () {

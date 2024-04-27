@@ -16,7 +16,7 @@ final class ParseAccountsCommand extends Command
         parent::__construct('parse_accounts');
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 

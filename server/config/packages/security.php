@@ -5,9 +5,6 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 
 return static function (SecurityConfig $config, ContainerConfigurator $container) {
-    $config
-        ->enableAuthenticatorManager(true);
-
     $config->provider('leif.user_provider')
         ->id(\Leif\Security\TokenUserProvider::class);
 

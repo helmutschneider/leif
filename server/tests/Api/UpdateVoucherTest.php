@@ -27,7 +27,7 @@ final class UpdateVoucherTest extends TestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testUpdateVoucherWithoutModifyingAttachments()
+    public function testUpdateVoucherWithoutModifyingAttachments(): void
     {
         static::createAttachment($this->db, 1);
 
@@ -77,7 +77,7 @@ final class UpdateVoucherTest extends TestCase
         $this->assertEquals(1, $attachments[0]['attachment_id']);
     }
 
-    public function testUpdateVoucherWhereAttachmentIsDeletedAndAnotherAdded()
+    public function testUpdateVoucherWhereAttachmentIsDeletedAndAnotherAdded(): void
     {
         static::createAttachment($this->db, 1);
 

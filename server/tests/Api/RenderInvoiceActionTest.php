@@ -47,7 +47,6 @@ final class RenderInvoiceActionTest extends TestCase
         $res = $this->client->getResponse();
 
         $this->assertSame(200, $res->getStatusCode());
-
         $this->assertStringContainsString($expectedContentType, $res->headers->get('Content-Type'));
     }
 }
