@@ -38,6 +38,22 @@ function render(string $template, array $data = []): string {
     return $twig->createTemplate($template)->render($data);
 }
 
+function render_file(string $path, array $data = []): string {
+    static $twig = null;
+
+    if ($twig === null) {
+        $loader = new \Twig\Loader\FilesystemLoader([
+            realpath(__DIR__ . '/../views/'),
+        ]);
+        $twig = new \Twig\Environment($loader, [
+            'cache' => false,
+            'strict_variables' => true,
+        ]);
+    }
+
+    return $twig->render($path, $data);
+}
+
 function anchors(string $template): string {
     // markdown links: [name](url)
     $template = preg_replace('#\[([^\[\]]+)\]\(([^\(\)]+)\)#', '<a href="$2" target="_blank">$1</a>', $template);

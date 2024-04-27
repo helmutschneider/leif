@@ -3,8 +3,6 @@
 namespace Leif\Api;
 
 use Leif\Database;
-use Leif\Tests\DatabaseTrait;
-use Leif\View;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +12,8 @@ final class InstallAction
 {
     const ERR_MISSING_USERNAME = 0;
     const ERR_MISSING_PASSWORD = 1;
+    const ERR_PASSWORD_MISMATCH = 2;
+
     const SAMPLE_TEMPLATES = [
         [
             'name' => 'Faktura mot kund 25% moms',
@@ -145,17 +145,22 @@ final class InstallAction
         $errors = [];
         $username = '';
         $password = '';
+        $confirmPassword = '';
 
         if ($request->isMethod('POST')) {
             $body = $request->request->all();
             $username = $body['username'] ?? '';
             $password = $body['password'] ?? '';
+            $confirmPassword = $body['confirm_password'] ?? '';
 
             if (!$username) {
                 $errors[] = static::ERR_MISSING_USERNAME;
             }
             if (!$password) {
                 $errors[] = static::ERR_MISSING_PASSWORD;
+            }
+            if ($password !== $confirmPassword) {
+                $errors[] = static::ERR_PASSWORD_MISMATCH;
             }
 
             if ($errors === []) {
@@ -197,13 +202,11 @@ final class InstallAction
             }
         }
 
-        $layout = new View(__DIR__ . '/../../views/layout.php');
-        $html = $layout->render([
-            'body' => $layout->renderChild(__DIR__ . '/../../views/install.php', [
-                'errors' => $errors,
-                'username' => $username,
-                'password' => $password,
-            ]),
+        $html = render_file('install.twig', [
+            'errors' => $errors,
+            'username' => $username,
+            'password' => $password,
+            'confirm_password' => $confirmPassword,
         ]);
 
         return new Response($html, Response::HTTP_OK, [

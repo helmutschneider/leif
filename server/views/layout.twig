@@ -1,11 +1,4 @@
-<?php declare(strict_types=1);
-
-/**
- * @var \Leif\View $this
- * @var string $body
- */
-
-?><!doctype html>
+<!doctype html>
 <html lang="en" data-bs-theme="dark">
 
 <head>
@@ -30,7 +23,8 @@
 
 <body>
 
-<?php echo $body; ?>
+{% block body %}
+{% endblock %}
 
 </body>
 

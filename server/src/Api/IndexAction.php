@@ -3,7 +3,6 @@
 namespace Leif\Api;
 
 use Leif\Database;
-use Leif\View;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,10 +22,7 @@ final class IndexAction
             return new RedirectResponse('/install');
         }
 
-        $layout = new View(__DIR__ . '/../../views/layout.php');
-        $html = $layout->render([
-            'body' => $layout->renderChild(__DIR__ . '/../../views/app.php'),
-        ]);
+        $html = render_file('app.twig');
 
         return new Response($html, Response::HTTP_OK, [
             'Content-Type' => 'text/html',

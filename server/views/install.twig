@@ -1,17 +1,11 @@
-<?php
-declare(strict_types=1);
+{% extends "layout.twig" %}
+{% block body %}
 
-/**
- * @var int[] $errors
- * @var string $username
- * @var string $password
- */
-
-$errorMap = [
-    \Leif\Api\InstallAction::ERR_MISSING_USERNAME => 'Användarnamn saknas.',
-    \Leif\Api\InstallAction::ERR_MISSING_PASSWORD => 'Lösenord saknas.',
-];
-?>
+{% set errorMap = {
+    (constant('\\Leif\\Api\\InstallAction::ERR_MISSING_USERNAME')): 'Användarnamn saknas.',
+    (constant('\\Leif\\Api\\InstallAction::ERR_MISSING_PASSWORD')): 'Lösenord saknas.',
+    (constant('\\Leif\\Api\\InstallAction::ERR_PASSWORD_MISMATCH')): 'Lösenorden matchar inte.',
+} %}
 
 <div class="container">
     <div class="row justify-content-center">
@@ -21,17 +15,17 @@ $errorMap = [
             </div>
             <h3>Installera Leif</h3>
 
-            <?php if ($errors): ?>
+            {% if errors %}
 
             <div class="alert alert-danger" role="alert">
                 <ul class="mb-0">
-                    <?php foreach ($errors as $error): ?>
-                    <li><?php echo $errorMap[$error]; ?></li>
-                    <?php endforeach; ?>
+                    {% for error in errors %}
+                    <li>{{ errorMap[error] }}</li>
+                    {% endfor %}
                 </ul>
             </div>
 
-            <?php endif; ?>
+            {% endif %}
 
             <form method="POST" target="">
                 <div class="mb-3">
@@ -41,7 +35,7 @@ $errorMap = [
                             placeholder="Användarnamn"
                             name="username"
                             type="text"
-                            value="<?php echo $username; ?>"
+                            value="{{ username }}"
                     />
                 </div>
                 <div class="mb-3">
@@ -51,7 +45,17 @@ $errorMap = [
                             placeholder="Lösenord"
                             name="password"
                             type="password"
-                            value="<?php echo $password; ?>"
+                            value=""
+                    />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Bekräfta lösenord</label>
+                    <input
+                            class="form-control form-control-lg"
+                            placeholder="Bekräfta lösenord"
+                            name="confirm_password"
+                            type="password"
+                            value=""
                     />
                 </div>
                 <div class="d-grid">
@@ -61,3 +65,5 @@ $errorMap = [
         </div>
     </div>
 </div>
+
+{% endblock %}
