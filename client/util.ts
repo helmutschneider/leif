@@ -55,7 +55,7 @@ export function parseDate(value: string, pattern: string): Date | undefined {
   const dt = new Date();
   let match: RegExpMatchArray | null;
   while ((match = regex.exec(pattern)) !== null) {
-    const matchedPatternChunk = match[0]!;
+    const matchedPatternChunk = match[0];
     const length = matchedPatternChunk.length;
     const index = match.index!;
     const chunk = value.slice(index, index + length);
@@ -118,7 +118,7 @@ export function formatIntegerAsMoneyDecimal(amount: number | string, currency: t
     .padStart(subunit + 1, '0');
   const pattern = new RegExp(`(\\d{${subunit}})$`);
   const [int, fraction] = padded.split(pattern);
-  return int + currency.decimalSeparator + fraction;
+  return int! + currency.decimalSeparator + fraction!;
 }
 
 export function monetaryAmountToInteger(amount: string, currency: t.Currency): number {
@@ -135,7 +135,7 @@ export function monetaryAmountToInteger(amount: string, currency: t.Currency): n
   const intPart = matches[1];
   const fractionPart = (matches[2] ?? '').padEnd(subunit, '0');
 
-  return tryParseInt(intPart + fractionPart, 0);
+  return tryParseInt(intPart! + fractionPart, 0);
 }
 
 export function ensureHasEmptyTransaction(transactions: ReadonlyArray<t.Transaction>): ReadonlyArray<t.Transaction> {

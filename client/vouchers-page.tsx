@@ -310,7 +310,7 @@ export const VouchersPage: React.FC<Props> = props => {
                       {voucher.transactions.map((item, k) => {
                         const formattedAmount = formatIntegerAsMoneyWithSeparatorsAndSymbol(
                           item.kind === 'credit'
-                            ? ('-' + item.amount)
+                            ? `-${item.amount}`
                             : item.amount,
                           currency
                         );
