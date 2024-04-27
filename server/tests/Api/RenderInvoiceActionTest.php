@@ -48,5 +48,14 @@ final class RenderInvoiceActionTest extends TestCase
 
         $this->assertSame(200, $res->getStatusCode());
         $this->assertStringContainsString($expectedContentType, $res->headers->get('Content-Type'));
+
+        if ($format === 'pdf') {
+            // although we can't verify that the PDF looks correct, we can
+            // inspect the data to make sure that the file at least looks
+            // like a PDF.
+
+            $content = (string) $res->getContent();
+            $this->assertStringStartsWith('%PDF', $content);
+        }
     }
 }
