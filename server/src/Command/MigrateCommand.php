@@ -51,7 +51,7 @@ final class MigrateCommand extends Command
                     ':name' => $name,
                 ]);
             } catch (Exception $e) {
-                $output->writeln($e);
+                $output->writeln((string) $e);
                 return 1;
             }
 

@@ -33,7 +33,7 @@ trait DatabaseTrait
     {
         $db->execute('INSERT INTO attachment (name, data, mime, size, checksum, voucher_id) VALUES (?, ?, ?, ?, ?, ?)', [
             'test_attachment.txt',
-            'Hello World',
+            ['Hello World', Database::PARAM_BLOB],
             'text/plain',
             0,
             ['', Database::PARAM_BLOB],
@@ -49,7 +49,7 @@ trait DatabaseTrait
         }
 
         $db->execute('INSERT INTO token (value, seen_at, user_id) VALUES (?, ?, ?)', [
-            $value,
+            [$value, Database::PARAM_BLOB],
             $seenAt,
             $userId,
         ]);

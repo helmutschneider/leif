@@ -70,7 +70,7 @@ final class PDODatabase implements Database
         }
     }
 
-    private static function bindValues(PDOStatement $stmt, array $values): void
+    public static function bindValues(PDOStatement $stmt, array $values): void
     {
         $paramIndex = 1;
 

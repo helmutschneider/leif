@@ -3,13 +3,13 @@ CREATE TABLE "organization" (
     "name" TEXT NOT NULL,
     "created_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "carry_accounts" TEXT NOT NULL DEFAULT ''
-);
+) STRICT;
 
 CREATE TABLE "migration" (
     "migration_id" INTEGER PRIMARY KEY NOT NULL,
     "name" TEXT NOT NULL,
     "applied_at" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) STRICT;
 
 CREATE TABLE "user" (
     "user_id" INTEGER PRIMARY KEY NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE "user" (
         REFERENCES "organization" ("organization_id")
         ON UPDATE CASCADE
         ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE "token" (
     "token_id" INTEGER PRIMARY KEY NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE "token" (
         REFERENCES "user" ("user_id")
         ON UPDATE CASCADE
         ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE "voucher" (
     "voucher_id" INTEGER PRIMARY KEY NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE "voucher" (
         REFERENCES "organization" ("organization_id")
         ON UPDATE CASCADE
         ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE "transaction" (
     "transaction_id" INTEGER PRIMARY KEY NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE "transaction" (
         REFERENCES "voucher" ("voucher_id")
         ON UPDATE CASCADE
         ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE "attachment" (
     "attachment_id" INTEGER PRIMARY KEY NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE "attachment" (
         REFERENCES "voucher" ("voucher_id")
         ON UPDATE CASCADE
         ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE "invoice_template" (
   "invoice_template_id" INTEGER PRIMARY KEY NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE "invoice_template" (
     REFERENCES "organization" ("organization_id")
     ON UPDATE CASCADE
     ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE "invoice_dataset" (
   "invoice_dataset_id" INTEGER PRIMARY KEY NOT NULL,
@@ -115,4 +115,4 @@ CREATE TABLE "invoice_dataset" (
     REFERENCES "invoice_template" ("invoice_template_id")
     ON UPDATE CASCADE
     ON DELETE CASCADE
-);
+) STRICT;

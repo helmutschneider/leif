@@ -69,7 +69,7 @@ final class LoginAction
         $now = new DateTimeImmutable('now');
 
         $this->db->execute('INSERT INTO token (value, seen_at, user_id) VALUES (?, ?, ?)', [
-            $this->tokenHasher->hash($token),
+            [$this->tokenHasher->hash($token), Database::PARAM_BLOB],
             $now->format('Y-m-d H:i:s'),
             $row['user_id'],
         ]);

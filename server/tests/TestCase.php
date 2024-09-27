@@ -4,6 +4,7 @@ namespace Leif\Tests;
 
 use Leif\Api\InstallAction;
 use Leif\Database;
+use Leif\PDODatabase;
 use Leif\Security\HmacHasher;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -31,7 +32,7 @@ abstract class TestCase extends WebTestCase
         'token' => [
             [
                 'token_id' => 1,
-                'value' => '1234',
+                'value' => ['1234', Database::PARAM_BLOB], // 1234 in binary
                 'seen_at' => '2040-01-01 00:00:00',
                 'user_id' => 1,
             ],
@@ -109,11 +110,7 @@ abstract class TestCase extends WebTestCase
                 "INSERT INTO {$name} ({$columns}) VALUES ({$placeholders})"
             );
             foreach ($data as $row) {
-                $k = 1;
-                foreach ($row as $value) {
-                    $stmt->bindValue($k, $value);
-                    $k += 1;
-                }
+                PDODatabase::bindValues($stmt, array_values($row));
                 $stmt->execute();
             }
         }
