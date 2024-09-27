@@ -18,6 +18,11 @@
         <env name="KERNEL_CLASS" value="Leif\Kernel" />
         <env name="APP_SECRET" value="FBQ3uU2B1P+GppUHI/cK1wVvX1NpuqBBdQIxOKGpNu0=" />
         <env name="DATABASE_URL" value="sqlite::memory:" />
+
+        <!-- ###+ symfony/framework-bundle ### -->
+        <env name="APP_ENV" value="dev"/>
+        <env name="APP_SECRET" value="8f88695ff523ae46754c89a2b16a78b7"/>
+        <!-- ###- symfony/framework-bundle ### -->
     </php>
 
     <testsuites>
