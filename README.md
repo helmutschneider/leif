@@ -20,8 +20,8 @@ only supports the Swedish language at the moment but that may change in the futu
 - Carry-forward accounts (user configurable)
 
 ## Requirements
-- NodeJS 14+
-- PHP 8.1+
+- NodeJS 18+
+- PHP 8.3+
 - SQLite3
 
 ## Running
