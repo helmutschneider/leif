@@ -3,11 +3,11 @@ on:
   - push
 env:
   COMPOSER_HOME: ~/.composer
-  PHP_VERSION: 8.1
-  NODEJS_VERSION: 18
+  PHP_VERSION: 8.3
+  NODEJS_VERSION: 20
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: "Install PHP version: ${{ env.PHP_VERSION }}"
         run: |
@@ -17,18 +17,18 @@ jobs:
           sudo update-alternatives --set php-cgi /usr/bin/php-cgi${PHP_VERSION}
           sudo update-alternatives --set phar.phar /usr/bin/phar.phar${PHP_VERSION}
       - name: "Install NodeJS version: ${{ env.NODEJS_VERSION }}"
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODEJS_VERSION }}
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cache PHP dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
           path: ${{ env.COMPOSER_HOME }}
       - name: Cache Node dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ~/.npm
