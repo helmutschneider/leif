@@ -77,7 +77,7 @@ final class LoginAction
         // do some garbage collection of expired tokens.
         $ttl = $this->ttl;
         $mustBeSeenAfter = $now
-            ->sub(new DateInterval("PT${ttl}S"))
+            ->sub(new DateInterval("PT{$ttl}S"))
             ->format('Y-m-d H:i:s');
 
         $this->db->execute('DELETE FROM token WHERE seen_at < :after', [

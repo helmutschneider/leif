@@ -61,7 +61,7 @@ final class TokenUserProvider implements UserProviderInterface
     {
         $ttl = $this->ttl;
         $mustBeSeenAfter = $this->now
-            ->sub(new DateInterval("PT${ttl}S"))
+            ->sub(new DateInterval("PT{$ttl}S"))
             ->format('Y-m-d H:i:s');
 
         // this query is susceptible to timing attacks but I'm not really
