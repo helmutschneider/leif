@@ -219,6 +219,7 @@ export const VouchersPage: React.FC<Props> = props => {
     voucher: emptyVoucher(),
   });
 
+  const selectedVoucherRef = React.useRef<HTMLTableRowElement>(null);
   const workbook = props.workbook;
   const filteredVouchers: ReadonlyArray<t.Voucher> = workbook.vouchers.filter(voucher => {
     return (new Date(voucher.date)).getFullYear() === props.today.getFullYear()
@@ -261,6 +262,19 @@ export const VouchersPage: React.FC<Props> = props => {
       };
     });
   }, [props.search]);
+
+  React.useEffect(() => {
+    if (state.selection.kind !== "voucher") {
+      return;
+    }
+    if (!selectedVoucherRef.current) {
+      return;
+    }
+    selectedVoucherRef.current.scrollIntoView({
+      behavior: "instant",
+      block: "nearest",
+    });
+  }, [state.selection]);
 
   return (
     <div className="row">
@@ -407,6 +421,7 @@ export const VouchersPage: React.FC<Props> = props => {
                     }}
                     role="button"
                     style={style}
+                    ref={selection.kind === "voucher" && selection.voucher.voucher_id === voucher.voucher_id ? selectedVoucherRef : undefined}
                   >
                     <td className="col-2">
                       <i
