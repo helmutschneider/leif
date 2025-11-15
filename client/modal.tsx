@@ -35,7 +35,7 @@ export const Modal: React.FC<Props> = props => {
       document.body.style.paddingRight = '0px';
     } else {
       if (backdropElement) {
-        document.body.removeChild(backdropElement)
+        document.body.removeChild(backdropElement);
       }
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
@@ -81,5 +81,5 @@ export const Modal: React.FC<Props> = props => {
         </div>
       </div>
     </div>
-  )
+  );
 };

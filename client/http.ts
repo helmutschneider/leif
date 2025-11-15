@@ -67,6 +67,6 @@ export class FetchBackend implements HttpBackend {
       }
 
       return message;
-    }, err => Promise.reject(err))
+    }, err => Promise.reject(err));
   }
 }

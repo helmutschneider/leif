@@ -1,12 +1,12 @@
-import * as React from 'react'
-import { AccountPlan, Attachment, Currency, Voucher } from './types'
+import * as React from 'react';
+import { AccountPlan, Attachment, Currency, Voucher } from './types';
 import {
   areDebitsAndCreditsBalanced,
   arrayBufferToBase64,
   ensureHasEmptyTransaction,
   formatDate, objectContains, parseDate,
   toArray,
-} from './util'
+} from './util';
 import { MoneyInput } from "./money-input";
 import { Autocomplete } from "./autocomplete";
 
@@ -62,7 +62,7 @@ export const VoucherForm: React.FC<Props> = props => {
                   props.onChange({
                     ...props.voucher,
                     name: event.target.value,
-                  })
+                  });
                 }}
                 placeholder="Namn"
                 type="text"
@@ -101,7 +101,7 @@ export const VoucherForm: React.FC<Props> = props => {
                       <span className="text-muted">
                         {template.date}: {template.name}
                       </span>
-                    )
+                    );
                   }
                   return template.name;
                 }}
@@ -121,12 +121,12 @@ export const VoucherForm: React.FC<Props> = props => {
           disabled={props.voucher.is_template}
           onChange={event => {
             if (!event.target.valueAsDate) {
-              return
+              return;
             }
             props.onChange({
               ...props.voucher,
               date: formatDate(event.target.valueAsDate, 'yyyy-MM-dd'),
-            })
+            });
           }}
           placeholder="Datum"
           type="date"
@@ -142,7 +142,7 @@ export const VoucherForm: React.FC<Props> = props => {
             props.onChange({
               ...props.voucher,
               notes: event.target.value,
-            })
+            });
           }}
           placeholder="Anteckningar"
           rows={4}
@@ -170,7 +170,7 @@ export const VoucherForm: React.FC<Props> = props => {
                       itemMatches={objectContains}
                       maxMatchCount={50}
                       onChange={event => {
-                        const transactions = props.voucher.transactions.slice()
+                        const transactions = props.voucher.transactions.slice();
                         transactions[idx] = {
                           ...t,
                           account: event.target.value as unknown as number,
@@ -181,7 +181,7 @@ export const VoucherForm: React.FC<Props> = props => {
                         });
                       }}
                       onItemSelected={item => {
-                        const transactions = props.voucher.transactions.slice()
+                        const transactions = props.voucher.transactions.slice();
                         transactions[idx] = {
                           ...t,
                           account: item[0] as unknown as number,
@@ -202,7 +202,7 @@ export const VoucherForm: React.FC<Props> = props => {
                       currency={props.currency}
                       disabled={t.kind === 'credit' && t.amount !== 0}
                       onChange={amount => {
-                        const transactions = props.voucher.transactions.slice()
+                        const transactions = props.voucher.transactions.slice();
                         transactions[idx] = {
                           ...t,
                           amount: amount,
@@ -211,7 +211,7 @@ export const VoucherForm: React.FC<Props> = props => {
                         props.onChange({
                           ...props.voucher,
                           transactions: ensureHasEmptyTransaction(transactions),
-                        })
+                        });
                       }}
                       placeholder="Debit"
                       value={t.kind === 'credit' && t.amount !== 0 ? '-' : t.amount}
@@ -222,7 +222,7 @@ export const VoucherForm: React.FC<Props> = props => {
                       currency={props.currency}
                       disabled={t.kind === 'debit' && t.amount !== 0}
                       onChange={amount => {
-                        const transactions = props.voucher.transactions.slice()
+                        const transactions = props.voucher.transactions.slice();
                         transactions[idx] = {
                           ...t,
                           amount: amount,
@@ -231,7 +231,7 @@ export const VoucherForm: React.FC<Props> = props => {
                         props.onChange({
                           ...props.voucher,
                           transactions: ensureHasEmptyTransaction(transactions),
-                        })
+                        });
                       }}
                       placeholder="Kredit"
                       value={t.kind === 'debit' && t.amount !== 0 ? '-' : t.amount}
@@ -243,18 +243,18 @@ export const VoucherForm: React.FC<Props> = props => {
                       onClick={event => {
                         event.preventDefault();
                         event.stopPropagation();
-                        const transactions = props.voucher.transactions.slice()
+                        const transactions = props.voucher.transactions.slice();
                         transactions.splice(idx, 1);
                         props.onChange({
                           ...props.voucher,
                           transactions: ensureHasEmptyTransaction(transactions),
-                        })
+                        });
                       }}
                       role="button"
                     />
                   </td>
                 </tr>
-              )
+              );
             })}
           </tbody>
         </table>
@@ -272,12 +272,12 @@ export const VoucherForm: React.FC<Props> = props => {
                 disabled={props.voucher.is_template}
                 onChange={event => {
                   if (!event.target.files) {
-                    return
+                    return;
                   }
-                  const files = toArray(event.target.files)
+                  const files = toArray(event.target.files);
                   const promises = files.map(file => {
-                    return file.arrayBuffer()
-                  })
+                    return file.arrayBuffer();
+                  });
 
                   Promise.all(promises).then(buffers => {
                     return buffers.map((buffer, idx) => {
@@ -287,15 +287,15 @@ export const VoucherForm: React.FC<Props> = props => {
                         mime: file.type,
                         name: file.name,
                         size: file.size,
-                      }
-                      return attachment
-                    })
+                      };
+                      return attachment;
+                    });
                   }).then(stuff => {
                     props.onChange({
                       ...props.voucher,
                       attachments: props.voucher.attachments.concat(stuff),
-                    })
-                  })
+                    });
+                  });
                 }}
                 multiple={true}
                 style={{ display: 'none' }}
@@ -321,19 +321,19 @@ export const VoucherForm: React.FC<Props> = props => {
                         event.preventDefault();
                         event.stopPropagation();
 
-                        const next = props.voucher.attachments.slice()
-                        next.splice(idx, 1)
+                        const next = props.voucher.attachments.slice();
+                        next.splice(idx, 1);
                         props.onChange({
                           ...props.voucher,
                           attachments: next,
-                        })
+                        });
                       }}
                       role="button"
                     />
                   </button>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
@@ -342,10 +342,10 @@ export const VoucherForm: React.FC<Props> = props => {
             className="btn btn-success"
             disabled={props.voucher.name === '' || !isBalanced}
             onClick={event => {
-              event.preventDefault()
-              event.stopPropagation()
+              event.preventDefault();
+              event.stopPropagation();
 
-              props.onOK()
+              props.onOK();
             }}
             title={isBalanced ? '' : 'Obalans'}
           >
@@ -354,5 +354,5 @@ export const VoucherForm: React.FC<Props> = props => {
         </div>
       </div>
     </React.Fragment>
-  )
-}
+  );
+};

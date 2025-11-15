@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from 'react';
 import { VoucherForm } from "./voucher-form";
 import {
   ellipsis,
@@ -7,7 +7,7 @@ import {
   tryParseInt
 } from "./util";
 import { HttpSendFn } from "./http";
-import * as t from "./types"
+import * as t from "./types";
 import { currencies, KeyCode } from "./types";
 import { Modal } from "./modal";
 
@@ -34,7 +34,7 @@ type State = {
 
 function getNextIndexFromKeyboardEvent<T>(event: KeyboardEvent, values: ReadonlyArray<T>, current: T | undefined): number | undefined {
   if (typeof current === 'undefined') {
-    return values.length ? 0 : undefined
+    return values.length ? 0 : undefined;
   }
 
   switch (event.keyCode) {
@@ -118,7 +118,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
           return undefined;
         }
         case KeyCode.ArrowLeft: {
-          event.preventDefault()
+          event.preventDefault();
           event.stopPropagation();
           const next = state.openVoucherIds.slice();
           const index = next.indexOf(selection.voucher.voucher_id!);
@@ -132,7 +132,7 @@ function getNextStateFromKeydownEvent(event: KeyboardEvent, vouchers: ReadonlyAr
           return undefined;
         }
         case KeyCode.ArrowRight: {
-          event.preventDefault()
+          event.preventDefault();
           event.stopPropagation();
           const next = state.openVoucherIds.slice();
           if (!next.includes(selection.voucher.voucher_id!)) {
@@ -164,7 +164,7 @@ function maybeMakeAmountRed(amount: string | number): React.ReactNode {
   if (/^[-\u2212]/.test(str)) {
     return (
       <span className="text-danger">{str}</span>
-    )
+    );
   }
   return str;
 }
@@ -219,7 +219,7 @@ export const VouchersPage: React.FC<Props> = props => {
     voucher: emptyVoucher(),
   });
 
-  const workbook = props.workbook
+  const workbook = props.workbook;
   const filteredVouchers: ReadonlyArray<t.Voucher> = workbook.vouchers.filter(voucher => {
     return (new Date(voucher.date)).getFullYear() === props.today.getFullYear()
       && (props.search === '' || objectContains(voucher, props.search));
@@ -259,7 +259,7 @@ export const VouchersPage: React.FC<Props> = props => {
         openVoucherIds: [],
         selection: { kind: 'none' },
       };
-    })
+    });
   }, [props.search]);
 
   return (
@@ -285,7 +285,7 @@ export const VouchersPage: React.FC<Props> = props => {
                   ...state,
                   isVoucherModalOpen: true,
                   voucher: emptyVoucher(),
-                })
+                });
               }}
             >Skapa verifikat
             </button>
@@ -321,20 +321,20 @@ export const VouchersPage: React.FC<Props> = props => {
                               {maybeMakeAmountRed(formattedAmount)}
                             </div>
                           </div>
-                        )
+                        );
                       })}
                     </td>
                     <td />
                   </tr>
                 )
-                : null
+                : null;
 
               const transactionsFromCheckingAccounts = findTransactionsWhereAccountMatches(
                 voucher.transactions, /^191/
               );
               const sumOfCheckingAccounts = sumOfTransactions(transactionsFromCheckingAccounts);
 
-              const selection = state.selection
+              const selection = state.selection;
               const rowClassName = getVoucherRowClazz(voucher, selection);
 
               const previous = filteredVouchers[idx - 1];
@@ -432,8 +432,8 @@ export const VouchersPage: React.FC<Props> = props => {
                             className="bi bi-file-earmark-fill me-1"
                             title={attachment.name}
                             onClick={event => {
-                              event.preventDefault()
-                              event.stopPropagation()
+                              event.preventDefault();
+                              event.stopPropagation();
 
                               window.open(
                                 `/api/attachment/${attachment.attachment_id}?token=${props.user.token}`,
@@ -442,7 +442,7 @@ export const VouchersPage: React.FC<Props> = props => {
                             }}
                             role="button"
                           />
-                        )
+                        );
                       })}
                       <i
                         className="bi bi-gear-fill me-1"
@@ -484,7 +484,7 @@ export const VouchersPage: React.FC<Props> = props => {
                               // state, which is kinda weird.
                               voucher: emptyVoucher(),
                             });
-                          })
+                          });
                         }}
                         title="Ta bort"
                         role="button"
@@ -493,7 +493,7 @@ export const VouchersPage: React.FC<Props> = props => {
                   </tr>
                   {maybeOpenVoucherStuff}
                 </React.Fragment>
-              )
+              );
             })}
           </tbody>
         </table>
@@ -516,8 +516,8 @@ export const VouchersPage: React.FC<Props> = props => {
                   }
                   key={idx}
                   onClick={event => {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
 
                     setState({
                       ...state,
@@ -539,7 +539,7 @@ export const VouchersPage: React.FC<Props> = props => {
                     {formatIntegerAsMoneyWithSeparatorsAndSymbol(e[1], currency)}
                   </td>
                 </tr>
-              )
+              );
             })}
           </tbody>
         </table>
@@ -551,7 +551,7 @@ export const VouchersPage: React.FC<Props> = props => {
             openVoucherIds: state.openVoucherIds,
             selection: state.selection,
             voucher: emptyVoucher(),
-          })
+          });
         }}
         show={state.isVoucherModalOpen}
         title={isEditingVoucher ? (state.voucher.name || 'Redigera verifikat') : 'Skapa verifikat'}
@@ -571,7 +571,7 @@ export const VouchersPage: React.FC<Props> = props => {
             const body: t.Voucher = {
               ...state.voucher,
               transactions: state.voucher.transactions.filter(t => {
-                return t.amount !== 0
+                return t.amount !== 0;
               }),
             };
 
@@ -589,12 +589,12 @@ export const VouchersPage: React.FC<Props> = props => {
                 selection: state.selection,
                 voucher: emptyVoucher(),
               });
-            })
+            });
           }}
           templates={props.workbook.templates.concat(props.workbook.vouchers)}
           voucher={state.voucher}
         />
       </Modal>
     </div>
-  )
+  );
 };

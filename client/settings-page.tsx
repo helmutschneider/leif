@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from 'react';
 import * as t from "./types";
 import { emptyInvoiceDataset, emptyInvoiceTemplate, emptyVoucher, formatDate, tryParseFloat, tryParseInt } from "./util";
 import { HttpSendFn } from "./http";
@@ -67,7 +67,7 @@ const InvoiceTemplateForm: React.FC<InvoiceTemplateFormProps> = props => {
         />
       </div>
     </React.Fragment>
-  )
+  );
 };
 
 
@@ -126,7 +126,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
                     value={template.invoice_template_id}>
                     {template.name}
                   </option>
-                )
+                );
               })}
             </select>
           </div>
@@ -155,7 +155,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
                     value={set.invoice_dataset_id}>
                     {set.name}
                   </option>
-                )
+                );
               })}
             </select>
           </div>
@@ -178,7 +178,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
               {Object.keys(currencies).map((key, i) => {
                 return (
                   <option key={i} value={key}>{key}</option>
-                )
+                );
               })}
             </select>
           </div>
@@ -263,7 +263,7 @@ const InvoiceDatasetForm: React.FC<InvoiceDatasetFormProps> = props => {
         />
       </div>
     </React.Fragment>
-  )
+  );
 };
 
 function ensureHasEmptyFieldAndLineItem(set: t.InvoiceDataset): t.InvoiceDataset {
@@ -295,7 +295,7 @@ export const SettingsPage: React.FC<Props> = props => {
     return {
       ...emptyVoucher(),
       is_template: true,
-    }
+    };
   }
 
   const [state, setState] = React.useState<State>({
@@ -408,8 +408,8 @@ export const SettingsPage: React.FC<Props> = props => {
               className="btn btn-success"
               disabled={!!state.password && state.password !== state.confirmPassword}
               onClick={event => {
-                event.preventDefault()
-                event.stopPropagation()
+                event.preventDefault();
+                event.stopPropagation();
 
                 props.http({
                   method: 'PUT',
@@ -426,7 +426,7 @@ export const SettingsPage: React.FC<Props> = props => {
                     confirmPassword: '',
                     password: '',
                   });
-                })
+                });
               }}
             >
               OK
@@ -522,14 +522,14 @@ export const SettingsPage: React.FC<Props> = props => {
                             url: `/api/voucher/${template.voucher_id}`,
                           }).then(res => {
                             props.onWorkbookChanged();
-                          })
+                          });
                         }}
                         title="Ta bort"
                         role="button"
                       />
                     </td>
                   </tr>
-                )
+                );
               })}
             </tbody>
           </table>
@@ -594,7 +594,7 @@ export const SettingsPage: React.FC<Props> = props => {
                             url: `/api/invoice-template/${template.invoice_template_id}`,
                           }).then(res => {
                             props.onWorkbookChanged();
-                          })
+                          });
                         }}
                         title="Ta bort"
                         role="button"
@@ -664,7 +664,7 @@ export const SettingsPage: React.FC<Props> = props => {
                             url: `/api/invoice-dataset/${dataset.invoice_dataset_id}`,
                           }).then(res => {
                             props.onWorkbookChanged();
-                          })
+                          });
                         }}
                         title="Ta bort"
                         role="button"
@@ -776,7 +776,7 @@ export const SettingsPage: React.FC<Props> = props => {
                   kind: 'invoice_template',
                   template: next,
                 },
-              })
+              });
             }}
             template={state.editing.template}
           />
@@ -839,7 +839,7 @@ export const SettingsPage: React.FC<Props> = props => {
                   kind: 'invoice_dataset',
                   dataset: next,
                 },
-              })
+              });
             }}
             datasets={props.workbook.invoice_datasets}
             dataset={ensureHasEmptyFieldAndLineItem(state.editing.dataset)}
@@ -849,5 +849,5 @@ export const SettingsPage: React.FC<Props> = props => {
       </Modal>
     </div>
 
-  )
+  );
 };

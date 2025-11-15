@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from 'react';
 import { Currency } from "./types";
 import { formatIntegerAsMoneyDecimal, monetaryAmountToInteger, tryParseFloat } from "./util";
 
@@ -86,7 +86,7 @@ export const NumberInput: React.FC<NumberInputProps> = props => {
       type="text"
       value={displayValue}
     />
-  )
+  );
 };
 
 /**
@@ -130,5 +130,5 @@ export const MoneyInput: React.FC<MoneyInputProps> = props => {
         {props.currency.symbol}
       </span>
     </div>
-  )
+  );
 };

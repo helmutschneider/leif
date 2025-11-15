@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from 'react';
 import { KeyCode } from "./types";
 
 type Props<T> = {
@@ -22,7 +22,7 @@ const dropdownStyle: React.CSSProperties = {
   position: 'absolute',
   width: '100%',
   zIndex: 10,
-}
+};
 
 type State = {
   activeItemIndex: number
@@ -81,7 +81,7 @@ export function Autocomplete<T>(props: Props<T>): React.ReactNode {
     return () => {
       window.clearTimeout(state.closingTimeout);
     };
-  }, [])
+  }, []);
 
   const items = state.open
     ? filterItems(props.data, item => props.itemMatches(item, props.value), props.maxMatchCount)
@@ -161,15 +161,15 @@ export function Autocomplete<T>(props: Props<T>): React.ReactNode {
                 {items.map((item, i) => {
                   const isActiveClazz = i === state.activeItemIndex
                     ? 'active'
-                    : ''
+                    : '';
 
                   return (
                     <button
                       key={i}
                       className={`list-group-item list-group-item-action ${isActiveClazz}`}
                       onClick={event => {
-                        event.preventDefault()
-                        event.stopPropagation()
+                        event.preventDefault();
+                        event.stopPropagation();
 
                         const item = items[i];
                         if (item) {
@@ -181,7 +181,7 @@ export function Autocomplete<T>(props: Props<T>): React.ReactNode {
                     >
                       {props.renderItem(item)}
                     </button>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -189,5 +189,5 @@ export function Autocomplete<T>(props: Props<T>): React.ReactNode {
           : null
       }
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import * as t from './types'
+import * as t from './types';
 
 type DateFormatter = {
   (date: Date): string;
@@ -46,7 +46,7 @@ const DATE_PARSERS: { [pattern: string]: DateParser } = {
 export function formatDate(date: Date, pattern: string): string {
   const regex = new RegExp(Object.keys(DATE_FORMATTERS).join('|'), 'g');
   return pattern.replace(regex, (match) => {
-    return DATE_FORMATTERS[match]?.call(undefined, date) ?? ''
+    return DATE_FORMATTERS[match]?.call(undefined, date) ?? '';
   });
 }
 
@@ -122,7 +122,7 @@ export function formatIntegerAsMoneyDecimal(amount: number | string, currency: t
 }
 
 export function monetaryAmountToInteger(amount: string, currency: t.Currency): number {
-  amount = amount.replace(/[^-\d,.]/g, '')
+  amount = amount.replace(/[^-\d,.]/g, '');
 
   const subunit = currency.subunit;
   const pattern = /^(-?\d+)(?:[,.](\d+)?)?$/;
@@ -139,19 +139,19 @@ export function monetaryAmountToInteger(amount: string, currency: t.Currency): n
 }
 
 export function ensureHasEmptyTransaction(transactions: ReadonlyArray<t.Transaction>): ReadonlyArray<t.Transaction> {
-  const last = transactions[transactions.length - 1]
+  const last = transactions[transactions.length - 1];
   if (typeof last === 'undefined' || last.amount !== 0) {
     return transactions.concat({
       account: 1910,
       amount: 0,
       kind: 'debit',
-    })
+    });
   }
-  return transactions
+  return transactions;
 }
 
 function tryParseWithFn<D>(value: string | number | undefined, defaultValue: D, fn: typeof window.parseInt): number | D {
-  let result: number | D
+  let result: number | D;
   switch (typeof value) {
     case 'number':
       result = value;
@@ -164,17 +164,17 @@ function tryParseWithFn<D>(value: string | number | undefined, defaultValue: D, 
       break;
   }
   if (typeof result === 'number' && (isNaN(result) || !isFinite(result))) {
-    result = defaultValue
+    result = defaultValue;
   }
-  return result
+  return result;
 }
 
 export function tryParseInt<D>(value: string | number | undefined, defaultValue: D): number | D {
-  return tryParseWithFn(value, defaultValue, window.parseInt)
+  return tryParseWithFn(value, defaultValue, window.parseInt);
 }
 
 export function tryParseFloat<D>(value: string | number | undefined, defaultValue: D): number | D {
-  return tryParseWithFn(value, defaultValue, window.parseFloat)
+  return tryParseWithFn(value, defaultValue, window.parseFloat);
 }
 
 export function sumOfTransactions(transactions: ReadonlyArray<t.Transaction>): number {
@@ -196,7 +196,7 @@ export function sumOfTransactions(transactions: ReadonlyArray<t.Transaction>): n
 
 export function areDebitsAndCreditsBalanced(voucher: t.Voucher): boolean {
   if (voucher.transactions.length < 2) {
-    return false
+    return false;
   }
 
   return sumOfTransactions(voucher.transactions) === 0;
@@ -215,7 +215,7 @@ export function emptyVoucher(): t.Voucher {
       { account: 1910, amount: 0, kind: 'credit' },
     ],
     updated_at: '',
-  }
+  };
 }
 
 export function toArray<T>(stuff: ArrayLike<T>): ReadonlyArray<T> {

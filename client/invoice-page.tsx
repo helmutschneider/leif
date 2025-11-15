@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as t from './types'
+import * as t from './types';
 import { HttpSendFn, LeifRequest } from "./http";
 import { downloadBlobWithName, emptyInvoiceDataset } from "./util";
 import { MoneyInput, NUMBER_INPUT_DEFAULT_PARSER, NumberInput } from "./money-input";
@@ -74,7 +74,7 @@ const Form: React.FC<FormProps> = props => {
                     next[idx] = {
                       ...field,
                       value: event.target.value,
-                    }
+                    };
                     const nextInvoice: t.InvoiceDataset = {
                       ...props.invoice,
                       fields: next,
@@ -84,7 +84,7 @@ const Form: React.FC<FormProps> = props => {
                   value={field.value} />
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
@@ -127,12 +127,12 @@ const Form: React.FC<FormProps> = props => {
               />
             </div>
           </div>
-        )
+        );
       })}
 
     </React.Fragment>
-  )
-}
+  );
+};
 
 type State = {
   datasetIndex: number | undefined
@@ -212,7 +212,7 @@ export const InvoicePage: React.FC<Props> = props => {
               blob: res,
               url: url,
             },
-          }
+          };
         });
       });
     }, 500);
@@ -232,8 +232,8 @@ export const InvoicePage: React.FC<Props> = props => {
         datasetIndex: state.datasetIndex,
         invoice: res,
         invoiceBlob: undefined,
-      })
-    })
+      });
+    });
   }, [state.datasetIndex]);
 
   const dataset = typeof state.datasetIndex !== 'undefined'
@@ -247,7 +247,7 @@ export const InvoicePage: React.FC<Props> = props => {
           <label className="form-label">Mall</label>
           <select className="form-control"
             onChange={event => {
-              const id = parseInt(event.target.value)
+              const id = parseInt(event.target.value);
               const def = datasets[id];
 
               if (!def) {
@@ -268,7 +268,7 @@ export const InvoicePage: React.FC<Props> = props => {
                 <option key={idx} value={idx}>
                   {def.name}
                 </option>
-              )
+              );
             })}
           </select>
         </div>

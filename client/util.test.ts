@@ -16,7 +16,7 @@ describe('tryParseInt tests', () => {
 
   it.each(cases)('should parse correctly', (value, defaultValue, expected) => {
     const parsed = tryParseInt(value, defaultValue);
-    expect(parsed).toBe(expected)
+    expect(parsed).toBe(expected);
   });
 });
 
@@ -27,7 +27,7 @@ describe('formatDate tests', () => {
     ['MM', new Date(2021, 0, 15), '01'],
     ['dd', new Date(2021, 0, 15), '15'],
     ['yyyy-yyyy-yyyy', new Date(2021, 0, 15), '2021-2021-2021'],
-  ]
+  ];
 
   it.each(cases)('should format correctly', (format, date, expected) => {
     const result = formatDate(date, format);

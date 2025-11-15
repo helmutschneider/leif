@@ -52,5 +52,5 @@ export function JsonInput<T>(props: JsonInputProps<T>) {
       rows={props.rows}
       value={json}
     />
-  )
+  );
 }

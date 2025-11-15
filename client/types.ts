@@ -72,7 +72,7 @@ export const currencies: { [P in CurrencyCode]: Currency } = {
     symbol: 'kr',
     thousandsSeparator: ' ',
   },
-}
+};
 export type AccountBalance = {
   account: AccountNumber
   balance: Money

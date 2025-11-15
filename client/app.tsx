@@ -1,5 +1,5 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom/client'
+import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
 import {
   tryParseInt,
   formatDate,
@@ -132,22 +132,22 @@ const App: React.FC<Props> = props => {
                 setState({
                   ...state,
                   user: user,
-                })
+                });
               }}
             />
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   const workbook = state.workbook;
 
   if (!workbook) {
-    return null
+    return null;
   }
 
-  let viewStuff: React.ReactNode = null
+  let viewStuff: React.ReactNode = null;
 
   switch (state.page) {
     case 'vouchers':
@@ -198,8 +198,8 @@ const App: React.FC<Props> = props => {
     if (a === b) {
       return 0;
     }
-    return b > a ? 1 : -1
-  })
+    return b > a ? 1 : -1;
+  });
 
   return (
     <div>
@@ -224,7 +224,7 @@ const App: React.FC<Props> = props => {
                 setState({
                   ...state,
                   search: event.target.value,
-                })
+                });
               }}
               placeholder={`Sök i ${state.workbook?.organization.name}`}
               type="text"
@@ -253,13 +253,13 @@ const App: React.FC<Props> = props => {
                 <a
                   className="nav-link dropdown-toggle"
                   onClick={event => {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
 
                     setState({
                       ...state,
                       selectYearDropdownOpen: !state.selectYearDropdownOpen,
-                    })
+                    });
                   }}
                   href="#"
                   role="button"
@@ -294,21 +294,21 @@ const App: React.FC<Props> = props => {
                         <a
                           className={clazz}
                           onClick={event => {
-                            event.preventDefault()
-                            event.stopPropagation()
+                            event.preventDefault();
+                            event.stopPropagation();
 
                             setState({
                               ...state,
                               page: 'vouchers',
                               selectYearDropdownOpen: false,
                               today: lastDateOfYear,
-                            })
+                            });
                           }}
                           href="#">
                           {year}
                         </a>
                       </li>
-                    )
+                    );
                   })}
                 </ul>
               </li>
@@ -316,14 +316,14 @@ const App: React.FC<Props> = props => {
                 <a
                   className="nav-link text-nowrap"
                   onClick={event => {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
 
                     setState({
                       ...state,
                       page: 'vouchers',
                       selectYearDropdownOpen: false,
-                    })
+                    });
                   }}
                   href="#"
                 >
@@ -334,14 +334,14 @@ const App: React.FC<Props> = props => {
                 <a
                   className="nav-link text-nowrap"
                   onClick={event => {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
 
                     setState({
                       ...state,
                       page: 'invoice',
                       selectYearDropdownOpen: false,
-                    })
+                    });
                   }}
                   href="#"
                 >
@@ -352,14 +352,14 @@ const App: React.FC<Props> = props => {
                 <a
                   className="nav-link text-nowrap"
                   onClick={event => {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
 
                     setState({
                       ...state,
                       page: 'settings',
                       selectYearDropdownOpen: false,
-                    })
+                    });
                   }}
                   href="#"
                 >
@@ -370,8 +370,8 @@ const App: React.FC<Props> = props => {
                 <a
                   className="nav-link text-nowrap"
                   onClick={event => {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
 
                     logout();
                   }}
@@ -388,8 +388,8 @@ const App: React.FC<Props> = props => {
         {viewStuff}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const el = document.getElementById('app');
 const root = ReactDOM.createRoot(el!);

@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from 'react';
 import { BackendError, KeyCode, User } from "./types";
 import { HttpSendFn } from "./http";
 
@@ -24,8 +24,8 @@ const Alert: React.FC<{ kind: AlertKind, message: string }> = props => {
     <div className={`alert alert-${props.kind}`}>
       {props.message}
     </div>
-  )
-}
+  );
+};
 
 export const LoginForm: React.FC<Props> = props => {
   const [state, setState] = React.useState<State>({
@@ -42,7 +42,7 @@ export const LoginForm: React.FC<Props> = props => {
       ...state,
       isLoading: true,
       error: undefined,
-    })
+    });
 
     props.http<User>({
       method: 'POST',
@@ -57,7 +57,7 @@ export const LoginForm: React.FC<Props> = props => {
         isLoading: false,
         error: err.message,
       });
-    })
+    });
   }
 
   React.useEffect(() => {
@@ -68,10 +68,10 @@ export const LoginForm: React.FC<Props> = props => {
     <div
       onKeyDown={event => {
         if (event.keyCode === KeyCode.Enter) {
-          event.preventDefault()
-          event.stopPropagation()
+          event.preventDefault();
+          event.stopPropagation();
 
-          attemptLogin()
+          attemptLogin();
         }
       }}
     >
@@ -86,7 +86,7 @@ export const LoginForm: React.FC<Props> = props => {
               password: state.password,
               isLoading: false,
               error: undefined,
-            })
+            });
           }}
           ref={usernameInputRef}
           type="text"
@@ -103,7 +103,7 @@ export const LoginForm: React.FC<Props> = props => {
               password: event.target.value,
               isLoading: false,
               error: undefined,
-            })
+            });
           }}
           type="password"
         />
@@ -113,10 +113,10 @@ export const LoginForm: React.FC<Props> = props => {
           className="btn btn-primary btn-lg"
           disabled={state.isLoading}
           onClick={event => {
-            event.preventDefault()
-            event.stopPropagation()
+            event.preventDefault();
+            event.stopPropagation();
 
-            attemptLogin()
+            attemptLogin();
           }}
         >
           {state.isLoading
@@ -135,5 +135,5 @@ export const LoginForm: React.FC<Props> = props => {
         <Alert kind="danger" message={state.error || ''} />
       </div>
     </div>
-  )
-}
+  );
+};

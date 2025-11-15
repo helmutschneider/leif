@@ -53,7 +53,8 @@ export default defineConfig(
       "react/jsx-indent": [
         "error",
         2
-      ]
+      ],
+      "semi": ["error", "always"],
     },
     languageOptions: {
       ecmaVersion: 2020,
