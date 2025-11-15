@@ -54,7 +54,7 @@ export default defineConfig((config) => {
       target: "es2020",
     },
     test: {
-      include: [path.resolve(__dirname, "tests/**/*.test.{ts,tsx}")],
+      include: [path.resolve(__dirname, "client/**/*.test.{ts,tsx}")],
       globals: true,
       environment: "jsdom",
     },
