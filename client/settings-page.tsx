@@ -452,32 +452,31 @@ export const SettingsPage: React.FC<Props> = props => {
             </button>
           </div>
 
-          <table className="table table-sm">
+          <table className="table table-sm table-hover">
             <tbody>
               {props.workbook.templates.map((template, index) => {
                 return (
-                  <tr key={index}>
+                  <tr
+                    key={index}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+
+                      setState({
+                        ...state,
+                        editing: {
+                          kind: 'voucher',
+                          voucher: template,
+                        },
+                      });
+                    }}
+                    role="button"
+                    title="Redigera"
+                  >
                     <td className="col-10">
                       {template.name}
                     </td>
                     <td className="text-end">
-                      <i
-                        className="bi bi-gear-fill me-1"
-                        onClick={event => {
-                          event.preventDefault();
-                          event.stopPropagation();
-
-                          setState({
-                            ...state,
-                            editing: {
-                              kind: 'voucher',
-                              voucher: template,
-                            },
-                          });
-                        }}
-                        title="Redigera"
-                        role="button"
-                      />
                       <i
                         className="bi bi-layers-fill me-1"
                         onClick={event => {
@@ -513,7 +512,7 @@ export const SettingsPage: React.FC<Props> = props => {
                           event.preventDefault();
                           event.stopPropagation();
 
-                          if (!confirm('Ta bort mall?')) {
+                          if (!confirm(`Ta bort '${template.name}'?`)) {
                             return;
                           }
 
@@ -555,28 +554,50 @@ export const SettingsPage: React.FC<Props> = props => {
             </button>
           </div>
 
-          <table className="table table-sm">
+          <table className="table table-sm table-hover">
             <tbody>
               {props.workbook.invoice_templates.map((template, i) => {
                 return (
-                  <tr key={i}>
+                  <tr
+                    key={i}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+
+                      setState({
+                        ...state,
+                        editing: {
+                          kind: 'invoice_template',
+                          template: template,
+                        },
+                      });
+                    }}
+                    role="button"
+                    title="Redigera"
+                  >
                     <td className="col-10">{template.name}</td>
                     <td className="text-end">
                       <i
-                        className="bi bi-gear-fill me-1"
+                        className="bi bi-layers-fill me-1"
                         onClick={event => {
                           event.preventDefault();
                           event.stopPropagation();
 
-                          setState({
-                            ...state,
-                            editing: {
-                              kind: 'invoice_template',
-                              template: template,
-                            },
+                          const dt = new Date();
+                          const copied: t.InvoiceTemplate = {
+                            name: `${template.name} (kopia ${formatDate(dt, 'yyyy-MM-dd HH:mm:ss')})`,
+                            body: template.body,
+                          };
+
+                          props.http({
+                            method: 'POST',
+                            url: '/api/invoice-template',
+                            body: copied,
+                          }).then(res => {
+                            props.onWorkbookChanged();
                           });
                         }}
-                        title="Redigera"
+                        title="Kopiera"
                         role="button"
                       />
                       <i
@@ -585,7 +606,7 @@ export const SettingsPage: React.FC<Props> = props => {
                           event.preventDefault();
                           event.stopPropagation();
 
-                          if (!confirm('Ta bort mall?')) {
+                          if (!confirm(`Ta bort '${template.name}'?`)) {
                             return;
                           }
 
@@ -625,28 +646,57 @@ export const SettingsPage: React.FC<Props> = props => {
             </button>
           </div>
 
-          <table className="table table-sm">
+          <table className="table table-sm table-hover">
             <tbody>
               {props.workbook.invoice_datasets.map((dataset, i) => {
                 return (
-                  <tr key={i}>
+                  <tr
+                    key={i}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+
+                      setState({
+                        ...state,
+                        editing: {
+                          kind: 'invoice_dataset',
+                          dataset: dataset,
+                        },
+                      });
+                    }}
+                    title="Redigera"
+                    role="button"
+                  >
                     <td className="col-10">{dataset.name}</td>
                     <td className="text-end">
                       <i
-                        className="bi bi-gear-fill me-1"
+                        className="bi bi-layers-fill me-1"
                         onClick={event => {
                           event.preventDefault();
                           event.stopPropagation();
 
-                          setState({
-                            ...state,
-                            editing: {
-                              kind: 'invoice_dataset',
-                              dataset: dataset,
-                            },
+                          const dt = new Date();
+                          const copied: t.InvoiceDataset = {
+                            name: `${dataset.name} (kopia ${formatDate(dt, 'yyyy-MM-dd HH:mm:ss')})`,
+                            vat_rate: dataset.vat_rate,
+                            currency_code: dataset.currency_code,
+                            fields: dataset.fields.slice(),
+                            line_items: dataset.line_items.slice(),
+                            precision: dataset.precision,
+                            variables: { ...dataset.variables },
+                            extends_id: dataset.extends_id,
+                            invoice_template_id: dataset.invoice_template_id,
+                          };
+
+                          props.http({
+                            method: 'POST',
+                            url: '/api/invoice-dataset',
+                            body: copied,
+                          }).then(res => {
+                            props.onWorkbookChanged();
                           });
                         }}
-                        title="Redigera"
+                        title="Kopiera"
                         role="button"
                       />
                       <i
@@ -655,7 +705,7 @@ export const SettingsPage: React.FC<Props> = props => {
                           event.preventDefault();
                           event.stopPropagation();
 
-                          if (!confirm('Ta bort dataset?')) {
+                          if (!confirm(`Ta bort '${dataset.name}'?`)) {
                             return;
                           }
 

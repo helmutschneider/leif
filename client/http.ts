@@ -58,7 +58,7 @@ export class FetchBackend implements HttpBackend {
           break;
         case 'json':
         default:
-          message = res.json();
+          message = res.json().then((x) => x, (err) => undefined);
           break;
       }
 
