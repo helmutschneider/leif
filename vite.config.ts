@@ -10,7 +10,7 @@ function phpServer(config) {
   return {
     name: "php-server",
     buildStart: (x) => {
-      if (config.mode === "production") {
+      if (config.mode !== "development") {
         return;
       }
       if (proc) {
