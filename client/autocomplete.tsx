@@ -44,7 +44,7 @@ function filterItems<T>(items: ReadonlyArray<T>, fn: (value: T) => boolean, max:
   return found;
 }
 
-export function Autocomplete<T>(props: Props<T>): JSX.Element {
+export function Autocomplete<T>(props: Props<T>): React.ReactNode {
   const [state, setState] = React.useState<State>({
     activeItemIndex: 0,
     closingTimeout: undefined,

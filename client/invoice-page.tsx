@@ -167,7 +167,7 @@ export const InvoicePage: React.FC<Props> = props => {
   });
 
   const datasets = props.datasets;
-  const timeout = React.useRef<number>();
+  const timeout = React.useRef<number | undefined>(undefined);
 
   function renderInvoice(): PromiseLike<Blob> {
     if (typeof state.datasetIndex === 'undefined') {
