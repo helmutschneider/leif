@@ -211,6 +211,31 @@ function getVoucherRowClazz(voucher: t.Voucher, selection: Selection): string {
   return rowClassName;
 }
 
+function highlight(haystack: string, needle: string): React.ReactNode {
+  if (!needle) {
+    return haystack;
+  }
+
+  needle = needle.toLowerCase();
+
+  const chunks: Array<React.ReactNode> = [];
+  const needleLen = needle.length;
+
+  for (let i = 0; i < haystack.length;) {
+    const maybeMatch = haystack.slice(i, i + needleLen);
+
+    if (maybeMatch.toLowerCase() === needle) {
+      chunks.push(<span key={chunks.length} className="fw-bold text-warning">{maybeMatch}</span>);
+      i += needleLen;
+    } else {
+      chunks.push(haystack[i]);
+      i += 1;
+    }
+  }
+
+  return chunks;
+}
+
 export const VouchersPage: React.FC<Props> = props => {
   const [state, setState] = React.useState<State>({
     isVoucherModalOpen: false,
@@ -429,7 +454,7 @@ export const VouchersPage: React.FC<Props> = props => {
                       />
                       {voucher.date}
                     </td>
-                    <td className="col-6">{voucher.name}</td>
+                    <td className="col-6">{highlight(voucher.name, props.search)}</td>
                     <td className="col-2 text-end">
                       {
                         sumOfCheckingAccounts !== 0 && !isVoucherOpen
