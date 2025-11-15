@@ -66,35 +66,3 @@ export default defineConfig(
     },
   },
 );
-
-
-const yee = {
-  "root": true,
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/strict-type-checked",
-    "plugin:react/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": [
-      "./tsconfig.json"
-    ]
-  },
-  "plugins": [
-    "@typescript-eslint",
-    "react"
-  ],
-  "rules": {
-
-  },
-  "ignorePatterns": [
-    "**/*.test.ts",
-    "**/*.test.tsx"
-  ],
-  "settings": {
-    "react": {
-      "version": "detect"
-    }
-  }
-}
