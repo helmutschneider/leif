@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KeyCode } from "./types";
+import {KeyCode} from "./types";
 
 type Props<T> = {
   data: ReadonlyArray<T>
@@ -26,7 +26,6 @@ const dropdownStyle: React.CSSProperties = {
 
 type State = {
   activeItemIndex: number
-  closingTimeout: number | undefined
   open: boolean
 }
 
@@ -47,59 +46,63 @@ function filterItems<T>(items: ReadonlyArray<T>, fn: (value: T) => boolean, max:
 export function Autocomplete<T>(props: Props<T>): React.ReactNode {
   const [state, setState] = React.useState<State>({
     activeItemIndex: 0,
-    closingTimeout: undefined,
     open: false,
   });
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const activeItemRef = React.useRef<HTMLButtonElement>(null);
 
   function closeImmediate() {
-    window.clearTimeout(state.closingTimeout);
     setState({
       activeItemIndex: 0,
-      closingTimeout: undefined,
       open: false,
     });
   }
 
-  function closeSoonish() {
-    window.clearTimeout(state.closingTimeout);
-    setState({
-      // changing this index during close looks weird.
-      // better to do it when we open the thing.
-      activeItemIndex: state.activeItemIndex,
-      closingTimeout: window.setTimeout(() => {
-        setState({
-          activeItemIndex: 0,
-          closingTimeout: undefined,
-          open: false,
-        });
-      }, 100),
-      open: state.open,
-    });
-  }
-
   React.useEffect(() => {
+    function maybeClose(event: PointerEvent): void {
+      if (!containerRef.current) {
+        return;
+      }
+
+      const el = event.target as HTMLElement;
+
+      if (!containerRef.current.contains(el)) {
+        closeImmediate();
+      }
+    }
+
+    window.addEventListener("click", maybeClose);
+
     return () => {
-      window.clearTimeout(state.closingTimeout);
+      window.removeEventListener("click", maybeClose);
     };
   }, []);
 
-  const items = state.open
+  React.useEffect(() => {
+    if (!activeItemRef.current) {
+      return;
+    }
+    activeItemRef.current.scrollIntoView({
+      behavior: "instant",
+      block: "nearest",
+    });
+  }, [state.activeItemIndex]);
+
+  const items: Array<T> = state.open
     ? filterItems(props.data, item => props.itemMatches(item, props.value), props.maxMatchCount)
-    : filterItems(props.data, () => true, props.maxMatchCount);
+    : [];
 
   props.sortItems?.(items);
 
   return (
-    <div className="position-relative">
+    <div className="position-relative" ref={containerRef}>
       <input
         className="form-control"
         disabled={props.disabled}
         onChange={props.onChange}
         onClick={event => {
-          window.clearTimeout(state.closingTimeout);
           setState({
             activeItemIndex: 0,
-            closingTimeout: undefined,
             open: true,
           });
         }}
@@ -145,49 +148,43 @@ export function Autocomplete<T>(props: Props<T>): React.ReactNode {
               break;
           }
         }}
-        onBlur={event => {
-          closeSoonish();
-        }}
         placeholder={props.placeholder}
         tabIndex={props.tabIndex}
         type="text"
         value={props.value}
       />
-      {
-        state.open
-          ? (
-            <div style={dropdownStyle}>
-              <div className="list-group">
-                {items.map((item, i) => {
-                  const isActiveClazz = i === state.activeItemIndex
-                    ? 'active'
-                    : '';
+      {state.open && (
+        <div style={dropdownStyle}>
+          <div className="list-group">
+            {items.map((item, i) => {
+              const isActiveClazz = i === state.activeItemIndex
+                ? 'active'
+                : '';
 
-                  return (
-                    <button
-                      key={i}
-                      className={`list-group-item list-group-item-action ${isActiveClazz}`}
-                      onClick={event => {
-                        event.preventDefault();
-                        event.stopPropagation();
+              return (
+                <button
+                  key={i}
+                  className={`list-group-item list-group-item-action ${isActiveClazz}`}
+                  onClick={event => {
+                    event.preventDefault();
+                    event.stopPropagation();
 
-                        const item = items[i];
-                        if (item) {
-                          props.onItemSelected(item);
-                        }
-                        closeImmediate();
-                      }}
-                      tabIndex={-1}
-                    >
-                      {props.renderItem(item)}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )
-          : null
-      }
+                    const item = items[i];
+                    if (item) {
+                      props.onItemSelected(item);
+                    }
+                    closeImmediate();
+                  }}
+                  tabIndex={-1}
+                  ref={i === state.activeItemIndex ? activeItemRef : undefined}
+                >
+                  {props.renderItem(item)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
