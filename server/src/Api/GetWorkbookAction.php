@@ -86,7 +86,7 @@ SQL;
         );
 
         $tz = new DateTimeZone('Europe/Stockholm');
-        $today = DateTimeImmutable::createFromFormat('Y-m-d', $request->get('today', date('Y-m-d')), $tz);
+        $today = DateTimeImmutable::createFromFormat('Y-m-d', $request->query->get('today', date('Y-m-d')), $tz);
         $invoiceTemplates = $this->db->selectAll(static::SQL_GET_INVOICE_TEMPLATES, [$user->getOrganizationId()]);
         $invoiceDatasets = $this->findDatasets($user);
 

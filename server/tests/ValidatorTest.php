@@ -3,10 +3,11 @@
 namespace Leif\Tests;
 
 use Leif\Validator;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class ValidatorTest extends TestCase
 {
-    public function validateProvider(): array
+    public static function validateProvider(): array
     {
         return [
 
@@ -378,14 +379,7 @@ final class ValidatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider validateProvider
-     *
-     * @param array $rules
-     * @param array $data
-     * @param int $expectedErrors
-     * @return void
-     */
+    #[DataProvider('validateProvider')]
     public function testValidatesCorrectly(array $rules, array $data, int $expectedErrors): void
     {
         $validator = new Validator($rules);

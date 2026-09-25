@@ -1,23 +1,25 @@
 <?php declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Config\FrameworkConfig;
+use Symfony\Component\DependencyInjection\Loader\Configurator\App;
 
-return static function (FrameworkConfig $config, ContainerConfigurator $container) {
-    $config
-        ->secret('%env(base64:APP_SECRET)%')
-        ->httpMethodOverride(false)
-        ->handleAllThrowables(true);
-
-    $config
-        ->phpErrors()
-        ->log(true);
-
-    $config
-        ->session()
-        ->enabled(false);
-
-    if ($container->env() === 'test') {
-        $config->test(true);
-    }
-};
+return App::config([
+    'framework' => [
+        'secret' => '%env(base64:APP_SECRET)%',
+        'http_method_override' => false,
+        'handle_all_throwables' => true,
+        'php_errors' => [
+            'log' => true,
+        ],
+        'session' => [
+            'enabled' => false,
+        ],
+        'property_info' => [
+            'with_constructor_extractor' => false,
+        ],
+    ],
+    'when@test' => [
+        'framework' => [
+            'test' => true,
+        ],
+    ],
+]);

@@ -2,9 +2,11 @@
 
 namespace Leif\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 final class FunctionsTest extends TestCase
 {
-    public function roundProvider(): array
+    public static function roundProvider(): array
     {
         return [
             [150, 0, 200],
@@ -13,9 +15,7 @@ final class FunctionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider roundProvider
-     */
+    #[DataProvider('roundProvider')]
     public function testRoundMoney(int $value, int $precision, int $expected): void
     {
         $currency = new \Money\Currency('USD');
