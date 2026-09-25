@@ -1,13 +1,16 @@
 name: build
 on:
-  - push
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 env:
   COMPOSER_HOME: ~/.composer
-  PHP_VERSION: 8.3
-  NODEJS_VERSION: 20
+  PHP_VERSION: 8.5
+  NODEJS_VERSION: 24
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04-arm
     steps:
       - name: "Install PHP version: ${{ env.PHP_VERSION }}"
         run: |
@@ -17,25 +20,25 @@ jobs:
           sudo update-alternatives --set php-cgi /usr/bin/php-cgi${PHP_VERSION}
           sudo update-alternatives --set phar.phar /usr/bin/phar.phar${PHP_VERSION}
       - name: "Install NodeJS version: ${{ env.NODEJS_VERSION }}"
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODEJS_VERSION }}
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Cache PHP dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
           path: ${{ env.COMPOSER_HOME }}
       - name: Cache Node dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ~/.npm
       - name: Install PHP dependencies
         run: composer install
       - name: Install Node dependencies
-        run: npm install
+        run: npm ci
       - name: "Server: test"
         run: composer run test
       - name: "Client: lint"

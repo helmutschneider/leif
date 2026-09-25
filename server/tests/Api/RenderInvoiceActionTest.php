@@ -3,6 +3,7 @@
 namespace Leif\Tests\Api;
 
 use Leif\Tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class RenderInvoiceActionTest extends TestCase
 {
@@ -16,7 +17,7 @@ final class RenderInvoiceActionTest extends TestCase
         ];
     }
 
-    public function renderProvider(): array
+    public static function renderProvider(): array
     {
         return [
             ['pdf', 'application/pdf'],
@@ -24,9 +25,7 @@ final class RenderInvoiceActionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider renderProvider
-     */
+    #[DataProvider('renderProvider')]
     public function testRender(string $format, string $expectedContentType): void
     {
         $body = json_encode([

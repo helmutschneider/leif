@@ -6,6 +6,7 @@ use Leif\NumberFormatMoneyFormatter;
 use Money\Currencies\ISOCurrencies;
 use Money\Currency;
 use Money\Money;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class NumberFormatMoneyFormatterTest extends TestCase
 {
@@ -27,9 +28,7 @@ final class NumberFormatMoneyFormatterTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider formatProvider
-     */
+    #[DataProvider('formatProvider')]
     public function testFormatsCorrectly(int $amount, string $currency, int $decimals, string $expected): void
     {
         $fmt = new NumberFormatMoneyFormatter($decimals, '.', ',');

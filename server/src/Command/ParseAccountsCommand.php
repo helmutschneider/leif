@@ -11,7 +11,7 @@ final class ParseAccountsCommand extends Command
 {
     const ARGUMENT_CSV_PATH = 'csv_path';
 
-    public function __construct(string $name = null)
+    public function __construct(?string $name = null)
     {
         parent::__construct('parse_accounts');
     }

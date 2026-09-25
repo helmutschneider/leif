@@ -2,6 +2,7 @@
 
 namespace Leif\Security;
 
+use Deprecated;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -49,6 +50,7 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         return null;
     }
 
+    #[Deprecated]
     public function eraseCredentials(): void
     {
     }
