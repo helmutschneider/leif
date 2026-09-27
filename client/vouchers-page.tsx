@@ -465,11 +465,18 @@ export const VouchersPage: React.FC<Props> = props => {
                       }
                     </td>
                     <td className="col-2 text-end">
+                      {voucher.notes && (
+                        <i
+                          className="bi bi-pencil-fill me-2"
+                          title={voucher.notes}
+                        />
+                      )}
+
                       {voucher.attachments.map((attachment, idx) => {
                         return (
                           <i
                             key={idx}
-                            className="bi bi-file-earmark-fill me-1"
+                            className="bi bi-file-earmark-fill me-2"
                             title={attachment.name}
                             onClick={event => {
                               event.preventDefault();
@@ -485,7 +492,7 @@ export const VouchersPage: React.FC<Props> = props => {
                         );
                       })}
                       <i
-                        className="bi bi-gear-fill me-1"
+                        className="bi bi-gear-fill me-2"
                         onClick={event => {
                           event.preventDefault();
                           event.stopPropagation();
