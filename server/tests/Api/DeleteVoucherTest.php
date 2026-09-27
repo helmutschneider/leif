@@ -19,7 +19,9 @@ final class DeleteVoucherTest extends TestCase
 
     public function testPreventsUnauthenticatedAccess(): void
     {
-        $this->client->request('DELETE', '/api/voucher/1');
+        $this->client->request('DELETE', '/api/voucher/1', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 

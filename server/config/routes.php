@@ -3,17 +3,17 @@
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 return function (RoutingConfigurator $routes) {
-    $routes->add('index', '/')
+    $routes->add('login', '/login')
+        ->methods(['GET', 'POST'])
+        ->controller(\Leif\Api\LoginAction::class);
+
+    $routes->add('logout', '/logout')
         ->methods(['GET'])
-        ->controller(\Leif\Api\IndexAction::class);
+        ->controller(\Leif\Api\LogoutAction::class);
 
     $routes->add('get_workbook', '/api/workbook')
         ->methods(['GET'])
         ->controller(\Leif\Api\GetWorkbookAction::class);
-
-    $routes->add('login', '/api/login')
-        ->methods(['POST'])
-        ->controller(\Leif\Api\LoginAction::class);
 
     $routes->add('create_voucher', '/api/voucher')
         ->methods(['POST'])
@@ -43,6 +43,10 @@ return function (RoutingConfigurator $routes) {
     $routes->add('install', '/install')
         ->methods(['GET', 'POST'])
         ->controller(\Leif\Api\InstallAction::class);
+
+    $routes->add('get_user', '/api/user')
+        ->methods(['GET'])
+        ->controller(\Leif\Api\GetUserAction::class);
 
     $routes->add('update_user', '/api/user/{id}')
         ->methods(['PUT'])
@@ -94,4 +98,11 @@ return function (RoutingConfigurator $routes) {
     $routes->add('render_invoice', '/api/invoice/render')
         ->methods(['POST'])
         ->controller(\Leif\Api\RenderInvoiceAction::class);
+
+    $routes->add('app', '/{path}')
+        ->methods(['GET'])
+        ->controller(\Leif\Api\IndexAction::class)
+        ->requirements([
+            'path' => '.*',
+        ]);
 };

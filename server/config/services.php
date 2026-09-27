@@ -41,7 +41,7 @@ return static function (ContainerConfigurator $container) {
         ->tag('controller.service_arguments');
 
     $params
-        ->set('leif.token_ttl', 86_400);
+        ->set('leif.token_ttl', 7_200);
 
     $services
         ->set(\Leif\Security\TokenUserProvider::class)

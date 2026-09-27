@@ -46,7 +46,12 @@ export class FetchBackend implements HttpBackend {
         ...request.headers,
       },
       body: JSON.stringify(request.body),
+      credentials: "include",
     }).then(res => {
+      if (res.status >= 400) {
+        return Promise.reject(res);
+      }
+
       let message: PromiseLike<T>;
 
       switch (request.responseType) {
@@ -60,10 +65,6 @@ export class FetchBackend implements HttpBackend {
         default:
           message = res.json().then((x) => x, (err) => undefined);
           break;
-      }
-
-      if (res.status > 299) {
-        return message.then(d => Promise.reject(d));
       }
 
       return message;

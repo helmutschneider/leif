@@ -5,7 +5,6 @@ import {
   formatDate,
 } from './util';
 import { User, Workbook } from "./types";
-import { LoginForm } from "./login-form";
 import { FetchBackend, HttpBackend, LeifRequest } from "./http";
 import { SettingsPage } from "./settings-page";
 import { VouchersPage } from "./vouchers-page";
@@ -28,22 +27,7 @@ type State = {
   workbook: Workbook | undefined
 }
 
-const SESSION_STORAGE_USER_KEY = 'user';
-
-function tryGetUserFromSessionStorage(): User | undefined {
-  const json = window.sessionStorage.getItem(SESSION_STORAGE_USER_KEY);
-  let user: User | undefined;
-  try {
-    user = JSON.parse(json ?? '');
-  } catch { }
-  if (typeof user !== 'object') {
-    return undefined;
-  }
-  return user;
-}
-
 const CONTAINER_CLASS = 'container-xxl';
-const AUTHORIZATION_HEADER = 'Authorization';
 
 function createEmptyState(): State {
   return {
@@ -59,19 +43,15 @@ function createEmptyState(): State {
 const App: React.FC<Props> = props => {
   const [state, setState] = React.useState<State>({
     ...createEmptyState(),
-    user: tryGetUserFromSessionStorage(),
+    user: undefined,
   });
 
   function logout() {
-    setState(createEmptyState);
+    window.location.replace('/logout');
   }
 
   function http<T>(request: LeifRequest): PromiseLike<T> {
     const headers = { ...request.headers };
-
-    if (state.user) {
-      headers[AUTHORIZATION_HEADER] = state.user.token;
-    }
 
     return props.httpBackend.send({
       ...request,
@@ -99,46 +79,32 @@ const App: React.FC<Props> = props => {
     });
   }
 
-  React.useEffect(() => {
-    if (state.user) {
-      window.sessionStorage.setItem(SESSION_STORAGE_USER_KEY, JSON.stringify(state.user));
-    } else {
-      window.sessionStorage.removeItem(SESSION_STORAGE_USER_KEY);
-    }
-  }, [state.user]);
+  function reloadUser() {
+    http<User>({
+      method: 'GET',
+      url: '/api/user',
+    }).then(u => {
+      setState(s => {
+        return {
+          ...s,
+          user: u,
+        };
+      });
+    });
+  }
 
   React.useEffect(() => {
     if (state.user) {
       reloadWorkbook();
     }
-  }, [state.user, state.today]);
+  }, [state.user?.user_id, state.today]);
+
+  React.useEffect(() => {
+    reloadUser();
+  }, []);
 
   if (!state.user) {
-    return (
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-lg-4">
-            <div className="text-center">
-              <img
-                className="m-3"
-                style={{ borderRadius: '50%', width: '25%' }}
-                src="/leif.jpg"
-              />
-            </div>
-            <h3>Logga in</h3>
-            <LoginForm
-              http={http}
-              onLogin={user => {
-                setState({
-                  ...state,
-                  user: user,
-                });
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const workbook = state.workbook;

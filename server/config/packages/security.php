@@ -14,6 +14,7 @@ return App::config([
             'main' => [
                 'lazy' => true,
                 'provider' => 'leif.user_provider',
+                'entry_point' => \Leif\Security\EntryPoint::class,
                 'custom_authenticators' => [
                     \Leif\Security\TokenAuthenticator::class,
                 ],
@@ -21,13 +22,13 @@ return App::config([
         ],
         'access_control' => [
             [
-                'path' => '^/api/login',
+                'path' => '/login',
                 'roles' => [
                     AuthenticatedVoter::PUBLIC_ACCESS,
                 ],
             ],
             [
-                'path' => '^/api',
+                'path' => '^/',
                 'roles' => [
                     AuthenticatedVoter::IS_AUTHENTICATED_FULLY,
                 ],
