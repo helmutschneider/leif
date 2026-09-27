@@ -24,6 +24,8 @@ abstract class TestCase extends WebTestCase
             [
                 'user_id' => 1,
                 'username' => 'tester',
+
+                // test_password
                 'password_hash' => '$2y$13$UhljJ7JEcXRZBVRbY9xuxuAskVQhfDmgyI11ShDB.3gUFibbYXQmy',
                 'role' => 'ROLE_ADMIN',
                 'organization_id' => 1,
