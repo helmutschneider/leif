@@ -20,7 +20,9 @@ final class GetWorkbookTest extends TestCase
 
     public function testPreventsUnauthenticatedAccess(): void
     {
-        $this->client->request('GET', '/api/workbook');
+        $this->client->request('GET', '/api/workbook', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 

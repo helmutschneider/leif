@@ -476,7 +476,7 @@ export const VouchersPage: React.FC<Props> = props => {
                               event.stopPropagation();
 
                               window.open(
-                                `/api/attachment/${attachment.attachment_id}?token=${props.user.token}`,
+                                `/api/attachment/${attachment.attachment_id}`,
                                 '_blank'
                               );
                             }}

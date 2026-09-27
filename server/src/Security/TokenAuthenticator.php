@@ -1,9 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Leif\Security;
 
 use Leif\Security\TokenUserProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -18,6 +21,7 @@ final class TokenAuthenticator extends AbstractAuthenticator
 {
     const AUTH_HEADER_NAME = 'Authorization';
     const AUTH_QUERY_NAME = 'token';
+    const AUTH_COOKIE_NAME = 'token';
 
     readonly TokenUserProvider $userProvider;
 
@@ -29,7 +33,8 @@ final class TokenAuthenticator extends AbstractAuthenticator
     public function supports(Request $request): ?bool
     {
         return $request->query->has(static::AUTH_QUERY_NAME)
-            || $request->headers->has(static::AUTH_HEADER_NAME);
+            || $request->headers->has(static::AUTH_HEADER_NAME)
+            || $request->cookies->has(static::AUTH_COOKIE_NAME);
     }
 
     public function authenticate(Request $request): Passport
@@ -52,16 +57,13 @@ final class TokenAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $data = [
-            'message' => $exception->getMessageKey(),
-        ];
-
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return null;
     }
 
     private function getTokenFromRequest(Request $request): string
     {
         return $request->query->get(static::AUTH_QUERY_NAME, '')
-            ?: $request->headers->get(static::AUTH_HEADER_NAME, '');
+            ?: $request->headers->get(static::AUTH_HEADER_NAME, '')
+            ?: $request->cookies->get(static::AUTH_COOKIE_NAME, '');
     }
 }

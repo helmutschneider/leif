@@ -1,0 +1,43 @@
+{% extends "layout.twig" %}
+{% block body %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-4">
+            <div class="text-center">
+                <img class="m-3" style="border-radius: 50%; width: 25%" src="/leif.jpg" />
+            </div>
+            <h3>Logga in</h3>
+            <form method="POST" action="/login">
+                <div class="mb-3">
+                    <label class="form-label">Användarnamn</label>
+                    <input class="form-control form-control-lg"
+                        placeholder="Användarnamn"
+                        name="_username"
+                        type="text"
+                        value="{{ _username }}"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Lösenord</label>
+                    <input class="form-control form-control-lg" placeholder="Lösenord" name="_password"
+                        type="password" />
+                </div>
+                <div class="d-grid mb-3">
+                    <button class="btn btn-primary btn-lg" type="submit">
+                        OK
+                    </button>
+                </div>
+                {% if error %}
+                <div class="mb-3">
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

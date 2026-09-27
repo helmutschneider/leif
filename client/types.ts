@@ -50,8 +50,7 @@ export type Organization = {
 export type User = {
   user_id?: number
   username: string
-  role: string
-  token: string
+  roles: ReadonlyArray<string>
 }
 export type CurrencyCode =
   | 'SEK'

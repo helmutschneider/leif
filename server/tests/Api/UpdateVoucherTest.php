@@ -21,9 +21,11 @@ final class UpdateVoucherTest extends TestCase
         ];
     }
 
-    public function testPreventsUnauthenticatedAccess(): void
+    public function testPreventsUnauthenticatedAccessVoucher(): void
     {
-        $this->client->request('PUT', '/api/voucher/1');
+        $this->client->request('PUT', '/api/voucher/1', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
